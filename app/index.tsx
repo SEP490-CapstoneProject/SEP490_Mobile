@@ -1,10 +1,9 @@
-import { Text, View } from "react-native";
-
-
+import { Redirect } from "expo-router";
+import { View } from "react-native";
 const mainApp = () => {
   return(
-    <View>
-         <Text>Main App</Text>
+    <View style={{marginTop:50}}>
+         <Redirect href="/login" />
     </View>
   );
 }
