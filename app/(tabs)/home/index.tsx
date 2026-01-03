@@ -22,7 +22,7 @@ export default function Home() {
   const videoRefs = useRef<(Video | null)[]>([]);
 
   /* ======================
-     FETCH DATA (CHỈ 1 LẦN)
+     FETCH DATA
      ====================== */
   useEffect(() => {
     const loadJobs = async () => {
@@ -96,16 +96,7 @@ export default function Home() {
                   shouldPlay={index === 0}
                 />
               )}
-              <View
-                style={{
-                  position: "absolute",
-                  bottom: 20,
-                  left: 10,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  width: width - 25,
-                }}
-              >
+              <View style={styles.content}>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <Image
                     source={{ uri: job.companyAvatar }}
@@ -150,7 +141,10 @@ export default function Home() {
                 <View style={{ marginTop: -90 }}>
                   <Image
                     source={require("../../../assets/myApp/like.png")}
-                    style={[styles.iconRight, job.isFavorited ? { tintColor: '#FF4848' } : {}]}
+                    style={[
+                      styles.iconRight,
+                      job.isFavorited ? { tintColor: "#FF4848" } : {},
+                    ]}
                   />
                   <Image
                     source={require("../../../assets/myApp/connection1.png")}
@@ -158,7 +152,10 @@ export default function Home() {
                   />
                   <Image
                     source={require("../../../assets/myApp/bookmark.png")}
-                    style={[styles.iconRight, job.isSaved ? { tintColor: '#FFD700' } : {}]}
+                    style={[
+                      styles.iconRight,
+                      job.isSaved ? { tintColor: "#FFD700" } : {},
+                    ]}
                   />
                   <Image
                     source={require("../../../assets/myApp/share-.png")}
@@ -194,6 +191,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
+  },
+
+  content: {
+    position: "absolute",
+    bottom: 20,
+    left: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: width - 25,
   },
 
   media: {
