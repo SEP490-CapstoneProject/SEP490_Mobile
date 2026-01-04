@@ -31,8 +31,8 @@ export default function Profile() {
   ];
 
   const menuItems = [
-    { id: 1, label: "Đăng hộ sơ", icon: "postprofile.png" },
-    { id: 2, label: "Quản lý hộ sơ", icon: "manageprofile.png" },
+    { id: 1, label: "Đăng hồ sơ", icon: "postprofile.png" },
+    { id: 2, label: "Quản lý hồ sơ", icon: "manageprofile.png" },
     { id: 3, label: "Dữ liệu hiệu suất", icon: "statistics.png" },
     { id: 4, label: "Bài đăng cộng đồng", icon: "communitypost.png" },
     { id: 5, label: "Quan tâm", icon: "save.png" },
