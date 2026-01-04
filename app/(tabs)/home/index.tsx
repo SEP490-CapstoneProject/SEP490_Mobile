@@ -1,6 +1,7 @@
 import { fetchJobs, Job } from "@/services/home.api";
-import { ResizeMode, Video } from "expo-av";
-import { useEffect, useRef, useState } from "react";
+import { Audio, ResizeMode, Video } from "expo-av";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -17,13 +18,14 @@ export default function Home() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const router = useRouter();
 
   // refs cho video
   const videoRefs = useRef<(Video | null)[]>([]);
 
-  /* ======================
-     FETCH DATA
-     ====================== */
+
+  // FETCH DATA
+
   useEffect(() => {
     const loadJobs = async () => {
       try {
@@ -40,24 +42,43 @@ export default function Home() {
     loadJobs();
   }, []);
 
-  /* ======================
-     PLAY / PAUSE VIDEO
-     ====================== */
-  useEffect(() => {
-    videoRefs.current.forEach((video, index) => {
-      if (!video) return;
 
-      if (index === activeIndex) {
-        video.playAsync();
-      } else {
-        video.pauseAsync();
-      }
-    });
-  }, [activeIndex]);
+    // PLAY / PAUSE VIDEO
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
 
-  /* ======================
-     SCROLL END → SET INDEX
-     ====================== */
+      const autoPlay = async () => {
+        const video = videoRefs.current[activeIndex];
+        if (!video || !isActive) return;
+
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: false,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: false,
+        });
+
+        await video.setIsMutedAsync(false);
+        await video.setVolumeAsync(1.0);
+        await video.replayAsync(); 
+      };
+
+      autoPlay();
+
+      return () => {
+        isActive = false;
+        videoRefs.current.forEach(async (v) => {
+          if (!v) return;
+          await v.pauseAsync();
+          await v.setIsMutedAsync(true);
+        });
+      };
+    }, [activeIndex])
+  );
+
+
+   // SCROLL END → SET INDEX
   const onScrollEnd = (e: any) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setActiveIndex(index);
@@ -93,7 +114,7 @@ export default function Home() {
                   style={styles.media}
                   resizeMode={ResizeMode.CONTAIN}
                   isLooping
-                  shouldPlay={index === 0}
+                  isMuted={index !== activeIndex}
                 />
               )}
               <View style={styles.content}>
@@ -129,7 +150,15 @@ export default function Home() {
                         {job.employmentType}
                       </Text>
                     </View>
-                    <Pressable style={styles.letDetail}>
+                    <Pressable
+                      style={styles.letDetail}
+                      onPress={() =>
+                        router.push({
+                          pathname: "../home/detail",
+                          params: { postId: job.postId },
+                        })
+                      }
+                    >
                       <Text style={{ color: "#FFFFFF" }}>Xem chi tiết</Text>
                       <Image
                         source={require("../../../assets/myApp/upper-right-arrow.png")}
@@ -208,8 +237,8 @@ const styles = StyleSheet.create({
   },
 
   avata: {
-    width: 60,
-    height: 60,
+    width: 55,
+    height: 55,
     borderRadius: 32.5,
   },
   position: {
