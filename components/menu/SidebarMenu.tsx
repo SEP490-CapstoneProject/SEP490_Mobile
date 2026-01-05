@@ -79,7 +79,7 @@ export default function SidebarMenu({
       {/* Sidebar */}
       <View
         style={{
-          width: "70%",
+          width: "80%",
           backgroundColor: "#ffffff",
           paddingTop: 16,
           paddingHorizontal: 16,
@@ -139,6 +139,7 @@ export default function SidebarMenu({
                   flexDirection: "row",
                   alignItems: "center",
                   flex: 1,
+                  marginRight: 8,
                 }}
               >
                 <Image
@@ -153,10 +154,12 @@ export default function SidebarMenu({
                 />
                 <Text
                   style={{
-                    fontSize: 14,
-                    fontWeight: item.isLogout ? "600" : "500",
-                    color: item.isLogout ? "#FF4444" : "#333",
+                    fontSize: 15,
+                    fontWeight: item.isLogout ? "700" : "600",
+                    color: item.isLogout ? "#FF4444" : "#000",
+                    flex: 1,
                   }}
+                  numberOfLines={1}
                 >
                   {item.label}
                 </Text>

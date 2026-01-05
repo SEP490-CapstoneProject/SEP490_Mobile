@@ -42,14 +42,17 @@ export default function Profile() {
     { id: 5, label: "Quan tâm", icon: "save.png" },
   ];
 
+  // Kích thước item menu - có thể chỉnh dễ dàng
+  const itemSize = 95;
+
 
   return (
     <>
       <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
-      <View style={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: "#fff" ,marginTop:40}}>
+      <View style={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: "#fff" ,marginTop:36}}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: 18, fontWeight: "700", color: "#000" }}>
+          <Text style={{ fontSize: 20, fontWeight: "700", color: "#000" }}>
             Cá nhân
           </Text>
           <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
@@ -176,12 +179,13 @@ export default function Profile() {
       {/* Menu Items - 3+2 Grid */}
       <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
         {/* Row 1: 3 items */}
-        <View style={{ flexDirection: "row", gap: 8, justifyContent: "center" }}>
+        <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
           {menuItems.slice(0, 3).map((item) => (
             <TouchableOpacity
               key={item.id}
               style={{
-                width: "30%",
+                width: itemSize,
+                height: itemSize - 18,
                 backgroundColor: "#eff6ff",
                 borderRadius: 15,
                 paddingVertical: 14,
@@ -203,12 +207,13 @@ export default function Profile() {
           ))}
         </View>
         {/* Row 2: 2 items */}
-        <View style={{ flexDirection: "row", gap: 8, marginTop: 8, justifyContent: "center" }}>
+        <View style={{ flexDirection: "row", gap: 8 }}>
           {menuItems.slice(3, 5).map((item) => (
             <TouchableOpacity
               key={item.id}
               style={{
-                width: "30%",
+                width: itemSize,
+                height: itemSize - 18,
                 backgroundColor: "#eff6ff",
                 borderRadius: 15,
                 paddingVertical: 14,
