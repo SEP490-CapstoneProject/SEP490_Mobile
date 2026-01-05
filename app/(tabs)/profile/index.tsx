@@ -1,5 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import SidebarMenu from "../../../components/menu/SidebarMenu";
 
 // Import menu item icons
 const communitypostIcon = require("../../../assets/myApp/communitypost.png");
@@ -16,6 +18,8 @@ const iconMap = {
   "save.png": saveIcon,
 };
 export default function Profile() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Test data
   const user = {
     name: "An Nhiên",
@@ -40,7 +44,8 @@ export default function Profile() {
 
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <>
+      <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: "#fff" ,marginTop:40}}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
@@ -54,10 +59,14 @@ export default function Profile() {
                 style={{ width: 24, height: 24, tintColor: "#000000" }}
               />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity
+              style={{ width: 24, height: 24, justifyContent: "center", alignItems: "center" }}
+              onPress={() => setSidebarOpen(true)}
+            >
               <Image
                 source={require("../../../assets/myApp/menu.png")}
-                style={{ width: 22, height: 22, tintColor: "#000000" }}/>
+                style={{ width: 22, height: 22, tintColor: "#000000" }}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -266,5 +275,32 @@ export default function Profile() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+
+      <SidebarMenu
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onLogout={() => {
+          // TODO: Implement logout logic
+          console.log("Logout");
+          setSidebarOpen(false);
+        }}
+        onChangePassword={() => {
+          // TODO: Navigate to change password
+          console.log("Change Password");
+        }}
+        onPrivacyCenter={() => {
+          // TODO: Navigate to privacy center
+          console.log("Privacy Center");
+        }}
+        onSupportCenter={() => {
+          // TODO: Navigate to support center
+          console.log("Support Center");
+        }}
+        onTermsPolicy={() => {
+          // TODO: Navigate to terms and policy
+          console.log("Terms and Policy");
+        }}
+      />
+    </>
   );
 }
