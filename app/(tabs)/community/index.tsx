@@ -67,7 +67,7 @@ export default function Community() {
         </View>
       </View>
       {/* content */}
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <Text>Loading...</Text>
         ) : (
