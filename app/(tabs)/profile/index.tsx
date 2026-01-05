@@ -38,14 +38,11 @@ export default function Profile() {
     { id: 5, label: "Quan tâm", icon: "save.png" },
   ];
 
-  const focuses = [
-    { id: 1, label: "Quan tâm" },
-  ];
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
-      <View style={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: "#fff" }}>
+      <View style={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: "#fff" ,marginTop:40}}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontSize: 18, fontWeight: "700", color: "#000" }}>
             Cá nhân
@@ -89,7 +86,12 @@ export default function Profile() {
           <Text style={{ fontSize: 18, fontWeight: "700", color: "#000" }}>
             {user.name}
           </Text>
-          <View style={{ marginLeft: 8, width: 20, height: 20, borderRadius: 10, backgroundColor: "#e8e8e8" }} />
+          <TouchableOpacity style={{ marginLeft: 8, width: 50, height: 20, borderRadius: 8, backgroundColor: "#f0f0f0", justifyContent: "center", alignItems: "center" }}>
+            <Image
+              source={require("../../../assets/myApp/edit.png")}
+              style={{ width: 10, height: 10 }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -165,53 +167,58 @@ export default function Profile() {
       {/* Menu Items - 3+2 Grid */}
       <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
         {/* Row 1: 3 items */}
-        <View style={{ flexDirection: "row", gap: 12 }}>
+        <View style={{ flexDirection: "row", gap: 8, justifyContent: "center" }}>
           {menuItems.slice(0, 3).map((item) => (
             <TouchableOpacity
               key={item.id}
               style={{
-                flex: 1,
+                width: "30%",
                 backgroundColor: "#eff6ff",
-                borderRadius: 8,
-                paddingVertical: 20,
+                borderRadius: 15,
+                paddingVertical: 14,
+                paddingHorizontal: 8,
                 alignItems: "center",
                 justifyContent: "center",
+                borderWidth: 2,
+                borderColor: "#b0d4ff",
               }}
             >
               <Image
                 source={iconMap[item.icon]}
-                style={{ width: 32, height: 32, marginBottom: 8 }}
+                style={{ width: 26, height: 26, marginBottom: 8 }}
               />
-              <Text style={{ fontSize: 12, fontWeight: "600", color: "#000", textAlign: "center" }}>
+              <Text style={{ fontSize: 11, fontWeight: "600", color: "#000", textAlign: "center" }}>
                 {item.label}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
         {/* Row 2: 2 items */}
-        <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+        <View style={{ flexDirection: "row", gap: 8, marginTop: 8, justifyContent: "center" }}>
           {menuItems.slice(3, 5).map((item) => (
             <TouchableOpacity
               key={item.id}
               style={{
-                flex: 1,
+                width: "30%",
                 backgroundColor: "#eff6ff",
-                borderRadius: 8,
-                paddingVertical: 20,
+                borderRadius: 15,
+                paddingVertical: 14,
+                paddingHorizontal: 8,
                 alignItems: "center",
                 justifyContent: "center",
+                borderWidth: 2,
+                borderColor: "#b0d4ff",
               }}
             >
               <Image
                 source={iconMap[item.icon]}
-                style={{ width: 32, height: 32, marginBottom: 8 }}
+                style={{ width: 26, height: 26, marginBottom: 8 }}
               />
-              <Text style={{ fontSize: 12, fontWeight: "600", color: "#000", textAlign: "center" }}>
+              <Text style={{ fontSize: 11, fontWeight: "600", color: "#000", textAlign: "center" }}>
                 {item.label}
               </Text>
             </TouchableOpacity>
           ))}
-          <View style={{ flex: 1 }} />
         </View>
       </View>
 
@@ -234,24 +241,28 @@ export default function Profile() {
                 width: 40,
                 height: 40,
                 borderRadius: 20,
-                backgroundColor: "#e8f0ff",
-                justifyContent: "center",
-                alignItems: "center",
+                overflow: "hidden",
                 marginRight: 12,
               }}
             >
-              <Text style={{ fontSize: 20 }}>★</Text>
+              <Image
+                source={require("../../../assets/myApp/badge.png")}
+                style={{ width: 35, height: 35 }}
+                resizeMode="cover"
+              />
             </View>
             <View>
-              <Text style={{ fontSize: 14, fontWeight: "600", color: "#000" }}>
+              <Text style={{ fontSize: 13, fontWeight: "600", color: "#000" }}>
                 Gói Premium của tôi
               </Text>
-              <Text style={{ fontSize: 12, color: "#0066ff", marginTop: 2 }}>
+              <Text style={{ fontSize: 11, color: "#0066ff", marginTop: 2 }}>
                 Nâng cấp để mở khóa thêm các tính năng
               </Text>
             </View>
           </View>
-          <Text style={{ fontSize: 18, color: "#ccc" }}>›</Text>
+          <Image source={require("../../../assets/myApp/forward.png")}
+           style={{ width: 25, height: 25, paddingLeft: 5 }}
+           resizeMode="cover"/>
         </TouchableOpacity>
       </View>
     </ScrollView>
