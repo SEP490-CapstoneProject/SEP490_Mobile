@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import SidebarMenu from "../../../components/menu/SidebarMenu";
@@ -18,6 +19,7 @@ const iconMap = {
   "save.png": saveIcon,
 };
 export default function Profile() {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Test data
@@ -98,7 +100,10 @@ export default function Profile() {
           <Text style={{ fontSize: 18, fontWeight: "700", color: "#000" }}>
             {user.name}
           </Text>
-          <TouchableOpacity style={{ marginLeft: 8, width: 50, height: 20, borderRadius: 8, backgroundColor: "#f0f0f0", justifyContent: "center", alignItems: "center" }}>
+          <TouchableOpacity 
+            style={{ marginLeft: 8, width: 50, height: 20, borderRadius: 8, backgroundColor: "#f0f0f0", justifyContent: "center", alignItems: "center" }}
+            onPress={() => router.push("/(tabs)/profile/editProfile")}
+          >
             <Image
               source={require("../../../assets/myApp/edit.png")}
               style={{ width: 10, height: 10 }}
@@ -179,7 +184,7 @@ export default function Profile() {
       {/* Menu Items - 3+2 Grid */}
       <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
         {/* Row 1: 3 items */}
-        <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
+        <View style={{ flexDirection: "row", gap: 18, marginBottom: 8 }}>
           {menuItems.slice(0, 3).map((item) => (
             <TouchableOpacity
               key={item.id}
@@ -207,7 +212,7 @@ export default function Profile() {
           ))}
         </View>
         {/* Row 2: 2 items */}
-        <View style={{ flexDirection: "row", gap: 8 }}>
+        <View style={{ flexDirection: "row", gap: 18 }}>
           {menuItems.slice(3, 5).map((item) => (
             <TouchableOpacity
               key={item.id}
