@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Alert,
     Image,
@@ -10,6 +10,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { profileStorage } from "../../../services/profile.storage";
 
 const arrowIcon = require("../../../assets/myApp/arrow.png");
 const userIcon = require("../../../assets/myApp/user.png");
@@ -32,20 +33,45 @@ export default function EditProfile() {
     email: "hihihaha@gmail.com",
     phone: "0123456789",
   });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load profile data when component mounts
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const savedProfile = await profileStorage.getProfile();
+        if (savedProfile) {
+          setFormData({
+            displayName: savedProfile.displayName,
+            bio: savedProfile.bio,
+            email: savedProfile.email,
+            phone: savedProfile.phone,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfile();
+  }, []);
 
   const handleSave = async () => {
     try {
+      setIsLoading(true);
+
       // Validate form
       if (!formData.displayName.trim()) {
         Alert.alert("Lỗi", "Tên hiển thị không được để trống");
+        setIsLoading(false);
         return;
       }
       if (!formData.phone.trim()) {
         Alert.alert("Lỗi", "Số điện thoại không được để trống");
+        setIsLoading(false);
         return;
       }
 
-      // Save to localStorage (local storage in Expo)
+      // Save to AsyncStorage
       const profileData = {
         displayName: formData.displayName,
         bio: formData.bio,
@@ -54,16 +80,22 @@ export default function EditProfile() {
         lastUpdated: new Date().toISOString(),
       };
 
-      // Simulate saving to AsyncStorage
-      // In real app, use AsyncStorage
+      // Save using profileStorage service
+      await profileStorage.saveProfile(profileData);
+
       console.log("Saving profile data:", profileData);
 
       Alert.alert("Thành công", "Thông tin cá nhân đã được cập nhật");
 
       // Navigate back
-      router.back();
+      setTimeout(() => {
+        setIsLoading(false);
+        router.back();
+      }, 500);
     } catch (error) {
+      setIsLoading(false);
       Alert.alert("Lỗi", "Không thể lưu thông tin. Vui lòng thử lại");
+      console.error("Error saving profile:", error);
     }
   };
 
@@ -290,6 +322,7 @@ export default function EditProfile() {
         {/* Save Button */}
         <TouchableOpacity
           onPress={handleSave}
+          disabled={isLoading}
           style={{
             backgroundColor: COLORS.text,
             borderRadius: 8,
@@ -297,10 +330,11 @@ export default function EditProfile() {
             paddingHorizontal: 20,
             alignItems: "center",
             marginTop: 24,
+            opacity: isLoading ? 0.6 : 1,
           }}
         >
           <Text style={{ fontSize: 16, fontWeight: "700", color: "#fff" }}>
-            Lưu thay đổi
+            {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
           </Text>
         </TouchableOpacity>
       </View>
