@@ -188,6 +188,11 @@ export default function Profile() {
           {menuItems.slice(0, 3).map((item) => (
             <TouchableOpacity
               key={item.id}
+              onPress={() => {
+                if (item.id === 2) {
+                  router.push("/(tabs)/profile/manageProfile");
+                }
+              }}
               style={{
                 width: itemSize,
                 height: itemSize - 18,
@@ -216,6 +221,11 @@ export default function Profile() {
           {menuItems.slice(3, 5).map((item) => (
             <TouchableOpacity
               key={item.id}
+              onPress={() => {
+                if (item.id === 2) {
+                  router.push("/(tabs)/profile/manageProfile");
+                }
+              }}
               style={{
                 width: itemSize,
                 height: itemSize - 18,

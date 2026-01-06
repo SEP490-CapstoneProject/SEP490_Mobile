@@ -2,13 +2,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Alert,
-    Image,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { profileStorage } from "../../../services/profile.storage";
 
@@ -336,6 +336,7 @@ export default function EditProfile() {
           <Text style={{ fontSize: 16, fontWeight: "700", color: "#fff" }}>
             {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
           </Text>
+          
         </TouchableOpacity>
       </View>
     </ScrollView>
