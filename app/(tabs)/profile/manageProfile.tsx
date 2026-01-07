@@ -151,6 +151,7 @@ export default function ManageProfile() {
 
               {/* View Button */}
               <TouchableOpacity
+                onPress={() => router.push("/(tabs)/profile/viewPortfolio")}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
