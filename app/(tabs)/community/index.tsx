@@ -1,4 +1,5 @@
 import MediaGrid from "@/components/MediaGrid";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -13,7 +14,9 @@ import {
   fetchCommunityPosts,
 } from "../../../services/Comunity.api";
 
+
 export default function Community() {
+  const router = useRouter();
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -59,12 +62,12 @@ export default function Community() {
       {/* title */}
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Cộng đồng</Text>
-        <View style={styles.titleIconBackground}>
+        <Pressable style={styles.titleIconBackground} onPress={() => router.push("/community/createPost")} >
           <Image
             source={require("../../../assets/myApp/edit1.png")}
             style={styles.titleIcon}
           />
-        </View>
+        </Pressable>
       </View>
       {/* content */}
       <ScrollView showsVerticalScrollIndicator={false}>
