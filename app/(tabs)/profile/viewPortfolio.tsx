@@ -13,6 +13,9 @@ const workingtimeIcon = require("../../../assets/myApp/workingtime.png");
 const certificateIcon = require("../../../assets/myApp/certificate.png");
 const startupIcon = require("../../../assets/myApp/startup.png");
 const projectIcon = require("../../../assets/myApp/project.png");
+const cupIcon = require("../../../assets/myApp/cup.png");
+const unityIcon = require("../../../assets/myApp/unity.png");
+const hobbiesIcon = require("../../../assets/myApp/hobbies.png");
 
 export default function ViewPortfolio() {
   const router = useRouter();
@@ -79,18 +82,21 @@ export default function ViewPortfolio() {
         role: "Thiết kế UI, Frontend Developer",
         description: "Thiết kế và phát triển ứng dụng ngân hàng di động cho một tổng ngân hàng, tập trung vào bảo mật người dùng và trải nghiệm",
         skills: ["Figma", "React.JS", "TypeScript"],
+        image: require("../../../assets/myApp/project.png"),
       },
       {
         name: "Ứng dụng OmniBank",
         role: "Thiết kế UI, Frontend Developer",
         description: "Thiết kế giao diện và phát triển các tính năng chính cho ứng dụng ngân hàng",
         skills: ["Figma", "React", "TypeScript"],
+        image: require("../../../assets/myApp/project.png"),
       },
       {
         name: "Dự án E-Commerce",
         role: "Lead UX Designer",
         description: "Dẫn dắt thiết kế trải nghiệm cho nền tảng thương mại điện tử quy mô lớn",
         skills: ["Figma", "React", "Node.js"],
+        image: require("../../../assets/myApp/project.png"),
       },
     ],
   };
@@ -485,8 +491,8 @@ export default function ViewPortfolio() {
         </View>
 
         {/* Dự án nổi bật */}
-        <View style={{ marginBottom: 16 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+        <View style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16, paddingHorizontal: 0 }}>
             <View
               style={{
                 width: 32,
@@ -500,11 +506,12 @@ export default function ViewPortfolio() {
             >
               <Image
                 source={startupIcon}
-                style={{ width: 16, height: 16 }}
+                style={{ width: 18, height: 18 }}
                 resizeMode="contain"
+                
               />
             </View>
-            <Text style={{ fontSize: 14, fontWeight: "700", color: "#000" }}>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#000" }}>
               Dự án nổi bật
             </Text>
           </View>
@@ -517,42 +524,50 @@ export default function ViewPortfolio() {
             contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
           >
             {portfolio.projects.map((project, index) => (
-              <View
+              <TouchableOpacity
                 key={index}
                 style={{
-                  width: 320,
-                  backgroundColor: "#F9FAFB",
-                  borderRadius: 8,
+                  width: 280,
+                  backgroundColor: "#ffffff",
+                  borderRadius: 12,
                   overflow: "hidden",
                   borderWidth: 1,
                   borderColor: "#E5E7EB",
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.08,
+                  shadowRadius: 4,
+                  elevation: 3,
                 }}
               >
                 {/* Project Image */}
                 <View
                   style={{
                     width: "100%",
-                    height: 240,
+                    height: 160,
                     justifyContent: "center",
                     alignItems: "center",
+                    backgroundColor: "#f0f4f8",
+                    borderBottomWidth: 1,
+                    borderBottomColor: "#E5E7EB",
                   }}
                 >
                   <Image
-                    source={projectIcon}
-                    style={{ width: 300, height: 300 }}
-                    resizeMode="contain"
+                    source={project.image}
+                    style={{ width: "100%", height: "100%" }}
+                    resizeMode="cover"
                   />
                 </View>
 
                 {/* Project Content */}
-                <View style={{ padding: 12 }}>
-                  <Text style={{ fontSize: 13, fontWeight: "700", color: "#000", marginBottom: 4 }}>
+                <View style={{ padding: 14 }}>
+                  <Text style={{ fontSize: 13, fontWeight: "700", color: "#000", marginBottom: 6, lineHeight: 18 }}>
                     {project.name}
                   </Text>
-                  <Text style={{ fontSize: 11, fontWeight: "600", color: "#3B82F6", marginBottom: 8 }}>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: "#0066FF", marginBottom: 8 }}>
                     {project.role}
                   </Text>
-                  <Text style={{ fontSize: 11, color: "#666", lineHeight: 16, marginBottom: 8 }}>
+                  <Text style={{ fontSize: 11, color: "#666", lineHeight: 16, marginBottom: 10 }}>
                     {project.description}
                   </Text>
                   <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
@@ -560,23 +575,226 @@ export default function ViewPortfolio() {
                       <View
                         key={skillIndex}
                         style={{
-                          backgroundColor: "#E1EEFF",
+                          backgroundColor: "#EFF6FF",
                           paddingHorizontal: 8,
                           paddingVertical: 4,
-                          borderRadius: 4,
+                          borderRadius: 6,
                         }}
                       >
-                        <Text style={{ fontSize: 10, color: "#3B82F6", fontWeight: "500" }}>
+                        <Text style={{ fontSize: 10, color: "#0066FF", fontWeight: "500" }}>
                           {skill}
                         </Text>
                       </View>
                     ))}
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
+
+        {/* Danh hiệu & Giải thưởng Section */}
+        <View style={{ marginBottom: 24 }}>
+          {/* Header with Icon */}
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: "#3B82F6",
+                justifyContent: "center",
+                alignItems: "center",
+                marginRight: 12,
+              }}
+            >
+              <Image
+                source={cupIcon}
+                style={{ width: 18, height: 18 }}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#000" }}>
+              Danh hiệu & giải thưởng
+            </Text>
+          </View>
+
+          {/* Award Item 1 */}
+          <View style={{ backgroundColor: "#ffffff", borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: "#E5E7EB" }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: "#000", marginBottom: 4 }}>
+              Best employee of the year
+            </Text>
+            <Text style={{ fontSize: 12, color: "#0066ff", marginBottom: 8 }}>
+              2022. TechCorp Inc
+            </Text>
+            <Text style={{ fontSize: 11, color: "#666", lineHeight: 16 }}>
+              vinh danh nhân viên có đóng góp xuất sắc nhất cho sự phát triển sản phẩm của công ty
+            </Text>
+          </View>
+
+          {/* Award Item 2 */}
+          <View style={{ backgroundColor: "#ffffff", borderRadius: 12, padding: 16, borderWidth: 1, borderColor: "#E5E7EB" }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: "#000", marginBottom: 4 }}>
+              Giải nhi Hackathon Việt nam
+            </Text>
+            <Text style={{ fontSize: 12, color: "#0066ff", marginBottom: 8 }}>
+              2019. Hạng mục Fintech
+            </Text>
+            <Text style={{ fontSize: 11, color: "#666", lineHeight: 16 }}>
+              Phát triển ứng dụng quản lý chi tiêu cá nhân sử dụng AI để gợi ý tiết kiệm
+            </Text>
+          </View>
+        </View>
+
+        {/* Hoạt động Section */}
+        <View style={{ marginBottom: 24 }}>
+          {/* Header with Icon */}
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: "#3B82F6",
+                justifyContent: "center",
+                alignItems: "center",
+                marginRight: 12,
+              }}
+            >
+              <Image
+                source={unityIcon}
+                style={{ width: 18, height: 18 }}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#000" }}>
+              Hoạt động
+            </Text>
+          </View>
+
+          {/* Activity Item 1 */}
+          <View style={{ backgroundColor: "#ffffff", borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: "#E5E7EB" }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: "#000", marginBottom: 4 }}>
+              Diễn giả tại TechMeeUp Hà Nội
+            </Text>
+            <Text style={{ fontSize: 12, color: "#0066ff", marginBottom: 8 }}>
+              Tháng 8/2022
+            </Text>
+            <Text style={{ fontSize: 11, color: "#666", lineHeight: 16 }}>
+              Chia sẻ về chủ đề "Xây dựng Design System hiệu quả cho Startup" với sự tham gia của hơn 2000 lập trình viên và designer
+            </Text>
+          </View>
+
+          {/* Activity Item 2 */}
+          <View style={{ backgroundColor: "#ffffff", borderRadius: 12, padding: 16, borderWidth: 1, borderColor: "#E5E7EB" }}>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: "#000", marginBottom: 4 }}>
+              Tình nguyện viên "Máy tính cho em"
+            </Text>
+            <Text style={{ fontSize: 12, color: "#0066ff", marginBottom: 8 }}>
+              2021
+            </Text>
+            <Text style={{ fontSize: 11, color: "#666", lineHeight: 16 }}>
+              Tham gia quyên góp và sửa chữa máy tính cũ để tặng cho học sinh nghèo vùng cao học trực tuyến
+            </Text>
+          </View>
+        </View>
+
+        {/* Sở thích cá nhân Section */}
+        <View style={{ marginBottom: 32 }}>
+          {/* Header with Icon */}
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: "#3B82F6",
+                justifyContent: "center",
+                alignItems: "center",
+                marginRight: 12,
+              }}
+            >
+              <Image
+                source={hobbiesIcon}
+                style={{ width: 18, height: 18 }}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#000" }}>
+              Sở thích cá nhân
+            </Text>
+          </View>
+
+          {/* Hobby Categories */}
+          <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: 20,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderWidth: 1,
+                borderColor: "#ddd",
+              }}
+            >
+              <Text style={{ fontSize: 12, fontWeight: "600", color: "#000" }}>
+                Bóng đá
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: 20,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderWidth: 1,
+                borderColor: "#ddd",
+              }}
+            >
+              <Text style={{ fontSize: 12, fontWeight: "600", color: "#000" }}>
+                Nghe nhạc
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: 20,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderWidth: 1,
+                borderColor: "#ddd",
+              }}
+            >
+              <Text style={{ fontSize: 12, fontWeight: "600", color: "#000" }}>
+                Đọc truyện
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Intro Section */}
+          <View style={{ backgroundColor: "#EFF6FF", borderRadius: 12, padding: 16 }}>
+            <Text style={{ fontSize: 14, fontWeight: "600", color: "#000", marginBottom: 12 }}>
+              Người giới thiệu
+            </Text>
+            <View style={{ backgroundColor: "#f0f4f8", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+              <Text style={{ fontSize: 12, fontWeight: "600", color: "#000", marginBottom: 4 }}>
+                Nguyễn Thị Minh Hằng
+              </Text>
+              <Text style={{ fontSize: 11, color: "#0066ff", marginBottom: 4 }}>
+                Head of Marketing - NTD Tech
+              </Text>
+              <Text style={{ fontSize: 11, color: "#666" }}>
+                hang.nguyen@gmail.com
+              </Text>
+              <Text style={{ fontSize: 11, color: "#666" }}>
+                0988 123 456
+              </Text>
+            </View>
+          </View>
+        </View>
+        
       </View>
     </ScrollView>
   );

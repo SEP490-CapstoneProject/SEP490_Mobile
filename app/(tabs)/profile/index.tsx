@@ -11,6 +11,11 @@ const postprofileIcon = require("../../../assets/myApp/postprofile.png");
 const saveIcon = require("../../../assets/myApp/save.png");
 const statisticsIcon = require("../../../assets/myApp/statistics.png");
 
+// Import achievement icons
+const cupIcon = require("../../../assets/myApp/cup.png");
+const unityIcon = require("../../../assets/myApp/unity.png");
+const hobbiesIcon = require("../../../assets/myApp/hobbies.png");
+
 const iconMap = {
   "postprofile.png": postprofileIcon,
   "manageprofile.png": manageprofileIcon,
