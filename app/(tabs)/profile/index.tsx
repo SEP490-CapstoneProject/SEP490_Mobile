@@ -11,6 +11,11 @@ const postprofileIcon = require("../../../assets/myApp/postprofile.png");
 const saveIcon = require("../../../assets/myApp/save.png");
 const statisticsIcon = require("../../../assets/myApp/statistics.png");
 
+// Import achievement icons
+const cupIcon = require("../../../assets/myApp/cup.png");
+const unityIcon = require("../../../assets/myApp/unity.png");
+const hobbiesIcon = require("../../../assets/myApp/hobbies.png");
+
 const iconMap = {
   "postprofile.png": postprofileIcon,
   "manageprofile.png": manageprofileIcon,
@@ -188,6 +193,11 @@ export default function Profile() {
           {menuItems.slice(0, 3).map((item) => (
             <TouchableOpacity
               key={item.id}
+              onPress={() => {
+                if (item.id === 2) {
+                  router.push("/(tabs)/profile/manageProfile");
+                }
+              }}
               style={{
                 width: itemSize,
                 height: itemSize - 18,
@@ -216,6 +226,11 @@ export default function Profile() {
           {menuItems.slice(3, 5).map((item) => (
             <TouchableOpacity
               key={item.id}
+              onPress={() => {
+                if (item.id === 2) {
+                  router.push("/(tabs)/profile/manageProfile");
+                }
+              }}
               style={{
                 width: itemSize,
                 height: itemSize - 18,
