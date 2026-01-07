@@ -30,6 +30,7 @@ export const COMMUNITY_POSTS_MOCK: CommunityPost[] = [
       "Chúng tôi đang tìm kiếm 5 ứng viên Senior UX/UI Designer với mức lương và đãi ngộ hấp dẫn.",
     media: [
       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+      "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
     ],
     link: "https://careers.google.com/jobs",
     favoriteCount: 25,
