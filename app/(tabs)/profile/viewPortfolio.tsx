@@ -81,21 +81,21 @@ export default function ViewPortfolio() {
         name: "Ứng dụng ngân hàng số OmniBank",
         role: "Thiết kế UI, Frontend Developer",
         description: "Thiết kế và phát triển ứng dụng ngân hàng di động cho một tổng ngân hàng, tập trung vào bảo mật người dùng và trải nghiệm",
-        skills: ["Figma", "React.JS", "TypeScript"],
+        skills: ["Github", "Figma", "App"],
         image: require("../../../assets/myApp/project.png"),
       },
       {
         name: "Ứng dụng OmniBank",
         role: "Thiết kế UI, Frontend Developer",
         description: "Thiết kế giao diện và phát triển các tính năng chính cho ứng dụng ngân hàng",
-        skills: ["Figma", "React", "TypeScript"],
+        skills: ["Github", "Figma", "App"],
         image: require("../../../assets/myApp/project.png"),
       },
       {
         name: "Dự án E-Commerce",
         role: "Lead UX Designer",
         description: "Dẫn dắt thiết kế trải nghiệm cho nền tảng thương mại điện tử quy mô lớn",
-        skills: ["Figma", "React", "Node.js"],
+        skills: ["Github", "Figma", "App"],
         image: require("../../../assets/myApp/project.png"),
       },
     ],
@@ -158,12 +158,12 @@ export default function ViewPortfolio() {
             {/* Name + Job Title */}
             <View style={{ flex: 1, justifyContent: "flex-start" }}>
               {/* Name */}
-              <Text style={{ fontSize: 16, fontWeight: "700", color: "#000", marginBottom: 4 }}>
+              <Text style={{ fontSize: 20, fontWeight: "700", color: "#000", marginBottom: 4 }}>
                 {portfolio.name}
               </Text>
 
               {/* Job Title */}
-              <Text style={{ fontSize: 14, fontWeight: "600", color: "#3B82F6" }}>
+              <Text style={{ fontSize: 12, fontWeight: "600", color: "#3B82F6" }}>
                 {portfolio.title}
               </Text>
             </View>
@@ -171,7 +171,7 @@ export default function ViewPortfolio() {
 
           {/* Description - Full Width */}
           <View style={{ marginBottom: 12 }}>
-            <Text style={{ fontSize: 12, color: "#666", lineHeight: 16 }}>
+            <Text style={{ fontSize: 14, color: "#666", lineHeight: 16 }}>
               {portfolio.description}
             </Text>
           </View>
@@ -544,7 +544,7 @@ export default function ViewPortfolio() {
                 <View
                   style={{
                     width: "100%",
-                    height: 160,
+                    height: 250,
                     justifyContent: "center",
                     alignItems: "center",
                     backgroundColor: "#f0f4f8",
@@ -775,23 +775,21 @@ export default function ViewPortfolio() {
 
           {/* Intro Section */}
           <View style={{ backgroundColor: "#EFF6FF", borderRadius: 12, padding: 16 }}>
-            <Text style={{ fontSize: 14, fontWeight: "600", color: "#000", marginBottom: 12 }}>
+            <Text style={{ fontSize: 30, fontWeight: "600", color: "#000", marginBottom: 12 , textAlign: "center"}}>
               Người giới thiệu
             </Text>
-            <View style={{ backgroundColor: "#f0f4f8", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-              <Text style={{ fontSize: 12, fontWeight: "600", color: "#000", marginBottom: 4 }}>
+              <Text style={{ fontSize: 13, color: "#6B7280", marginBottom: 4, textAlign: "center" }}>
                 Nguyễn Thị Minh Hằng
               </Text>
-              <Text style={{ fontSize: 11, color: "#0066ff", marginBottom: 4 }}>
+              <Text style={{ fontSize: 13, color: "#6B7280", marginBottom: 4 , textAlign: "center"}}>
                 Head of Marketing - NTD Tech
               </Text>
-              <Text style={{ fontSize: 11, color: "#666" }}>
+              <Text style={{ fontSize: 13, color: "#3B82F6", textAlign: "center" }}>
                 hang.nguyen@gmail.com
               </Text>
-              <Text style={{ fontSize: 11, color: "#666" }}>
+              <Text style={{ fontSize: 13, color: "#6B7280", textAlign: "center" }}>
                 0988 123 456
               </Text>
-            </View>
           </View>
         </View>
         
