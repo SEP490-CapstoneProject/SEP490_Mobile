@@ -194,7 +194,9 @@ export default function Profile() {
             <TouchableOpacity
               key={item.id}
               onPress={() => {
-                if (item.id === 2) {
+                if (item.id === 1) {
+                  router.push("/(tabs)/profile/postProfile");
+                } else if (item.id === 2) {
                   router.push("/(tabs)/profile/manageProfile");
                 }
               }}
@@ -227,7 +229,9 @@ export default function Profile() {
             <TouchableOpacity
               key={item.id}
               onPress={() => {
-                if (item.id === 2) {
+                if (item.id === 1) {
+                  router.push("/(tabs)/profile/postProfile");
+                } else if (item.id === 2) {
                   router.push("/(tabs)/profile/manageProfile");
                 }
               }}
