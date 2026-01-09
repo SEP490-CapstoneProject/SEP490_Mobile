@@ -40,7 +40,7 @@ export default function ManageProfile() {
           <TouchableOpacity>
             <Image
               source={edit1Icon}
-              style={{ width: 24, height: 24, tintColor: "#3B82F6" }}
+              style={{ width: 22, height: 22, tintColor: "#3B82F6" }}
               resizeMode="contain"
             />
           </TouchableOpacity>
@@ -108,12 +108,12 @@ export default function ManageProfile() {
               {/* Name + Job Title */}
               <View style={{ flex: 1, justifyContent: "flex-start" }}>
                 {/* Name */}
-                <Text style={{ fontSize: 16, fontWeight: "700", color: "#000", marginBottom: 4 }}>
+                <Text style={{ fontSize: 20, fontWeight: "700", color: "#000", marginBottom: 4 }}>
                   {profile.name}
                 </Text>
 
                 {/* Job Title */}
-                <Text style={{ fontSize: 14, fontWeight: "600", color: "#3B82F6" }}>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: "#3B82F6" }}>
                   {profile.title}
                 </Text>
               </View>
@@ -121,7 +121,7 @@ export default function ManageProfile() {
 
             {/* Description - Full Width */}
             <View style={{ marginBottom: 12 }}>
-              <Text style={{ fontSize: 12, color: "#666", lineHeight: 16 }}>
+              <Text style={{ fontSize: 14, color: "#666", lineHeight: 16 }}>
                 {profile.description}
               </Text>
             </View>
