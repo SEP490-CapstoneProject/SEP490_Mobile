@@ -130,6 +130,7 @@ export default function ManageProfile() {
             <View style={{ flexDirection: "row", gap: 6, marginTop: 12, justifyContent: "flex-end", flexWrap: "wrap" }}>
               {/* Share Button */}
               <TouchableOpacity
+                onPress={() => router.push("/(tabs)/profile/shareProfile")}
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
