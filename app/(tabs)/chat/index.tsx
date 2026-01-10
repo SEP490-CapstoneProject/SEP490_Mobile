@@ -71,7 +71,21 @@ export default function Chat() {
         )}
         {/** room mess */}
         {messRoom.map((room) => (
-          <Pressable style={styles.chat} key={room.roomId}>
+          <Pressable
+            style={styles.chat}
+            key={room.roomId}
+            onPress={() => {
+              router.push({
+                pathname: `/(tabs)/chat/room`,
+                params: {
+                  roomId: room.roomId,
+                  name: room.name,
+                  avatar: room.avatar,
+                  role: room.role,
+                },
+              } as any);
+            }}
+          >
             <Image source={{ uri: room.avatar }} style={styles.avata} />
             {room.role === "COMPANY" && (
               <Image
