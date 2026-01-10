@@ -1,4 +1,5 @@
 import { UserNotification, fetchUserNotifications } from "@/services/chat.api";
+import { formatTimeAgo } from "@/services/setTime";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -19,28 +20,6 @@ export default function Notification() {
     fetchUserNotifications(1).then(setNotifications);
   }, []);
 
-  const formatTimeAgo = (dateString: string): string => {
-    const now = new Date();
-    const date = new Date(dateString);
-
-    const diffMs = now.getTime() - date.getTime();
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHour = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHour / 24);
-
-    if (diffSec < 60) return "Vừa xong";
-    if (diffMin < 60) return `${diffMin} phút trước`;
-    if (diffHour < 24) return `${diffHour} giờ trước`;
-    if (diffDay === 1) return "Hôm qua";
-    if (diffDay < 7) return `${diffDay} ngày trước`;
-
-    return date.toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
 
 
   return (
@@ -86,17 +65,46 @@ export default function Notification() {
               </View>
             )}
             {item.type === "CONNECTION_ACCEPTED" && (
-              <Pressable style={styles.bntBody}>
+              <Pressable
+                style={styles.bntBody}
+                onPress={() => {
+                  router.push({
+                    pathname: `/(tabs)/chat/room`,
+                    params: {
+                      roomId: item.objectId,
+                      name: item.company?.name,
+                      avatar: item.company?.avatar,
+                      role: item.company?.role,
+                    },
+                  } as any);
+                }}
+              >
                 <Text style={styles.bntText}>Bắt đầu trò chuyện</Text>
               </Pressable>
             )}
             {item.type === "JOB_INVITATION" && (
-              <Pressable style={styles.bntBody}>
+              <Pressable
+                style={styles.bntBody}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/home/detail",
+                    params: { postId: item.objectId },
+                  })
+                }
+              >
                 <Text style={styles.bntText}>Xem công việc</Text>
               </Pressable>
             )}
             {item.type === "PORTFOLIO_APPROVED" && (
-              <Pressable style={styles.bntBody}>
+              <Pressable
+                style={styles.bntBody}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/profile/viewPortfolio",
+                    params: { postId: item.objectId },
+                  })
+                }
+              >
                 <Text style={styles.bntText}>Xem hồ sơ</Text>
               </Pressable>
             )}

@@ -47,10 +47,21 @@ export type UserNotification = {
     id: number;
     name: string;
     avatar: string;
+    role: "COMPANY" | "USER"
   };
 };
 
 
+// message room
+
+export type MessageItem = {
+  id: number;
+  messageRoomId: number;
+  userId: number;
+  content: string;
+  createdAt: string;
+  status: "SENT" | "DELIVERED" | "READ";
+};
 
 
 
@@ -123,7 +134,8 @@ const MOCK_USER_NOTIFICATION_DETAILS: UserNotification[] = [
       id: 201,
       name: "Google Inc.",
       avatar:
-        "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
+        "https://img.timviec.com.vn/2020/10/cong-ty-google-1.jpg",
+      role: "COMPANY",
     },
   },
 
@@ -142,6 +154,7 @@ const MOCK_USER_NOTIFICATION_DETAILS: UserNotification[] = [
       name: "Meta",
       avatar:
         "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
+      role: "COMPANY",
     },
   },
 
@@ -152,7 +165,7 @@ const MOCK_USER_NOTIFICATION_DETAILS: UserNotification[] = [
     title: "Lời mời ứng tuyển",
     content: "Bạn được mời ứng tuyển vào vị trí Frontend Developer.",
     type: "JOB_INVITATION",
-    objectId: 501,
+    objectId: 3,
     createdAt: "2026-01-06T20:00:00",
     isRead: false,
     company: {
@@ -160,6 +173,7 @@ const MOCK_USER_NOTIFICATION_DETAILS: UserNotification[] = [
       name: "FPT Software",
       avatar:
         "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
+      role: "COMPANY",
     },
   },
 
@@ -189,6 +203,7 @@ const MOCK_USER_NOTIFICATION_DETAILS: UserNotification[] = [
       name: "Amazon",
       avatar:
         "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
+      role: "COMPANY",
     },
   },
 
@@ -216,3 +231,65 @@ export async function fetchUserNotifications(
   );
 }
 
+const MOCK_MESSAGES: MessageItem[] = [
+  {
+    id: 1,
+    messageRoomId: 2,
+    userId: 201,
+    content: "Xin chào! Cảm ơn bạn đã quan tâm tới Google Inc.",
+    createdAt: "2026-01-08T10:00:00",
+    status: "READ",
+  },
+  {
+    id: 2,
+    messageRoomId: 2,
+    userId: 1,
+    content: "Xin chào, tôi muốn ứng tuyển vào công ty bạn.",
+    createdAt: "2026-01-08T10:01:00",
+    status: "READ",
+  },
+  {
+    id: 3,
+    messageRoomId: 2,
+    userId: 1,
+    content: "Bạn đã xem hồ sơ của tôi chưa?",
+    createdAt: "2026-01-08T10:01:30",
+    status: "DELIVERED",
+  },
+];
+
+
+export async function fetchMessagesByRoom(
+  roomId: number
+): Promise<MessageItem[]> {
+  await new Promise((r) => setTimeout(r, 300));
+
+  return MOCK_MESSAGES
+    .filter((m) => m.messageRoomId === roomId)
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() -
+        new Date(b.createdAt).getTime()
+    );
+}
+
+
+/*export async function sendMessage(
+  roomId: number,
+  userId: number,
+  content: string
+): Promise<MessageItem> {
+  await new Promise((r) => setTimeout(r, 200));
+
+  const newMessage: MessageItem = {
+    id: Date.now(),
+    messageRoomId: roomId,
+    userId,
+    content,
+    createdAt: new Date().toISOString(),
+    status: "SENT",
+  };
+
+  MOCK_MESSAGES.push(newMessage);
+  return newMessage;
+} */
