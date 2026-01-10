@@ -199,6 +199,8 @@ export default function Profile() {
                   router.push("/(tabs)/profile/postProfile");
                 } else if (item.id === 2) {
                   router.push("/(tabs)/profile/manageProfile");
+                } else if (item.id === 4) {
+                  router.push("/(tabs)/profile/communityPost");
                 }
               }}
               style={{
@@ -234,6 +236,8 @@ export default function Profile() {
                   router.push("/(tabs)/profile/postProfile");
                 } else if (item.id === 2) {
                   router.push("/(tabs)/profile/manageProfile");
+                } else if (item.id === 4) {
+                  router.push("/(tabs)/profile/communityPost");
                 }
               }}
               style={{
