@@ -57,6 +57,9 @@ export default function Community() {
     });
   };
 
+
+  
+
   return (
     <View style={styles.container}>
       {/* title */}

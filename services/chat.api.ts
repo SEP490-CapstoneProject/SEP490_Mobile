@@ -26,42 +26,31 @@ export type NotificationType =
   | "CONNECTION_REJECTED"
   | "PROFILE_VIEWED"
   | "JOB_INVITATION"
-  | "MESSAGE_RECEIVED"
   | "PORTFOLIO_APPROVED"
-  | "SYSTEM_ANNOUNCEMENT";
+  | "SYSTEM_ANNOUNCEMENT"
+  | "COMMUNITY_POST_REPORTED"
+  | "PORTFOLIO_REPORTED";
 
 
-export type NotificationDetail = {
+
+export type UserNotification = {
   id: number;
+  userId: number;
   title: string;
   content: string;
   type: NotificationType;
+  objectId?: number;
   createdAt: string;
+  isRead: boolean;
 
-  // Có thể null tuỳ loại
   company?: {
     id: number;
     name: string;
     avatar: string;
-    verified: boolean;
-  };
-
-  user?: {
-    id: number;
-    name: string;
-    avatar: string;
-  };
-
-  action?: {
-    label: string;
-    type:
-      | "START_CHAT"
-      | "VIEW_PROFILE"
-      | "VIEW_JOB"
-      | "VIEW_PORTFOLIO";
-    targetId: number;
   };
 };
+
+
 
 
 
@@ -118,137 +107,112 @@ export async function fetchMessageRooms(
 }
 
 
-const MOCK_NOTIFICATION_DETAILS: Record<number, NotificationDetail> = {
-  //  Kết nối được chấp nhận
-  1: {
+const MOCK_USER_NOTIFICATION_DETAILS: UserNotification[] = [
+  //  Kết nối thành công → mở chat (messageRoomId = 2)
+  {
     id: 1,
+    userId: 1,
     title: "Kết nối thành công",
     content:
       "Yêu cầu kết nối với nhà tuyển dụng của bạn đã được đồng ý. Từ giờ bạn có thể trò chuyện.",
     type: "CONNECTION_ACCEPTED",
+    objectId: 2,
     createdAt: "2026-01-08T09:30:00",
+    isRead: false,
     company: {
       id: 201,
       name: "Google Inc.",
-      avatar: "https://logo.clearbit.com/google.com",
-      verified: true,
-    },
-    action: {
-      label: "Bắt đầu trò chuyện",
-      type: "START_CHAT",
-      targetId: 2, // roomId
+      avatar:
+        "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
     },
   },
 
-  // Kết nối bị từ chối
-  2: {
-    id: 2,
-    title: "Kết nối chưa thành công",
-    content:
-      "Nhà tuyển dụng đã từ chối yêu cầu kết nối của bạn.",
-    type: "CONNECTION_REJECTED",
-    createdAt: "2026-01-07T18:10:00",
+  //  Hồ sơ được xem → mở profile (profileId = 1)
+  {
+    id: 3,
+    userId: 1,
+    title: "Hồ sơ được quan tâm",
+    content: "Nhà tuyển dụng đã xem hồ sơ của bạn.",
+    type: "PROFILE_VIEWED",
+    objectId: 1,
+    createdAt: "2026-01-07T15:45:00",
+    isRead: true,
     company: {
       id: 202,
       name: "Meta",
-      avatar: "https://logo.clearbit.com/meta.com",
-      verified: true,
+      avatar:
+        "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
     },
   },
 
-  // Hồ sơ được xem
-  3: {
-    id: 3,
-    title: "Hồ sơ được quan tâm",
-    content:
-      "Google Inc. đã xem hồ sơ của bạn.",
-    type: "PROFILE_VIEWED",
-    createdAt: "2026-01-07T15:45:00",
-    company: {
-      id: 201,
-      name: "Google Inc.",
-      avatar: "https://logo.clearbit.com/google.com",
-      verified: true,
-    },
-    action: {
-      label: "Xem hồ sơ",
-      type: "VIEW_PROFILE",
-      targetId: 1, 
-    },
-  },
-
-  // Lời mời ứng tuyển
-  4: {
+  //  Lời mời ứng tuyển → mở job (jobId = 501)
+  {
     id: 4,
+    userId: 1,
     title: "Lời mời ứng tuyển",
-    content:
-      "Bạn được mời ứng tuyển vào vị trí Frontend Developer.",
+    content: "Bạn được mời ứng tuyển vào vị trí Frontend Developer.",
     type: "JOB_INVITATION",
+    objectId: 501,
     createdAt: "2026-01-06T20:00:00",
+    isRead: false,
     company: {
       id: 203,
       name: "FPT Software",
-      avatar: "https://logo.clearbit.com/fpt.com.vn",
-      verified: true,
-    },
-    action: {
-      label: "Xem công việc",
-      type: "VIEW_JOB",
-      targetId: 501, // jobId
+      avatar:
+        "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
     },
   },
 
-  // Tin nhắn mới
-  5: {
+  //  Portfolio được duyệt → mở portfolio (portfolioId = 99)
+  {
     id: 5,
-    title: "Tin nhắn mới",
-    content:
-      "Bạn có một tin nhắn mới từ nhà tuyển dụng.",
-    type: "MESSAGE_RECEIVED",
-    createdAt: "2026-01-08T10:05:00",
-    company: {
-      id: 201,
-      name: "Google Inc.",
-      avatar: "https://logo.clearbit.com/google.com",
-      verified: true,
-    },
-    action: {
-      label: "Mở chat",
-      type: "START_CHAT",
-      targetId: 2, // roomId
-    },
-  },
-
-  // Portfolio được duyệt
-  6: {
-    id: 6,
+    userId: 1,
     title: "Portfolio được duyệt",
-    content:
-      "Portfolio của bạn đã được kiểm duyệt và hiển thị công khai.",
+    content: "Portfolio của bạn đã được kiểm duyệt và hiển thị công khai.",
     type: "PORTFOLIO_APPROVED",
+    objectId: 99,
     createdAt: "2026-01-05T09:00:00",
-    action: {
-      label: "Xem portfolio",
-      type: "VIEW_PORTFOLIO",
-      targetId: 99, // portfolioId
+    isRead: true,
+  },
+
+  //  Kết nối bị từ chối → không điều hướng
+  {
+    id: 6,
+    userId: 1,
+    title: "Kết nối chưa thành công",
+    content: "Nhà tuyển dụng đã từ chối yêu cầu kết nối của bạn.",
+    type: "CONNECTION_REJECTED",
+    createdAt: "2026-01-04T18:30:00",
+    isRead: true,
+    company: {
+      id: 204,
+      name: "Amazon",
+      avatar:
+        "https://athgroup.vn/upload/blocks/thumb_1920x0/ATH-kh%C3%A1m-ph%C3%A1-logo-amazon-1.jpg",
     },
   },
 
-  // Thông báo hệ thống
-  7: {
+  //  Thông báo hệ thống → chỉ đọc
+  {
     id: 7,
+    userId: 1,
     title: "Thông báo hệ thống",
-    content:
-      "SkillSnap sẽ bảo trì hệ thống vào 22:00 tối nay.",
+    content: "SkillSnap sẽ bảo trì hệ thống vào 22:00 tối nay.",
     type: "SYSTEM_ANNOUNCEMENT",
     createdAt: "2026-01-04T08:00:00",
+    isRead: false,
   },
-};
+];
 
-export async function fetchNotificationDetail(
-  notificationId: number
-): Promise<NotificationDetail> {
+
+
+export async function fetchUserNotifications(
+  userId: number
+): Promise<UserNotification[]> {
   await new Promise((r) => setTimeout(r, 300));
 
-  return MOCK_NOTIFICATION_DETAILS[notificationId];
+  return MOCK_USER_NOTIFICATION_DETAILS.filter(
+    (n) => n.userId === userId
+  );
 }
+
