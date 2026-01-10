@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -308,10 +309,17 @@ export default function Profile() {
       <SidebarMenu
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        onLogout={() => {
-          // TODO: Implement logout logic
-          console.log("Logout");
-          setSidebarOpen(false);
+        onLogout={async () => {
+          try {
+            // Xoá dữ liệu người dùng từ AsyncStorage
+            await AsyncStorage.multiRemove(["authToken", "userData", "userSession"]);
+            
+            // Điều hướng về trang login
+            router.replace("/(auth)/login");
+            setSidebarOpen(false);
+          } catch (error) {
+            console.error("Logout error:", error);
+          }
         }}
         onChangePassword={() => {
           // TODO: Navigate to change password
