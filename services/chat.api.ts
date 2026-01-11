@@ -232,31 +232,156 @@ export async function fetchUserNotifications(
 }
 
 const MOCK_MESSAGES: MessageItem[] = [
+  /*ROOM 2 – GOOGLE INC (201)*/
   {
     id: 1,
     messageRoomId: 2,
     userId: 201,
     content: "Xin chào! Cảm ơn bạn đã quan tâm tới Google Inc.",
-    createdAt: "2026-01-08T10:00:00",
+    createdAt: "2026-01-08T09:00:00",
     status: "READ",
   },
   {
     id: 2,
     messageRoomId: 2,
     userId: 1,
-    content: "Xin chào, tôi muốn ứng tuyển vào công ty bạn.",
-    createdAt: "2026-01-08T10:01:00",
+    content: "Xin chào anh/chị, tôi muốn ứng tuyển vào vị trí Frontend Developer.",
+    createdAt: "2026-01-08T09:01:20",
     status: "READ",
   },
   {
     id: 3,
     messageRoomId: 2,
+    userId: 201,
+    content: "Rất vui được gặp bạn. Bạn có thể gửi CV hoặc portfolio không?",
+    createdAt: "2026-01-08T09:02:10",
+    status: "READ",
+  },
+  {
+    id: 4,
+    messageRoomId: 2,
     userId: 1,
-    content: "Bạn đã xem hồ sơ của tôi chưa?",
-    createdAt: "2026-01-08T10:01:30",
+    content: "Dạ có ạ, đây là portfolio của tôi trên GitHub.",
+    createdAt: "2026-01-08T09:03:00",
+    status: "READ",
+  },
+  {
+    id: 5,
+    messageRoomId: 2,
+    userId: 1,
+    content: "Tôi cũng có kinh nghiệm với React Native và Expo.",
+    createdAt: "2026-01-08T09:03:40",
+    status: "READ",
+  },
+  {
+    id: 6,
+    messageRoomId: 2,
+    userId: 201,
+    content: "Rất tốt. Chúng tôi đang cần người có kinh nghiệm mobile.",
+    createdAt: "2026-01-08T09:05:10",
+    status: "READ",
+  },
+  {
+    id: 7,
+    messageRoomId: 2,
+    userId: 201,
+    content: "Bạn có thể tham gia phỏng vấn online vào tuần sau không?",
+    createdAt: "2026-01-08T09:06:00",
+    status: "DELIVERED",
+  },
+  {
+    id: 8,
+    messageRoomId: 2,
+    userId: 1,
+    content: "Dạ được ạ, tuần sau tôi khá rảnh.",
+    createdAt: "2026-01-08T09:07:30",
+    status: "DELIVERED",
+  },
+  {
+    id: 9,
+    messageRoomId: 2,
+    userId: 1,
+    content: "Anh/chị cho tôi hỏi hình thức phỏng vấn như thế nào?",
+    createdAt: "2026-01-11T09:08:10",
+    status: "DELIVERED",
+  },
+  {
+    id: 10,
+    messageRoomId: 2,
+    userId: 201,
+    content: "Phỏng vấn online qua Google Meet, kéo dài khoảng 45 phút.",
+    createdAt: "2026-01-11T10:09:00",
+    status: "DELIVERED",
+  },
+  {
+    id: 11,
+    messageRoomId: 2,
+    userId: 1,
+    content: "Dạ vâng, cảm ơn anh/chị rất nhiều!",
+    createdAt: "2026-01-11T11:10:15",
+    status: "DELIVERED",
+  },
+  {
+    id: 12,
+    messageRoomId: 2,
+    userId: 201,
+    content: "Không có gì. Hẹn gặp bạn trong buổi phỏng vấn nhé 😊",
+    createdAt: "2026-01-11T12:11:00",
+    status: "DELIVERED",
+  },
+
+  /*ROOM 3 – NGƯỜI DÙNG THƯỜNG (305) */
+  {
+    id: 21,
+    messageRoomId: 3,
+    userId: 305,
+    content: "Chào bạn, mình thấy bạn cũng làm frontend à?",
+    createdAt: "2026-01-12T08:30:00",
+    status: "READ",
+  },
+  {
+    id: 22,
+    messageRoomId: 3,
+    userId: 1,
+    content: "Ừ đúng rồi, mình chủ yếu làm React và React Native.",
+    createdAt: "2026-01-12T08:31:10",
+    status: "READ",
+  },
+  {
+    id: 23,
+    messageRoomId: 3,
+    userId: 305,
+    content: "Hay quá, mình đang làm project cá nhân, cần thêm người.",
+    createdAt: "2026-01-12T08:32:00",
+    status: "DELIVERED",
+  },
+  {
+    id: 24,
+    messageRoomId: 3,
+    userId: 1,
+    content: "Project về mảng gì vậy?",
+    createdAt: "2026-01-12T08:33:20",
+    status: "DELIVERED",
+  },
+  {
+    id: 25,
+    messageRoomId: 3,
+    userId: 305,
+    content: "App mobile nhỏ, kiểu quản lý công việc, dùng Expo.",
+    createdAt: "2026-01-12T08:34:00",
+    status: "DELIVERED",
+  },
+  {
+    id: 26,
+    messageRoomId: 3,
+    userId: 1,
+    content: "Nghe hợp đó, để mình xem thử nhé 👍",
+    createdAt: "2026-01-12T08:35:10",
     status: "DELIVERED",
   },
 ];
+
+
 
 
 export async function fetchMessagesByRoom(
@@ -268,10 +393,11 @@ export async function fetchMessagesByRoom(
     .filter((m) => m.messageRoomId === roomId)
     .sort(
       (a, b) =>
-        new Date(a.createdAt).getTime() -
-        new Date(b.createdAt).getTime()
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
     );
 }
+
 
 
 /*export async function sendMessage(

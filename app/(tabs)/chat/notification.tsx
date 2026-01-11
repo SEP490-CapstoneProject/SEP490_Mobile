@@ -20,8 +20,6 @@ export default function Notification() {
     fetchUserNotifications(1).then(setNotifications);
   }, []);
 
-
-
   return (
     <View style={styles.container}>
       {/** header */}
@@ -45,7 +43,11 @@ export default function Notification() {
         data={notifications}
         keyExtractor={(item) => item.id.toString()}
         inverted
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{
+          padding: 16,
+          flexGrow: 1,
+          justifyContent: "flex-end",
+        }}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <View style={styles.notificationItem}>
