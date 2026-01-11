@@ -5,7 +5,7 @@
  * to save and retrieve user profile data locally
  */
 
-import { profileStorage, UserProfile } from '../services/profile.storage';
+import { profileApi, UserProfile } from './profile.api';
 
 // Example test data
 const testProfile: UserProfile = {
@@ -25,12 +25,12 @@ export const runStorageTests = async () => {
 
     // Test 1: Save profile
     console.log("Test 1: Saving profile...");
-    await profileStorage.saveProfile(testProfile);
+    await profileApi.saveProfile(testProfile);
     console.log("✓ Profile saved successfully\n");
 
     // Test 2: Retrieve profile
     console.log("Test 2: Retrieving profile...");
-    const retrievedProfile = await profileStorage.getProfile();
+    const retrievedProfile = await profileApi.getProfile();
     console.log("✓ Profile retrieved successfully");
     console.log("Profile data:", retrievedProfile);
     console.log();
@@ -43,25 +43,25 @@ export const runStorageTests = async () => {
       phone: "0987654321",
       lastUpdated: new Date().toISOString(),
     };
-    await profileStorage.saveProfile(updatedProfile);
-    const updated = await profileStorage.getProfile();
+    await profileApi.saveProfile(updatedProfile);
+    const updated = await profileApi.getProfile();
     console.log("✓ Profile updated successfully");
     console.log("Updated data:", updated);
     console.log();
 
     // Test 4: Check profile existence
     console.log("Test 4: Checking profile existence...");
-    const exists = await profileStorage.profileExists();
+    const exists = await profileApi.profileExists();
     console.log(`✓ Profile exists: ${exists}\n`);
 
     // Test 5: Clear profile
     console.log("Test 5: Clearing profile...");
-    await profileStorage.clearProfile();
+    await profileApi.clearProfile();
     console.log("✓ Profile cleared successfully\n");
 
     // Test 6: Verify profile is cleared
     console.log("Test 6: Verifying profile is cleared...");
-    const clearedProfile = await profileStorage.getProfile();
+    const clearedProfile = await profileApi.getProfile();
     console.log(`✓ Profile after clear: ${clearedProfile === null ? "null" : "exists"}\n`);
 
     console.log("========== ALL TESTS PASSED ==========");

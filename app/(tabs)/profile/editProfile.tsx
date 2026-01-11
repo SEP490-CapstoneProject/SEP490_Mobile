@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -10,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { profileStorage } from "../../../services/profile.storage";
+import { profileApi } from "../../../services/profile.api";
 
 const arrowIcon = require("../../../assets/myApp/arrow.png");
 const userIcon = require("../../../assets/myApp/user.png");
@@ -27,6 +28,7 @@ const COLORS = {
 
 export default function EditProfile() {
   const router = useRouter();
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     displayName: "An Nhiên",
     bio: "Developer Backend",
@@ -39,7 +41,7 @@ export default function EditProfile() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const savedProfile = await profileStorage.getProfile();
+        const savedProfile = await profileApi.getProfile();
         if (savedProfile) {
           setFormData({
             displayName: savedProfile.displayName,
@@ -47,6 +49,10 @@ export default function EditProfile() {
             email: savedProfile.email,
             phone: savedProfile.phone,
           });
+          // Load saved avatar if exists
+          if (savedProfile.avatarUri) {
+            setAvatarUri(savedProfile.avatarUri);
+          }
         }
       } catch (error) {
         console.error("Error loading profile:", error);
@@ -54,6 +60,69 @@ export default function EditProfile() {
     };
     loadProfile();
   }, []);
+
+  const handleUploadAvatar = async () => {
+    try {
+      Alert.alert(
+        "Chọn ảnh đại diện",
+        "Chọn nguồn ảnh",
+        [
+          {
+            text: "Thư viện ảnh",
+            onPress: async () => {
+              const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (permission.granted) {
+                const result = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.8,
+                });
+
+                if (!result.canceled && result.assets[0]) {
+                  const selectedUri = result.assets[0].uri;
+                  setAvatarUri(selectedUri);
+                  Alert.alert("Thành công", "Ảnh đã được chọn thành công");
+                }
+              } else {
+                Alert.alert("Cảnh báo", "Bạn cần cấp quyền truy cập thư viện ảnh");
+              }
+            },
+            style: "default",
+          },
+          {
+            text: "Chụp ảnh",
+            onPress: async () => {
+              const permission = await ImagePicker.requestCameraPermissionsAsync();
+              if (permission.granted) {
+                const result = await ImagePicker.launchCameraAsync({
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.8,
+                });
+
+                if (!result.canceled && result.assets[0]) {
+                  const selectedUri = result.assets[0].uri;
+                  setAvatarUri(selectedUri);
+                  Alert.alert("Thành công", "Ảnh chụp đã được lưu");
+                }
+              } else {
+                Alert.alert("Cảnh báo", "Bạn cần cấp quyền truy cập camera");
+              }
+            },
+            style: "default",
+          },
+          {
+            text: "Hủy",
+            style: "cancel",
+          },
+        ]
+      );
+    } catch (error) {
+      Alert.alert("Lỗi", "Không thể tải ảnh. Vui lòng thử lại");
+      console.error("Error uploading avatar:", error);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -77,11 +146,12 @@ export default function EditProfile() {
         bio: formData.bio,
         email: formData.email,
         phone: formData.phone,
+        avatarUri: avatarUri || undefined,
         lastUpdated: new Date().toISOString(),
       };
 
-      // Save using profileStorage service
-      await profileStorage.saveProfile(profileData);
+      // Save using profileApi service
+      await profileApi.saveProfile(profileData);
 
       console.log("Saving profile data:", profileData);
 
@@ -149,9 +219,18 @@ export default function EditProfile() {
             backgroundColor: "#7ec88e",
           }}
         >
-          <MaterialCommunityIcons name="account" size={60} color="#fff" />
+          {avatarUri ? (
+            <Image
+              source={{ uri: avatarUri }}
+              style={{ width: 100, height: 100 }}
+              resizeMode="cover"
+            />
+          ) : (
+            <MaterialCommunityIcons name="account" size={60} color="#fff" />
+          )}
         </View>
         <TouchableOpacity
+          onPress={handleUploadAvatar}
           style={{
             paddingVertical: 8,
             paddingHorizontal: 12,

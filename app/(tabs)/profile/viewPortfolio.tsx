@@ -12,7 +12,6 @@ const graduationIcon = require("../../../assets/myApp/graduation.png");
 const workingtimeIcon = require("../../../assets/myApp/workingtime.png");
 const certificateIcon = require("../../../assets/myApp/certificate.png");
 const startupIcon = require("../../../assets/myApp/startup.png");
-const projectIcon = require("../../../assets/myApp/project.png");
 const cupIcon = require("../../../assets/myApp/cup.png");
 const unityIcon = require("../../../assets/myApp/unity.png");
 const hobbiesIcon = require("../../../assets/myApp/hobbies.png");
@@ -207,6 +206,7 @@ export default function ViewPortfolio() {
           <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
             {/* Share Button */}
             <TouchableOpacity
+              onPress={() => router.push("/(tabs)/profile/shareProfile")}
               style={{
                 flex: 1,
                 flexDirection: "row",
@@ -681,14 +681,14 @@ export default function ViewPortfolio() {
               Tháng 8/2022
             </Text>
             <Text style={{ fontSize: 11, color: "#666", lineHeight: 16 }}>
-              Chia sẻ về chủ đề "Xây dựng Design System hiệu quả cho Startup" với sự tham gia của hơn 2000 lập trình viên và designer
+              Chia sẻ về chủ đề &quot;Xây dựng Design System hiệu quả cho Startup&quot; với sự tham gia của hơn 2000 lập trình viên và designer
             </Text>
           </View>
 
           {/* Activity Item 2 */}
           <View style={{ backgroundColor: "#ffffff", borderRadius: 12, padding: 16, borderWidth: 1, borderColor: "#E5E7EB" }}>
             <Text style={{ fontSize: 13, fontWeight: "600", color: "#000", marginBottom: 4 }}>
-              Tình nguyện viên "Máy tính cho em"
+              Tình nguyện viên &quot;Máy tính cho em&quot;
             </Text>
             <Text style={{ fontSize: 12, color: "#0066ff", marginBottom: 8 }}>
               2021

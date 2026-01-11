@@ -12,18 +12,15 @@ const postprofileIcon = require("../../../assets/myApp/postprofile.png");
 const saveIcon = require("../../../assets/myApp/save.png");
 const statisticsIcon = require("../../../assets/myApp/statistics.png");
 
-// Import achievement icons
-const cupIcon = require("../../../assets/myApp/cup.png");
-const unityIcon = require("../../../assets/myApp/unity.png");
-const hobbiesIcon = require("../../../assets/myApp/hobbies.png");
-
 const iconMap = {
   "postprofile.png": postprofileIcon,
   "manageprofile.png": manageprofileIcon,
   "statistics.png": statisticsIcon,
   "communitypost.png": communitypostIcon,
   "save.png": saveIcon,
-};
+} as const;
+
+type IconKey = keyof typeof iconMap;
 export default function Profile() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -217,7 +214,7 @@ export default function Profile() {
               }}
             >
               <Image
-                source={iconMap[item.icon]}
+                source={iconMap[item.icon as IconKey]}
                 style={{ width: 26, height: 26, marginBottom: 8 }}
               />
               <Text style={{ fontSize: 11, fontWeight: "600", color: "#000", textAlign: "center" }}>
@@ -254,7 +251,7 @@ export default function Profile() {
               }}
             >
               <Image
-                source={iconMap[item.icon]}
+                source={iconMap[item.icon as IconKey]}
                 style={{ width: 26, height: 26, marginBottom: 8 }}
               />
               <Text style={{ fontSize: 11, fontWeight: "600", color: "#000", textAlign: "center" }}>

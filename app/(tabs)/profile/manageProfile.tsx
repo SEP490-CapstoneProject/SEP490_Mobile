@@ -13,7 +13,7 @@ const avatarIcon = require("../../../assets/myApp/avatar.png");
 
 export default function ManageProfile() {
   const router = useRouter();
-  const [profiles, setProfiles] = useState([
+  const [profiles] = useState([
     {
       id: 1,
       name: "An Nhiên",

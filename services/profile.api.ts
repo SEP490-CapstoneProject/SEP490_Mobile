@@ -5,12 +5,13 @@ export interface UserProfile {
   bio: string;
   email: string;
   phone: string;
+  avatarUri?: string;
   lastUpdated: string;
 }
 
 const STORAGE_KEY = 'user_profile';
 
-export const profileStorage = {
+export const profileApi = {
   // Save profile data
   saveProfile: async (profile: UserProfile): Promise<void> => {
     try {
@@ -59,4 +60,4 @@ export const profileStorage = {
   },
 };
 
-export default profileStorage;
+export default profileApi;

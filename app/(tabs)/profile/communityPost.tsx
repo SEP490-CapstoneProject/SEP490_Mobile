@@ -16,7 +16,7 @@ export default function CommunityPost() {
   const posts = [
     {
       id: 1,
-      author: "Phạm Cường",
+      author: "Nguyễn Phạm An Nhiên",
       time: "30 phút trước",
       description: "Chúng mình đang tìm kiếm Freelancer để tham gia các dự án công nghệ đa dạng (web, mobile, thiết kế, nội dung...).",
       image: projectImageIcon,
@@ -24,7 +24,7 @@ export default function CommunityPost() {
     },
     {
       id: 2,
-      author: "Phạm Cường",
+      author: "Nguyễn Phạm An Nhiên",
       time: "1 giờ trước",
       description: "Tìm kiếm developer React Native có kinh nghiệm cho dự án startup...",
       image: projectImageIcon,
@@ -32,7 +32,7 @@ export default function CommunityPost() {
     },
     {
       id: 3,
-      author: "Phạm Cường",
+      author: "Nguyễn Phạm An Nhiên",
       time: "2 giờ trước",
       description: "Cần designer UI/UX cho website e-commerce...",
       image: projectImageIcon,

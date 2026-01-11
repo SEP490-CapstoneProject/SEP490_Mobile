@@ -17,7 +17,7 @@ export default function PostProfile() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [skills, setSkills] = useState(["Design", "Thiết kế UI", "Figma", "Tạo mẫu", "Nhiếp ảnh"]);
-  const [attachments, setAttachments] = useState([]);
+  const [attachments] = useState([]);
 
   const handleAddSkill = () => {
     Alert.alert("Thêm kỹ năng", "Nhập kỹ năng mới", [
@@ -77,7 +77,7 @@ export default function PostProfile() {
     Alert.alert("Thành công", "Hồ sơ của bạn đã được đăng");
   };
 
-  const removeSkill = (index) => {
+  const removeSkill = (index: number) => {
     setSkills(skills.filter((_, i) => i !== index));
   };
 
