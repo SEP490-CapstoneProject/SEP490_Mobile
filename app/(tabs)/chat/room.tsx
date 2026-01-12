@@ -52,10 +52,24 @@ export default function ChatRoom() {
             </Pressable>
             <Text style={styles.name}>{name}</Text>
           </View>
-          <Image
-            source={require("../../../assets/myApp/list.png")}
-            style={styles.headerIcon}
-          />
+          <Pressable
+            onPress={() => {
+              router.push({
+                pathname: `/(tabs)/chat/detail`,
+                params: {
+                  roomId: roomId,
+                  name: name,
+                  avatar: avatar,
+                  role: role,
+                },
+              });
+            }}
+          >
+            <Image
+              source={require("../../../assets/myApp/list.png")}
+              style={styles.headerIcon}
+            />
+          </Pressable>
         </View>
         {/** body */}
         <FlatList
