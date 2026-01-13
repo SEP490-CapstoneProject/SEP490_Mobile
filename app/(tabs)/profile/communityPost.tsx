@@ -21,30 +21,15 @@ export default function CommunityPost() {
       description: "Chúng mình đang tìm kiếm Freelancer để tham gia các dự án công nghệ đa dạng (web, mobile, thiết kế, nội dung...).",
       image: projectImageIcon,
       likes: 25,
-    },
-    {
-      id: 2,
-      author: "Nguyễn Phạm An Nhiên",
-      time: "1 giờ trước",
-      description: "Tìm kiếm developer React Native có kinh nghiệm cho dự án startup...",
-      image: projectImageIcon,
-      likes: 18,
-    },
-    {
-      id: 3,
-      author: "Nguyễn Phạm An Nhiên",
-      time: "2 giờ trước",
-      description: "Cần designer UI/UX cho website e-commerce...",
-      image: projectImageIcon,
-      likes: 42,
-    },
+    }
+   
   ];
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={{ paddingTop: 16, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: "#fff", marginTop: 36 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <TouchableOpacity onPress={() => router.back()}>
             <Image source={arrowIcon}
              style={{ width: 20, height: 20 }}
@@ -76,9 +61,9 @@ export default function CommunityPost() {
         {posts.map((post) => (
           <View key={post.id} style={{ marginBottom: 20 }}>
             {/* Post Container */}
-            <View style={{ backgroundColor: "#fff", overflow: "hidden", borderWidth: 0 }}>
+            <View style={{ backgroundColor: "#fff", overflow: "hidden", borderWidth: 1, borderColor: "#d1d5db" }}>
               {/* Post Header */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 16, paddingTop: 12 }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 16, paddingTop: 4 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
                   {/* Avatar */}
                   <View
@@ -115,14 +100,14 @@ export default function CommunityPost() {
               </View>
 
               {/* Description */}
-              <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
-                <Text style={{ fontSize: 13, color: "#333", lineHeight: 18 }}>
+              <View style={{ paddingHorizontal: 16, paddingTop: 4 , marginTop:4}}>
+                <Text style={{ fontSize: 14, color: "#333", lineHeight: 18 }}>
                   {post.description}
                 </Text>
               </View>
 
               {/* Post Image */}
-              <TouchableOpacity style={{ marginTop: 6, borderRadius: 0, overflow: "hidden", height: 250, justifyContent: "center", alignItems: "center" }}>
+              <TouchableOpacity style={{ marginTop: 1, borderRadius: 0, overflow: "hidden", height: 250, justifyContent: "center", alignItems: "center" }}>
                 <Image
                   source={post.image}
                   style={{ width: "100%", height: "100%" }}
@@ -137,9 +122,10 @@ export default function CommunityPost() {
                   alignItems: "center",
                   gap: 30,
                   paddingHorizontal: 16,
-                  paddingVertical: 12,
+                  paddingVertical: 2,
                   borderTopWidth: 0,
                   marginTop: 0,
+                  marginBottom: 1
                 }}
               >
                 {/* Like Button */}
