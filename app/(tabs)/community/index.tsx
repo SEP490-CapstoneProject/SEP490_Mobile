@@ -14,7 +14,6 @@ import {
   fetchCommunityPosts,
 } from "../../../services/Comunity.api";
 
-
 export default function Community() {
   const router = useRouter();
   const [posts, setPosts] = useState<CommunityPost[]>([]);
@@ -57,15 +56,15 @@ export default function Community() {
     });
   };
 
-
-  
-
   return (
     <View style={styles.container}>
       {/* title */}
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Cộng đồng</Text>
-        <Pressable style={styles.titleIconBackground} onPress={() => router.push("/community/createPost")} >
+        <Pressable
+          style={styles.titleIconBackground}
+          onPress={() => router.push("/community/createPost")}
+        >
           <Image
             source={require("../../../assets/myApp/edit1.png")}
             style={styles.titleIcon}
@@ -135,8 +134,29 @@ export default function Community() {
                       post.isFavorited ? { tintColor: "#FF4848" } : {},
                     ]}
                   />
-                  <Text style={styles.textFavoriteCount}>{post.favoriteCount}</Text>
+                  <Text style={styles.textFavoriteCount}>
+                    {post.favoriteCount}
+                  </Text>
                 </View>
+                <Pressable
+                  style={styles.favoriteCount}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/community/comment",
+                      params: {
+                        postId: post.id,
+                      },
+                    })
+                  }
+                >
+                  <Image
+                    source={require("../../../assets/myApp/message.png")}
+                    style={styles.footerIcon}
+                  />
+                  <Text style={styles.textFavoriteCount}>
+                    {post.commentCount}
+                  </Text>
+                </Pressable>
                 <Image
                   source={require("../../../assets/myApp/bookmark.png")}
                   style={[
@@ -160,8 +180,9 @@ export default function Community() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
     position: "relative",
+    backgroundColor: "#FFFFFF",
+    paddingTop: 40,
   },
   titleContainer: {
     flexDirection: "row",
@@ -269,8 +290,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   footerIcon: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
     tintColor: "#cbd2dcff",
   },
   favoriteCount: {
@@ -278,8 +299,8 @@ const styles = StyleSheet.create({
     gap: 3,
     alignItems: "center",
   },
-  textFavoriteCount:{
+  textFavoriteCount: {
     color: "#6B7280",
     fontSize: 13,
-  }
+  },
 });
