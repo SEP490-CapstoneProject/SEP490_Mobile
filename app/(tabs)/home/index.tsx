@@ -23,7 +23,6 @@ export default function Home() {
   // refs cho video
   const videoRefs = useRef<(Video | null)[]>([]);
 
-
   // FETCH DATA
 
   useEffect(() => {
@@ -42,8 +41,7 @@ export default function Home() {
     loadJobs();
   }, []);
 
-
-    // PLAY / PAUSE VIDEO
+  // PLAY / PAUSE VIDEO
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -61,7 +59,7 @@ export default function Home() {
 
         await video.setIsMutedAsync(false);
         await video.setVolumeAsync(1.0);
-        await video.replayAsync(); 
+        await video.replayAsync();
       };
 
       autoPlay();
@@ -74,11 +72,10 @@ export default function Home() {
           await v.setIsMutedAsync(true);
         });
       };
-    }, [activeIndex])
+    }, [activeIndex]),
   );
 
-
-   // SCROLL END → SET INDEX
+  // SCROLL END → SET INDEX
   const onScrollEnd = (e: any) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setActiveIndex(index);
@@ -167,14 +164,7 @@ export default function Home() {
                     </Pressable>
                   </View>
                 </View>
-                <View style={{ marginTop: -90 }}>
-                  <Image
-                    source={require("../../../assets/myApp/like.png")}
-                    style={[
-                      styles.iconRight,
-                      job.isFavorited ? { tintColor: "#FF4848" } : {},
-                    ]}
-                  />
+                <View style={{ marginTop: -120 }}>
                   <Image
                     source={require("../../../assets/myApp/connection1.png")}
                     style={styles.iconRight}
@@ -277,8 +267,8 @@ const styles = StyleSheet.create({
   },
 
   iconRight: {
-    width: 34,
-    height: 34,
-    marginBottom: 30,
+    width: 30,
+    height: 30,
+    marginBottom: 70,
   },
 });
