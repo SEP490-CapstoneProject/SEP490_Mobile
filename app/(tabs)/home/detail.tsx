@@ -50,12 +50,6 @@ export default function Detail() {
         <View style={styles.iconRight}>
           <View style={styles.backgroundIcon}>
             <Image
-              source={require("../../../assets/myApp/heartA (1).png")}
-              style={styles.icon}
-            />
-          </View>
-          <View style={styles.backgroundIcon}>
-            <Image
               source={require("../../../assets/myApp/share_black.png")}
               style={styles.icon}
             />
@@ -178,7 +172,10 @@ export default function Detail() {
             <Text style={{ color: "white" }}>Tham gia ứng tuyển</Text>
           </Pressable>
           <Pressable style={styles.bntDotFooter}>
-             <Image source={require("../../../assets/myApp/dots.png")} style={{ width: 30, height: 30 }} />
+            <Image
+              source={require("../../../assets/myApp/dots.png")}
+              style={{ width: 30, height: 30 }}
+            />
           </Pressable>
         </View>
       </ScrollView>
@@ -324,7 +321,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  footerContent:{
+  footerContent: {
     marginTop: 20,
     alignSelf: "center",
     marginBottom: 30,
@@ -334,7 +331,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  bntFooterContent:{
+  bntFooterContent: {
     backgroundColor: "#3B82F6",
     width: 250,
     height: 40,
@@ -343,7 +340,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  bntDotFooter:{
+  bntDotFooter: {
     width: 40,
     height: 40,
     justifyContent: "center",
@@ -352,5 +349,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFF6FF",
     borderWidth: 1,
     borderColor: "#E2E8F0",
-  }
+  },
 });
