@@ -2,14 +2,14 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import MediaGrid from "../../../components/MediaGrid";
 
@@ -82,6 +82,17 @@ export default function createPost() {
             style={styles.iconFooter}
           />
           <Text style={styles.bntTextFooter}> Thêm ảnh / Video</Text>
+        </Pressable>
+        <View style={styles.divider} />
+        <Pressable
+          style={styles.bntFooter}
+          onPress={() => router.push("/(tabs)/profile")}
+        >
+          <Image
+            source={require("../../../assets/myApp/resume.png")}
+            style={styles.iconFooter}
+          />
+          <Text style={styles.bntTextFooter}> Hồ sơ</Text>
         </Pressable>
       </View>
 
@@ -160,7 +171,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFF6FF",
     paddingVertical: 15,
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-around",
   },
   iconFooter: {
     width: 30,
@@ -174,6 +185,11 @@ const styles = StyleSheet.create({
   bntTextFooter: {
     color: "#3B82F6",
     fontSize: 16,
+  },
+  divider: {
+    width: 2,
+    height: 30,
+    backgroundColor: "#E2E8F0",
   },
 
   modalOverlay: {
