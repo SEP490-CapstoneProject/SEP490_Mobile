@@ -18,7 +18,13 @@ const tabs = [
     label: "Tin nhắn",
     path: "/chat" as const,
     icon: require("../assets/myApp/message.png"),
-    size: 24,
+    size: 25,
+  },
+  {
+    label: "Thông báo",
+    path: "/notification" as const,
+    icon: require("../assets/myApp/bell.png"),
+    size: 23,
   },
   {
     label: "Cá nhân",
