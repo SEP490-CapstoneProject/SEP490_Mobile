@@ -1,9 +1,4 @@
-import {
-  MessageRoomItem,
-  NotificationItem,
-  fetchMessageRooms,
-  fetchNotification,
-} from "@/services/chat.api";
+import { MessageRoomItem, fetchMessageRooms } from "@/services/chat.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -16,12 +11,10 @@ import {
 } from "react-native";
 
 export default function Chat() {
-  const [noti, setNoti] = useState<NotificationItem | null>(null);
   const [messRoom, setMessRoom] = useState<MessageRoomItem[]>([]);
   const router = useRouter();
 
   useEffect(() => {
-    fetchNotification(1).then(setNoti);
     fetchMessageRooms(1).then(setMessRoom);
   }, []);
 
@@ -40,35 +33,6 @@ export default function Chat() {
       </View>
       {/** body */}
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/** system notification */}
-        {noti && (
-          <Pressable
-            style={styles.chat}
-            onPress={() =>
-              router.push({
-                pathname: "/(tabs)/chat/notification",
-                params: {
-                  notificationId: noti.id.toString(),
-                },
-              })
-            }
-          >
-            <Image
-              source={require("../../../assets/myApp/Logo.png")}
-              style={styles.avata}
-            />
-            <View style={styles.contentContainer}>
-              <Text style={styles.name}>SkillSnap</Text>
-              <Text
-                style={styles.content}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {noti.content}
-              </Text>
-            </View>
-          </Pressable>
-        )}
         {/** room mess */}
         {messRoom.map((room) => (
           <Pressable
