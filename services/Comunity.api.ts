@@ -1,18 +1,22 @@
 export interface CommunityPost {
   id: number;
+
   author: {
     id: number;
     name: string;
     avatar: string;
     role: "COMPANY" | "USER";
   };
-  description: string;
-  media: string[];
-  link?: string;
-
+  description?: string;
+  media?: string[];
+  portfolioId?: number;
+  portfolioPreview?: {
+    type: string;
+    variant: string;
+    data: any;
+  };
   favoriteCount: number;
   commentCount: number;
-
   isFavorited: boolean;
   isSaved: boolean;
   createdAt: string;
@@ -56,17 +60,13 @@ export const COMMUNITY_POSTS_MOCK: CommunityPost[] = [
       role: "COMPANY",
     },
     description:
-      "Chúng tôi đang tìm kiếm 5 ứng viên Senior UX/UI Designer với mức lương và đãi ngộ hấp dẫn.",
-    media: [
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
-      "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
-    ],
-    link: "https://careers.google.com/jobs",
-    favoriteCount: 25,
-    commentCount: 25, // ✅
+      "Chúng tôi đang tuyển Senior UX/UI Designer làm việc tại Hà Nội.",
+    media: ["https://images.unsplash.com/photo-1522202176988-66273c2fd55f"],
+    favoriteCount: 120,
+    commentCount: 32,
     isFavorited: false,
     isSaved: true,
-    createdAt: "2026-01-05T08:30:00",
+    createdAt: "2026-01-05T08:00:00",
   },
 
   {
@@ -77,18 +77,45 @@ export const COMMUNITY_POSTS_MOCK: CommunityPost[] = [
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
       role: "USER",
     },
-    description:
-      "Mình đang tìm dự án freelance web/mobile. Đây là một số sản phẩm mình đã làm gần đây 👇",
+    description: "Một vài giao diện mình thiết kế cho app fintech 👇",
     media: [
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-      "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
-      "https://images.unsplash.com/photo-1518770660439-4636190af475",
       "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+      "https://images.unsplash.com/photo-1518770660439-4636190af475",
     ],
-    favoriteCount: 48,
-    commentCount: 12, // ✅
+    favoriteCount: 45,
+    commentCount: 10,
     isFavorited: true,
     isSaved: false,
+    createdAt: "2026-01-05T08:30:00",
+  },
+
+  {
+    id: 3,
+    author: {
+      id: 5,
+      name: "Phạm An Nhiên",
+      avatar: "https://example.com/avatar.jpg",
+      role: "USER",
+    },
+    description:
+      "Portfolio Frontend Developer của mình, rất mong nhận được góp ý.",
+    media: [],
+    portfolioId: 12,
+    portfolioPreview: {
+      type: "INTRO",
+      variant: "AVATAR_LEFT",
+      data: {
+        avatar: "https://example.com/avatar.jpg",
+        fullName: "Phạm An Nhiên",
+        title: "Frontend Developer",
+        summary:
+          "2 năm kinh nghiệm React Native, xây dựng UI/UX hiện đại cho mobile app.",
+      },
+    },
+    favoriteCount: 78,
+    commentCount: 18,
+    isFavorited: true,
+    isSaved: true,
     createdAt: "2026-01-05T09:00:00",
   },
 
@@ -100,15 +127,84 @@ export const COMMUNITY_POSTS_MOCK: CommunityPost[] = [
       avatar: "https://randomuser.me/api/portraits/women/45.jpg",
       role: "USER",
     },
-    description:
-      "Chia sẻ một case study UI cho app bán hàng mình vừa hoàn thành. Link Figma mình để bên dưới nhé.",
+    description: "Một vài project tiêu biểu + portfolio chi tiết mình để kèm.",
+    media: ["https://images.unsplash.com/photo-1522202176988-66273c2fd55f"],
+    portfolioId: 15,
+    portfolioPreview: {
+      type: "PROJECT",
+      variant: "GRID",
+      data: [
+        {
+          name: "OmniBank Mobile App",
+          description: "Ứng dụng ngân hàng số cho giới trẻ.",
+          technology: ["React Native", "Node.js"],
+          role: "Frontend Developer",
+        },
+        {
+          name: "OmniBank Admin",
+          description: "Trang quản trị ngân hàng.",
+          technology: ["React", "Ant Design"],
+          role: "Frontend Developer",
+        },
+      ],
+    },
+    favoriteCount: 56,
+    commentCount: 6,
+    isFavorited: false,
+    isSaved: false,
+    createdAt: "2026-01-05T09:30:00",
+  },
+
+  {
+    id: 5,
+    author: {
+      id: 203,
+      name: "Lê Minh Quân",
+      avatar: "https://randomuser.me/api/portraits/men/75.jpg",
+      role: "USER",
+    },
+    description: "Chia sẻ kỹ năng chính của mình trong portfolio.",
     media: [],
-    link: "https://www.figma.com/file/example-ui-case-study",
-    favoriteCount: 12,
-    commentCount: 0, // ✅ chưa ai comment
+    portfolioId: 18,
+    portfolioPreview: {
+      type: "SKILL",
+      variant: "TAG",
+      data: [
+        { name: "JavaScript", level: "Advanced" },
+        { name: "React", level: "Advanced" },
+        { name: "React Native", level: "Intermediate" },
+      ],
+    },
+    favoriteCount: 22,
+    commentCount: 3,
+    isFavorited: false,
+    isSaved: false,
+    createdAt: "2026-01-05T10:00:00",
+  },
+
+  {
+    id: 6,
+    author: {
+      id: 204,
+      name: "Hoàng Đức",
+      avatar: "https://randomuser.me/api/portraits/men/64.jpg",
+      role: "USER",
+    },
+    description: "Không có ảnh, chỉ chia sẻ nhanh portfolio.",
+    media: [],
+    portfolioId: 20,
+    portfolioPreview: {
+      type: "TEXT",
+      variant: "PARAGRAPH",
+      data: {
+        content: "Fullstack Developer với kinh nghiệm xây dựng hệ thống SaaS.",
+      },
+    },
+    favoriteCount: 9,
+    commentCount: 1,
     isFavorited: false,
     isSaved: true,
-    createdAt: "2026-01-04T14:10:00",
+    createdAt: "2026-01-05T10:15:00",
   },
 ];
 
