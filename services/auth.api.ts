@@ -64,11 +64,13 @@ const demoUserProfiles: UserProfile[] = [
   {
     userId: 2,
     email: "user@gmail.com",
+
     employeeId: 1,
     name: "Nguyễn Văn A",
     phone: "0909123456",
-    coverImage: "https://cover-user.png",
-    avatar: "https://avatar-user.png",
+    coverImage: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+    avatar:
+      "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=300&h=300&fit=crop",
   },
 ];
 
