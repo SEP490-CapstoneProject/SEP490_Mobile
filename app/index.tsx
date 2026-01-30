@@ -1,3 +1,4 @@
+import { getAuth } from "@/services/auth.api";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 
@@ -6,19 +7,21 @@ export default function Index() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // TODO: thay bằng AsyncStorage / token thật
-    const fakeCheckLogin = async () => {
-      setTimeout(() => {
-        setIsLoggedIn(true); // đổi true để test vào app
-        setLoading(false);
-      }, 500);
+    const checkLogin = async () => {
+      const auth = getAuth();
+
+      setIsLoggedIn(!!auth);
+      setLoading(false);
     };
-    fakeCheckLogin();
+
+    checkLogin();
   }, []);
 
   if (loading) return null;
 
-  return isLoggedIn
-    ? <Redirect href="/(tabs)/home" />
-    : <Redirect href="/(auth)/login" />;
+  return isLoggedIn ? (
+    <Redirect href="/(tabs)/home" />
+  ) : (
+    <Redirect href="/(auth)/login" />
+  );
 }

@@ -1,3 +1,5 @@
+import { login } from "@/services/auth.api";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Image,
@@ -10,6 +12,19 @@ import {
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    const res = await login(email, password);
+
+    if (!res.success) {
+      alert(res.message);
+      return;
+    }
+
+    router.replace("/");
+  };
 
   return (
     <View>
@@ -23,7 +38,12 @@ export default function Login() {
           source={require("../../assets/myApp/mail.png")}
           style={styles.icon}
         />
-        <TextInput placeholder="Nhập địa chỉ email" style={styles.input} />
+        <TextInput
+          placeholder="Nhập địa chỉ email"
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+        />
       </View>
 
       <Text style={styles.label}>Mật khẩu</Text>
@@ -36,6 +56,8 @@ export default function Login() {
           placeholder="Nhập mật khẩu"
           secureTextEntry={!showPassword}
           style={styles.input}
+          value={password}
+          onChangeText={setPassword}
         />
         <Pressable
           style={styles.iconRight}
@@ -55,7 +77,7 @@ export default function Login() {
         Quên mật khẩu?
       </Text>
 
-      <Pressable style={styles.LoginButton} onPress={() => {}}>
+      <Pressable style={styles.LoginButton} onPress={handleLogin}>
         <Text style={styles.LoginButtonText}>Đăng nhập</Text>
       </Pressable>
 
@@ -96,7 +118,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     backgroundColor: "#E2E8F0",
-    fontSize: 14,
+    fontSize: 16,
     paddingLeft: 44,
     paddingRight: 40,
   },
@@ -134,22 +156,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  
-  anotherLogin:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+
+  anotherLogin: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 20,
     marginBottom: 20,
   },
-  line:{
+  line: {
     height: 2,
-    backgroundColor: '#B2B9C1',
-    width: '30%',
+    backgroundColor: "#B2B9C1",
+    width: "30%",
   },
 
-  anotherText:{
+  anotherText: {
     fontSize: 14,
-    color: '#B2B9C1',
+    color: "#B2B9C1",
   },
 });
