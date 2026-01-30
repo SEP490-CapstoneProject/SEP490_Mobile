@@ -2,6 +2,7 @@ export type MessageRoomItem = {
   roomId: number;
   name: string;
   avatar: string;
+  coverImage: string;
   role: "COMPANY" | "USER";
   lastContent: string;
   lastAt: string;
@@ -25,6 +26,7 @@ const MOCK_MESSAGE_ROOMS: MessageRoomItem[] = [
     roomId: 2,
     name: "Google Inc.",
     avatar: "https://img.timviec.com.vn/2020/10/cong-ty-google-1.jpg",
+    coverImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c",
     role: "COMPANY",
     lastContent: "Xin chào bạn",
     lastAt: "2026-01-08T10:01:00",
@@ -34,6 +36,7 @@ const MOCK_MESSAGE_ROOMS: MessageRoomItem[] = [
     roomId: 3,
     name: "Phạm Cường",
     avatar: "https://i.pravatar.cc/150?img=32",
+    coverImage: "https://images.unsplash.com/photo-1497366216548-37526070297c",
     role: "USER",
     lastContent: "Chúng mình đang tìm kiếm Freelancer để...",
     lastAt: "2026-01-07T22:10:00",

@@ -45,6 +45,7 @@ export default function Chat() {
                   roomId: room.roomId,
                   name: room.name,
                   avatar: room.avatar,
+                  coverImage: room.coverImage,
                   role: room.role,
                 },
               } as any);
@@ -77,7 +78,7 @@ export default function Chat() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
+    backgroundColor: "#FFFFFF",
   },
   headerContainer: {
     flexDirection: "row",
@@ -87,6 +88,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomColor: "#E2E8F0",
     borderBottomWidth: 1,
+    marginTop: 30,
   },
   title: {
     fontSize: 20,

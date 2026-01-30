@@ -17,10 +17,11 @@ import { formatTimeAgo } from "../../../services/setTime";
 export default function ChatRoom() {
   const USER_ID = 1;
   const router = useRouter();
-  const { roomId, name, avatar, role } = useLocalSearchParams<{
+  const { roomId, name, avatar, coverImage, role } = useLocalSearchParams<{
     roomId: string;
     name?: string;
     avatar?: string;
+    coverImage?: string;
     role?: "COMPANY" | "USER";
   }>();
   const [messages, setMessages] = useState<MessageItem[]>([]);
@@ -60,6 +61,7 @@ export default function ChatRoom() {
                   roomId: roomId,
                   name: name,
                   avatar: avatar,
+                  coverImage: coverImage,
                   role: role,
                 },
               });
