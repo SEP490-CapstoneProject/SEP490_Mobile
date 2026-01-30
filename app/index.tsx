@@ -3,25 +3,17 @@ import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 
 export default function Index() {
-  const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [auth, setAuth] = useState<any>(undefined);
 
   useEffect(() => {
-    const checkLogin = async () => {
-      const auth = getAuth();
-
-      setIsLoggedIn(!!auth);
-      setLoading(false);
-    };
-
-    checkLogin();
+    getAuth().then(setAuth);
   }, []);
 
-  if (loading) return null;
+  if (auth === undefined) return null;
 
-  return isLoggedIn ? (
-    <Redirect href="/(tabs)/home" />
-  ) : (
-    <Redirect href="/(auth)/login" />
-  );
+  if (!auth) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  return <Redirect href="/(tabs)/home" />;
 }
