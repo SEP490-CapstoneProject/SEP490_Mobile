@@ -3,10 +3,11 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Detail() {
   const router = useRouter();
-  const { roomId, name, avatar, role } = useLocalSearchParams<{
+  const { roomId, name, avatar, coverImage, role } = useLocalSearchParams<{
     roomId: string;
     name?: string;
     avatar?: string;
+    coverImage?: string;
     role?: "COMPANY" | "USER";
   }>();
   return (
@@ -26,23 +27,28 @@ export default function Detail() {
       {/** body */}
       <View style={styles.bodyContainer}>
         <View style={styles.bodyUser}>
-          <View>
-            <Image source={{ uri: avatar }} style={styles.avatar} />
-            <Image
-              source={require("../../../assets/myApp/checklist.png")}
-              style={styles.iconCheckLish}
-            />
+          <Image source={{ uri: coverImage }} style={styles.coverImage} />
+          <View style={{ top: -40, alignItems: "center" }}>
+            <View>
+              <Image source={{ uri: avatar }} style={styles.avatar} />
+              {role === "COMPANY" && (
+                <Image
+                  source={require("../../../assets/myApp/checklist.png")}
+                  style={styles.iconCheckLish}
+                />
+              )}
+            </View>
+            <Text style={styles.name}>{name}</Text>
           </View>
-          <Text style={styles.name}>{name}</Text>
         </View>
         <View style={styles.bntContainer}>
           <Pressable style={styles.bntBodyFirst}>
             <View style={styles.bntLeft}>
               <Image
-                source={require("../../../assets/myApp/building.png")}
+                source={require("../../../assets/myApp/profile1.png")}
                 style={styles.iconFirst}
               />
-              <Text style={styles.bntText}>Xem trang công ty</Text>
+              <Text style={styles.bntText}>Xem trang cá nhân</Text>
             </View>
             <Image
               source={require("../../../assets/myApp/forward.png")}
@@ -69,7 +75,7 @@ export default function Detail() {
                 source={require("../../../assets/myApp/block.png")}
                 style={styles.iconSecondLeft}
               />
-              <Text style={styles.bntTextSecond}>Chặn nhà tuyển dụng</Text>
+              <Text style={styles.bntTextSecond}>Chặn cuộc trò chuyện</Text>
             </View>
           </Pressable>
           <Pressable style={styles.bntBodySecond}>
@@ -122,12 +128,19 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 20,
     alignItems: "center",
-    paddingBottom: 40,
+    paddingBottom: 10,
+  },
+  coverImage: {
+    width: "90%",
+    height: 190,
+    borderRadius: 10,
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
+    borderWidth: 3,
+    borderColor: "#FFFFFF",
   },
   name: {
     fontSize: 22,
@@ -138,7 +151,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     position: "absolute",
-    right: 5,
+    right: 8,
     bottom: 0,
   },
   iconFirst: {
