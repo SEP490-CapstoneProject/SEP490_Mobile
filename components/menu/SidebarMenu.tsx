@@ -102,8 +102,8 @@ export default function SidebarMenu({
           <Image
             source={require("../../assets/myApp/Logo.png")}
             style={{
-              width: 120,
-              height: 80,
+              width: 150,
+              height: 190,
             }}
             resizeMode="contain"
           />
