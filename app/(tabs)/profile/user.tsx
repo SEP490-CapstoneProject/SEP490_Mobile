@@ -85,7 +85,7 @@ export default function UserProfile() {
               icon={require("../../../assets/myApp/communitypost.png")}
               title="Bài đăng cộng đồng"
               subtitle="Hoạt động cộng đồng"
-              onPress={() => router.push("/(tabs)/community")}
+              onPress={() => router.push("/(tabs)/profile/communityManager")}
             />
 
             <CardButton
