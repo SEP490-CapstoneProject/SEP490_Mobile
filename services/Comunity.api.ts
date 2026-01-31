@@ -353,6 +353,72 @@ export const POST_COMMENTS_MOCK: PostCommentsResponse[] = [
   },
 ];
 
+export const COMMUNITY_POSTS_BY_USER_MOCK: CommunityPost[] = [
+  {
+    id: 1,
+    author: {
+      id: 2,
+      name: "Nguyễn Văn A",
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      role: "USER",
+    },
+    description: "Chia sẻ một số hình ảnh trong quá trình học React Native 📱",
+    media: [
+      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+      "https://images.unsplash.com/photo-1517433456452-f9633a875f6f",
+    ],
+    favoriteCount: 45,
+    commentCount: 12,
+    isFavorited: false,
+    isSaved: false,
+    createdAt: "2026-01-28T10:30:00Z",
+  },
+
+  {
+    id: 2,
+    author: {
+      id: 2,
+      name: "Nguyễn Văn A",
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      role: "USER",
+    },
+    description: "Portfolio frontend của mình, mọi người góp ý giúp nhé 🙏",
+    media: [],
+    portfolioId: 55,
+    portfolioPreview: {
+      type: "INTRO",
+      variant: "avatar-left",
+      data: {
+        fullName: "Nguyễn Văn A",
+        title: "Frontend Developer",
+        techStack: ["React", "React Native", "TypeScript"],
+      },
+    },
+    favoriteCount: 88,
+    commentCount: 24,
+    isFavorited: true,
+    isSaved: true,
+    createdAt: "2026-01-25T08:15:00Z",
+  },
+
+  {
+    id: 3,
+    author: {
+      id: 2,
+      name: "Nguyễn Văn A",
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      role: "USER",
+    },
+    description: "Hôm nay học xong phần animation 🎉",
+    media: ["https://images.unsplash.com/photo-1555066931-4365d14bab8c"],
+    favoriteCount: 21,
+    commentCount: 3,
+    isFavorited: false,
+    isSaved: false,
+    createdAt: "2026-01-22T19:40:00Z",
+  },
+];
+
 export const fetchPostDetail = async (
   postId: number,
 ): Promise<CommunityPost | null> => {
@@ -368,4 +434,18 @@ export const fetchPostComments = async (
       comments: [],
     }
   );
+};
+
+export const fetchCommunityPostsByUser = (
+  userId: number,
+): Promise<CommunityPost[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(
+        COMMUNITY_POSTS_BY_USER_MOCK.filter(
+          (post) => post.author.id === userId,
+        ),
+      );
+    }, 10);
+  });
 };
