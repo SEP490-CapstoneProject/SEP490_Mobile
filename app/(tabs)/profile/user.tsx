@@ -78,7 +78,7 @@ export default function UserProfile() {
               icon={require("../../../assets/myApp/manageprofile.png")}
               title="Quản lý hồ sơ"
               subtitle="Quản lý & cập nhật hồ sơ của bạn"
-              onPress={() => router.push("/(tabs)/profile/editProfile/user")}
+              onPress={() => router.push("/(tabs)/profile/portfolioView")}
             />
 
             <CardButton
