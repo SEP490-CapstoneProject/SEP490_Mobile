@@ -7,13 +7,23 @@ export type PortfolioBlock = {
 };
 
 export type PortfolioResponse = {
-  profileId: number;
+  portfolioId: number;
   userId: number;
   blocks: PortfolioBlock[];
 };
 
+export type PortfolioMainBlockItem = {
+  portfolioId: number;
+  userId: number;
+  portfolio: {
+    name: string;
+    status: number;
+  };
+  blocks: PortfolioBlock;
+};
+
 export const PORTFOLIO_MOCK: PortfolioResponse = {
-  profileId: 12,
+  portfolioId: 12,
   userId: 2,
   blocks: [
     {
@@ -234,8 +244,90 @@ export const PORTFOLIO_MOCK: PortfolioResponse = {
   ],
 };
 
-export const fetchPortfolioByUser = async (userId: number) => {
+export const PORTFOLIO_MOCK_Main_Block: PortfolioMainBlockItem = {
+  portfolioId: 12,
+  userId: 2,
+  portfolio: {
+    name: "Portfolio Frontend Developer",
+    status: 1,
+  },
+  blocks: {
+    id: 101,
+    type: "INTRO",
+    variant: "INTROONE",
+    order: 1,
+    data: {
+      avatar: "https://img.timviec.com.vn/2020/10/cong-ty-google-1.jpg",
+      fullName: "Phạm An Nhiên",
+      title: "Frontend Developer",
+      description:
+        "2 năm kinh nghiệm React Native, xây dựng UI/UX hiện đại cho mobile app.",
+      email: "quyenttse170347@fpt.edu.vn",
+      phone: "0123456789",
+    },
+  },
+};
+
+export const PORTFOLIO_LIST_MOCK: PortfolioMainBlockItem[] = [
+  {
+    portfolioId: 12,
+    userId: 2,
+    portfolio: {
+      name: "Portfolio Frontend Developer",
+      status: 1,
+    },
+    blocks: PORTFOLIO_MOCK_Main_Block.blocks,
+  },
+
+  {
+    portfolioId: 13,
+    userId: 2,
+    portfolio: {
+      name: "Portfolio Mobile Developer",
+      status: 0,
+    },
+    blocks: {
+      id: 201,
+      type: "INTRO",
+      variant: "INTROONE",
+      order: 1,
+      data: {
+        avatar: "https://img.timviec.com.vn/2020/10/cong-ty-google-1.jpg",
+        fullName: "hihihaha",
+        title: "Frontend Developer",
+        description:
+          "2 năm kinh nghiệm React Native, xây dựng UI/UX hiện đại cho mobile app.",
+        email: "quyenttse170347@fpt.edu.vn",
+        phone: "0123456789",
+      },
+    },
+  },
+];
+
+export const fetchPortfolio = async (userId: number, portfolioId: number) => {
   return new Promise((resolve) => {
-    setTimeout(() => resolve(PORTFOLIO_MOCK), 300);
+    setTimeout(() => resolve(PORTFOLIO_MOCK), 1);
+  });
+};
+
+export const fetchPortfolioById = async (portfolioId: number) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(PORTFOLIO_MOCK), 1);
+  });
+};
+
+export const fetchMainBlockPortfolioByUserId = async (userId: number) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(PORTFOLIO_MOCK_Main_Block), 1);
+  });
+};
+
+export const fetchMainPortfoliosManagerByUser = async (
+  userId: number,
+): Promise<PortfolioMainBlockItem[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(PORTFOLIO_LIST_MOCK.filter((p) => p.userId === userId));
+    }, 1);
   });
 };
