@@ -1,6 +1,8 @@
 import CardButton from "@/components/CardButton";
+import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import ProfilePage from "@/components/profile/ProfilePage";
 import { getAuth } from "@/services/auth.api";
+import { fetchMainBlockPortfolioByUserId } from "@/services/portfolio.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -15,10 +17,16 @@ import {
 export default function UserProfile() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [portfolio, setPortfolio] = useState<any>(null);
 
   useEffect(() => {
     getAuth().then(setUser);
   }, []);
+
+  useEffect(() => {
+    if (!user?.userId) return;
+    fetchMainBlockPortfolioByUserId(user.userId).then(setPortfolio);
+  }, [user]);
 
   if (!user) return null;
 
@@ -61,6 +69,11 @@ export default function UserProfile() {
               />
             </Pressable>
           </View>
+          <View>
+            {portfolio?.blocks && (
+              <PortfolioRenderer blocks={[portfolio.blocks]} />
+            )}
+          </View>
         </View>
         {/* button */}
         <View>
@@ -78,7 +91,9 @@ export default function UserProfile() {
               icon={require("../../../assets/myApp/manageprofile.png")}
               title="Quản lý hồ sơ"
               subtitle="Quản lý & cập nhật hồ sơ của bạn"
-              onPress={() => router.push("/(tabs)/profile/user/portfolioView")}
+              onPress={() =>
+                router.push("/(tabs)/profile/user/portfolioManager")
+              }
             />
 
             <CardButton

@@ -39,7 +39,6 @@ export default function IntroOne({ data }: { data: any }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     marginHorizontal: 15,
     borderColor: "#E2E8F0",
     borderWidth: 1.5,
