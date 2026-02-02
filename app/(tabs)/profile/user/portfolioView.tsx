@@ -28,11 +28,11 @@ export default function PortfolioView() {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 20 }}>
           <Pressable onPress={() => router.back()}>
             <Image
-              source={require("../../../assets/myApp/arrow.png")}
+              source={require("../../../../assets/myApp/arrow.png")}
               style={styles.headerIcon}
             />
           </Pressable>
-          <Text style={styles.title}>Tạo bài đăng</Text>
+          <Text style={styles.title}>Chi tiết hồ sơ</Text>
         </View>
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>

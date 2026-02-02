@@ -78,14 +78,16 @@ export default function UserProfile() {
               icon={require("../../../assets/myApp/manageprofile.png")}
               title="Quản lý hồ sơ"
               subtitle="Quản lý & cập nhật hồ sơ của bạn"
-              onPress={() => router.push("/(tabs)/profile/portfolioView")}
+              onPress={() => router.push("/(tabs)/profile/user/portfolioView")}
             />
 
             <CardButton
               icon={require("../../../assets/myApp/communitypost.png")}
               title="Bài đăng cộng đồng"
               subtitle="Hoạt động cộng đồng"
-              onPress={() => router.push("/(tabs)/profile/communityManager")}
+              onPress={() =>
+                router.push("/(tabs)/profile/user/communityManager")
+              }
             />
 
             <CardButton

@@ -89,21 +89,21 @@ export const PORTFOLIO_MOCK: PortfolioResponse = {
     {
       id: 105,
       type: "EXPERIENCE",
-      variant: "TIMELINE",
+      variant: "EXPERIENCEONE",
       order: 5,
       data: [
         {
-          company: "Tech Việt",
-          position: "Frontend Developer",
-          startYear: 2021,
-          endYear: 2023,
+          jobName: "Frontend Developer",
+          address: "Tech Việt",
+          startDate: "2021",
+          endDate: "2023",
           description: "Phát triển sản phẩm cho các doanh nghiệp vừa và nhỏ.",
         },
         {
-          company: "Startup ABC",
-          position: "React Native Developer",
-          startYear: 2020,
-          endYear: 2021,
+          jobName: "React Native Developer",
+          address: "Startup ABC",
+          startDate: "2020",
+          endDate: "2021",
           description: "Xây dựng ứng dụng mobile thương mại điện tử.",
         },
       ],
@@ -111,61 +111,123 @@ export const PORTFOLIO_MOCK: PortfolioResponse = {
     {
       id: 106,
       type: "PROJECT",
-      variant: "GRID",
+      variant: "PROJECTONE",
       order: 6,
       data: [
         {
+          image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
           name: "Ứng dụng ngân hàng số OmniBank",
-          description: "Ứng dụng ngân hàng số cho người dùng trẻ.",
-          technology: ["React Native", "Node.js"],
+          description:
+            "Thiết kế giao diện người dùng và trải nghiệm người dùng cho ứng dụng ngân hàng di động hiện đại, tập trung vào sự đơn giản và bảo mật.",
           role: "Frontend Developer",
+          technology: "React Native, Node.js",
+          projectLinks: [
+            {
+              type: "github",
+              link: "https://github.com/username/omnibank-app",
+            },
+            {
+              type: "figma",
+              link: "https://figma.com/file/omnibank-ui",
+            },
+            {
+              type: "app",
+              link: "https://play.google.com/store/apps/details?id=omnibank",
+            },
+          ],
         },
         {
+          image: "https://images.unsplash.com/photo-1556155092-8707de31f9c4",
           name: "Ứng dụng OmniBank Admin",
-          description: "Trang quản trị hệ thống ngân hàng.",
-          technology: ["React", "Ant Design"],
+          description:
+            "Trang quản trị hệ thống ngân hàng, hỗ trợ quản lý người dùng, giao dịch và báo cáo.",
           role: "Frontend Developer",
+          technology: "React, Ant Design",
+          projectLinks: [
+            {
+              type: "github",
+              link: "https://github.com/username/omnibank-admin",
+            },
+            {
+              type: "figma",
+              link: "https://figma.com/file/omnibank-admin-ui",
+            },
+            {
+              type: "web",
+              link: "https://admin.omnibank.vn",
+            },
+          ],
         },
       ],
     },
     {
       id: 107,
-      type: "AWARD",
-      variant: "LIST",
+      type: "ACHIEVEMENT",
+      variant: "ACHIEVEMENTONE",
       order: 7,
       data: [
-        { title: "Best employee of the year", year: 2022 },
-        { title: "Giải nhì Hackathon Việt Nam", year: 2021 },
+        {
+          name: "Best employee of the year",
+          date: "2022-01-01",
+          organization: "Công ty ABC",
+          description: "Nhân viên xuất sắc nhất năm 2022.",
+        },
+        {
+          name: "Giải nhì Hackathon Việt Nam",
+          date: "2021-01-01",
+          organization: "Ban tổ chức Hackathon Việt Nam",
+          description: "Đạt giải nhì tại cuộc thi Hackathon Việt Nam năm 2021.",
+        },
       ],
     },
     {
       id: 108,
       type: "ACTIVITY",
-      variant: "LIST",
+      variant: "ACTIVITYONE",
       order: 8,
       data: [
-        { name: "Diễn giả tại TechMeetup Hà Nội", year: 2022 },
-        { name: 'Tình nguyện viên "Máy tính cho em"', year: 2021 },
+        {
+          name: "Diễn giả tại TechMeetup Hà Nội",
+          date: "2022-01-01",
+          description:
+            "Tham gia chia sẻ kinh nghiệm và kiến thức công nghệ tại TechMeetup Hà Nội.",
+        },
+        {
+          name: 'Tình nguyện viên "Máy tính cho em"',
+          date: "2021-01-01",
+          description:
+            "Tham gia chương trình thiện nguyện hỗ trợ máy tính cho học sinh có hoàn cảnh khó khăn.",
+        },
       ],
     },
     {
       id: 109,
-      type: "HOBBY",
-      variant: "CHIP",
+      type: "OTHER",
+      variant: "OTHERONE",
       order: 9,
-      data: ["Đọc sách", "Chạy bộ", "Du lịch"],
+      data: [
+        { detail: "Đọc sách" },
+        { detail: "Chạy bộ" },
+        { detail: "Du lịch" },
+      ],
     },
     {
       id: 110,
       type: "REFERENCE",
-      variant: "CARD",
+      variant: "REFERENCEONE",
       order: 10,
       data: [
         {
           name: "Nguyễn Văn A",
           position: "Tech Lead",
-          company: "Tech Việt",
-          contact: "vana@techviet.com",
+          mail: "vana@techviet.com",
+          phone: "0901234567",
+        },
+        {
+          name: "Trần Thị B",
+          position: "Product Manager",
+          mail: "thib@startupabc.com",
+          phone: "0912345678",
         },
       ],
     },
