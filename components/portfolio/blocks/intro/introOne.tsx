@@ -13,9 +13,10 @@ export default function IntroOne({ data }: { data: any }) {
         style={{
           flexDirection: "row",
           flexWrap: "wrap",
-          gap: 15,
+          justifyContent: "center",
           paddingBottom: 10,
           paddingTop: 15,
+          gap: 15,
         }}
       >
         <View style={styles.flex}>
@@ -39,9 +40,6 @@ export default function IntroOne({ data }: { data: any }) {
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 15,
-    borderColor: "#E2E8F0",
-    borderWidth: 1.5,
     borderRadius: 10,
     marginTop: 20,
     paddingVertical: 10,
@@ -66,6 +64,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14.5,
     lineHeight: 19,
+    marginHorizontal: 10,
   },
   flex: {
     flexDirection: "row",
