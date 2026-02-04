@@ -1,9 +1,9 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
 type educationItem = {
-  school: string;
+  schoolName: string;
   time: string;
-  major: string;
+  department: string;
   description: string;
 };
 
@@ -25,10 +25,10 @@ export default function EducationOne({ data }: { data: educationItem[] }) {
         {data.map((item, index) => (
           <View key={index} style={styles.content}>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 5 }}>
-              <Text style={styles.shool}>{item.school}</Text>
+              <Text style={styles.shool}>{item.schoolName}</Text>
               <Text style={styles.shool}>({item.time})</Text>
             </View>
-            <Text style={styles.major}>{item.major}</Text>
+            <Text style={styles.major}>{item.department}</Text>
             <Text style={styles.description}>{item.description}</Text>
           </View>
         ))}

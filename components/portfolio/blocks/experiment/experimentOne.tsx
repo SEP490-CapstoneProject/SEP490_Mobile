@@ -8,7 +8,7 @@ type experience = {
   description: string;
 };
 
-export default function ExperienceOne({ data }: { data: experience[] }) {
+export default function ExperimentOne({ data }: { data: experience[] }) {
   return (
     <View style={styles.container}>
       {/** title */}

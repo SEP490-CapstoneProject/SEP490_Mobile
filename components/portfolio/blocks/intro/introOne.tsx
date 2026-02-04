@@ -5,8 +5,8 @@ export default function IntroOne({ data }: { data: any }) {
     <View style={styles.container}>
       <View style={{ alignItems: "center" }}>
         <Image source={{ uri: data?.avatar }} style={styles.avata} />
-        <Text style={styles.name}>{data?.fullName}</Text>
-        <Text style={styles.title}>{data?.title}</Text>
+        <Text style={styles.name}>{data?.name}</Text>
+        <Text style={styles.title}>{data?.studyField}</Text>
         <Text style={styles.description}>{data?.description}</Text>
       </View>
       <View

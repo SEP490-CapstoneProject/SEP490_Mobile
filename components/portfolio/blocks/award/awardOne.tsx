@@ -1,44 +1,33 @@
-import {
-    Image,
-    Linking,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-type cetificateItem = {
+type achievementItem = {
   name: string;
-  issuer: string;
-  year: string;
-  link: string;
+  date: string;
+  organization: string;
+  description: string;
 };
-
-export default function CertificateOne({ data }: { data: cetificateItem[] }) {
+export default function AwardOne({ data }: { data: achievementItem[] }) {
   return (
     <View style={styles.container}>
       {/** title */}
       <View style={styles.titleContainer}>
         <View style={styles.backgroundIcon}>
           <Image
-            source={require("../../../../assets/portfolio/certificate.png")}
+            source={require("../../../../assets/portfolio/cup.png")}
             style={styles.icon}
           />
         </View>
-        <Text style={styles.title}>Chứng chỉ</Text>
+        <Text style={styles.title}>Danh hiệu & giải thưởng</Text>
       </View>
       {/** content */}
-      <View style={styles.contentContainer}>
+      <View>
         {data.map((item, index) => (
           <View key={index} style={styles.content}>
             <Text style={styles.name}>{item.name}</Text>
-            <View style={{ flexDirection: "row", paddingVertical: 8 }}>
-              <Text style={styles.text}>{item.issuer}</Text>
-              <Text style={styles.text}>, cấp năm: {item.year}</Text>
-            </View>
-            <Pressable onPress={() => Linking.openURL(item.link)}>
-              <Text style={styles.link}>Xem chứng chỉ</Text>
-            </Pressable>
+            <Text style={styles.time}>
+              {item.date}. {item.organization}
+            </Text>
+            <Text style={styles.description}>{item.description}</Text>
           </View>
         ))}
       </View>
@@ -78,23 +67,25 @@ const styles = StyleSheet.create({
   content: {
     borderColor: "#E2E8F0",
     borderWidth: 1.5,
-    borderRadius: 10,
-    padding: 8,
-    marginBottom: 8,
     backgroundColor: "#F9FAFB",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginTop: 10,
   },
   name: {
     fontSize: 16,
     fontWeight: "bold",
   },
-  text: {
+  time: {
+    color: "#3B82F6",
     fontSize: 14.5,
-    color: "#6B7280",
+    paddingBottom: 5,
   },
-  link: {
-    color: "#2563EB",
+  description: {
+    color: "#6B7280",
     fontSize: 14.5,
-    alignSelf: "flex-end",
-    paddingRight: 10,
+    paddingBottom: 5,
+    lineHeight: 19,
   },
 });

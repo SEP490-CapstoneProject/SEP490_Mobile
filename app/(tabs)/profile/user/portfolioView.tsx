@@ -17,7 +17,7 @@ export default function PortfolioView() {
   const { portfolioId } = useLocalSearchParams<{ portfolioId: string }>();
 
   useEffect(() => {
-    fetchPortfolioById(2).then(setPortfolio);
+    fetchPortfolioById(Number(portfolioId)).then(setPortfolio);
   }, []);
 
   if (!portfolio) return null;
