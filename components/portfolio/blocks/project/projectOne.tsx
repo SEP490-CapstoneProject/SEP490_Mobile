@@ -12,7 +12,7 @@ type ProjectItem = {
   description: string;
   role: string;
   technology: string;
-  projectLinks: ProjectLink[];
+  links: ProjectLink[];
 };
 
 export default function ProjectOne({ data }: { data: ProjectItem[] }) {
@@ -46,7 +46,7 @@ export default function ProjectOne({ data }: { data: ProjectItem[] }) {
               </Text>
             </View>
             <View style={styles.link}>
-              <ProjectLinks links={item.projectLinks} />
+              <ProjectLinks links={item.links} />
             </View>
           </View>
         ))}

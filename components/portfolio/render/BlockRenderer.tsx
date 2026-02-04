@@ -1,8 +1,8 @@
-import AchievementBlock from "../blocks/achievements/achievementBlock";
 import ActivityBlock from "../blocks/activities/activityBlock";
-import CertificateBlock from "../blocks/certificate/certificateBlock";
+import AwardBlock from "../blocks/award/awardBlock";
+import DiplomaBlock from "../blocks/diploma/diplomaBlock";
 import EducationBlock from "../blocks/education/educationBlock";
-import ExperienceBlock from "../blocks/experience/experienceBlock";
+import ExperimentBlock from "../blocks/experiment/experimentBlock";
 import IntroBlock from "../blocks/intro/introBlock";
 import OtherBlock from "../blocks/other/otherBlock";
 import ProjectBlock from "../blocks/project/projectBlock";
@@ -11,7 +11,6 @@ import SkillBlock from "../blocks/skill/skillBlock";
 
 export default function BlockRenderer({ block }: { block: any }) {
   const { type, variant, data } = block;
-
   switch (type) {
     case "INTRO":
       return <IntroBlock data={data} variant={variant} />;
@@ -19,17 +18,17 @@ export default function BlockRenderer({ block }: { block: any }) {
       return <SkillBlock data={data} variant={variant} />;
     case "EDUCATION":
       return <EducationBlock data={data} variant={variant} />;
-    case "CERTIFICATE":
-      return <CertificateBlock data={data} variant={variant} />;
-    case "EXPERIENCE":
-      return <ExperienceBlock data={data} variant={variant} />;
+    case "DIPLOMA":
+      return <DiplomaBlock data={data} variant={variant} />;
+    case "EXPERIMENT":
+      return <ExperimentBlock data={data} variant={variant} />;
     case "PROJECT":
       return <ProjectBlock data={data} variant={variant} />;
-    case "ACHIEVEMENT":
-      return <AchievementBlock data={data} variant={variant} />;
-    case "ACTIVITY":
+    case "AWARD":
+      return <AwardBlock data={data} variant={variant} />;
+    case "ACTIVITIES":
       return <ActivityBlock data={data} variant={variant} />;
-    case "OTHER":
+    case "OTHERINFO":
       return <OtherBlock data={data} variant={variant} />;
     case "REFERENCE":
       return <ReferenceBlock data={data} variant={variant} />;
