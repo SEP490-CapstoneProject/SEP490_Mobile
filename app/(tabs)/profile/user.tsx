@@ -69,7 +69,15 @@ export default function UserProfile() {
               />
             </Pressable>
           </View>
-          <View>
+          <View
+            style={{
+              borderColor: "#E2E8F0",
+              borderWidth: 1.5,
+              marginHorizontal: 15,
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+          >
             {portfolio?.blocks && (
               <PortfolioRenderer blocks={[portfolio.blocks]} />
             )}
