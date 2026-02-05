@@ -1,4 +1,11 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Linking,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 type item = {
   name: string;
@@ -23,7 +30,7 @@ export default function OtherSeven({ data }: { data: item[] }) {
         {data.map((item, index) => (
           <View key={index} style={styles.content}>
             <Text style={styles.name}>{item.name}</Text>
-            <Pressable>
+            <Pressable onPress={() => Linking.openURL(item.detail)}>
               <Image
                 source={require("../../../../assets/portfolio/see.png")}
                 style={styles.linkIcon}
