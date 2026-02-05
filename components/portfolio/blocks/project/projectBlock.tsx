@@ -1,4 +1,5 @@
 import ProjectOne from "./projectOne";
+import ProjectTwo from "./projectTwo";
 
 type Props = {
   data: any;
@@ -9,7 +10,8 @@ export default function ProjectBlock({ data, variant }: Props) {
   switch (variant) {
     case "PROJECTONE":
       return <ProjectOne data={data} />;
-
+    case "PROJECTTWO":
+      return <ProjectTwo data={data} />;
     default:
       return null;
   }

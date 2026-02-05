@@ -1,4 +1,5 @@
 import IntroOne from "./introOne";
+import IntroThree from "./introThree";
 import IntroTwo from "./introTwo";
 
 type Props = {
@@ -12,6 +13,8 @@ export default function IntroBlock({ data, variant }: Props) {
       return <IntroOne data={data} />;
     case "INTROTWO":
       return <IntroTwo data={data} />;
+    case "INTROTHREE":
+      return <IntroThree data={data} />;
     default:
       return null;
   }
