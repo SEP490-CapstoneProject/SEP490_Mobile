@@ -215,14 +215,14 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 201,
         type: "INTRO",
-        variant: "INTRO_STUDENT",
+        variant: "INTROTWO",
         order: 1,
         data: {
           avatar: "https://randomuser.me/api/portraits/men/32.jpg",
           name: "Phạm An Nhiên",
           studyField: "Frontend Intern",
           schoolYear: 3,
-          school: "Đại học FPT",
+          school: "Đại học FPT Hồ Chí Minh",
           department: "Kỹ sư phần mềm",
           email: "annhien@gmail.com",
           phone: "0123456789",
@@ -232,7 +232,7 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 202,
         type: "OTHERINFO",
-        variant: "CAREER_GOAL",
+        variant: "OTHERTWO",
         order: 2,
         data: {
           detail:
@@ -243,7 +243,7 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 203,
         type: "SKILL",
-        variant: "SKILL_BASE",
+        variant: "SKILLTWO",
         order: 3,
         data: {
           languages: ["JavaScript", "TypeScript"],
@@ -255,12 +255,12 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 204,
         type: "PROJECT",
-        variant: "PROJECT_APP",
+        variant: "PROJECTONE",
         order: 4,
         data: [
           {
             image: "https://images.unsplash.com/photo-1556155092-8707de31f9c4",
-            name: "Ứng dụng ngân hàng số OmniBank",
+            name: "Ứng dụng ngân hàng số",
             description:
               "Thiết kế giao diện người dùng và trải nghiệm người dùng cho ứng dụng ngân hàng di động hiện đại, tập trung vào sự đơn giản và bảo mật.",
             role: "Thiết kế UI, Frontend Developer",
@@ -286,7 +286,7 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 205,
         type: "EDUCATION",
-        variant: "EDU_BASIC",
+        variant: "EDUCATIONONE",
         order: 5,
         data: [
           {
@@ -295,7 +295,6 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
             department: "Kỹ sư phần mềm",
             description:
               "Môn tiêu biểu: Data Structures, Web Design, Database System",
-            gpa: "3.6/4.0",
           },
         ],
       },
@@ -303,7 +302,7 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 206,
         type: "ACTIVITIES",
-        variant: "ACTIVITYONE",
+        variant: "ACTIVITYTWO",
         order: 6,
         data: [
           {
@@ -338,8 +337,8 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
 
       {
         id: 208,
-        type: "SKILL",
-        variant: "SKILL_SOFT",
+        type: "OTHERINFO",
+        variant: "OTHERSIX",
         order: 8,
         data: [
           { name: "Làm việc nhóm" },
@@ -352,7 +351,7 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 209,
         type: "OTHERINFO",
-        variant: "HOBBY",
+        variant: "OTHERONE",
         order: 9,
         data: [
           { detail: "Bóng đá" },
@@ -414,7 +413,7 @@ export const PORTFOLIO_LIST_MOCK: PortfolioMainBlockItem[] = [
   },
 
   {
-    portfolioId: 13,
+    portfolioId: 20,
     userId: 2,
     portfolio: {
       name: "Portfolio Mobile Developer",
@@ -423,15 +422,16 @@ export const PORTFOLIO_LIST_MOCK: PortfolioMainBlockItem[] = [
     blocks: {
       id: 201,
       type: "INTRO",
-      variant: "INTROONE",
+      variant: "INTROTWO",
       order: 1,
       data: {
-        avatar: "https://img.timviec.com.vn/2020/10/cong-ty-google-1.jpg",
-        name: "hihihaha",
-        department: "Frontend Developer",
-        description:
-          "2 năm kinh nghiệm React Native, xây dựng UI/UX hiện đại cho mobile app.",
-        email: "quyenttse170347@fpt.edu.vn",
+        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+        name: "Phạm An Nhiênn",
+        studyField: "Frontend Intern",
+        schoolYear: 3,
+        school: "Đại học FPT",
+        department: "Kỹ sư phần mềm",
+        email: "annhien@gmail.com",
         phone: "0123456789",
       },
     },
