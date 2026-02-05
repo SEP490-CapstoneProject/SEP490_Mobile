@@ -375,6 +375,163 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       },
     ],
   },
+  {
+    portfolioId: 30,
+    userId: 2,
+    blocks: [
+      {
+        id: 301,
+        type: "INTRO",
+        variant: "INTROTHREE",
+        order: 1,
+        data: {
+          avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+          name: "Phạm An Nhiên",
+          school: "Đại học FPT",
+          department: "Khoa CNTT - Kỹ thuật phần mềm",
+          gpa: 3.9,
+        },
+      },
+
+      {
+        id: 302,
+        type: "OTHERINFO",
+        variant: "OTHERTHREE",
+        order: 2,
+        data: {
+          detail:
+            "Một nhà thiết kế sản phẩm đầy nhiệt huyết với hơn 5 năm kinh nghiệm. Tôi tập trung vào việc tạo ra những trải nghiệm người dùng trực quan, đẹp mắt và giải quyết các vấn đề phức tạp bằng các giải pháp thiết kế lấy con người làm trung tâm.",
+        },
+      },
+
+      {
+        id: 303,
+        type: "EDUCATION",
+        variant: "EDUCATIONTWO",
+        order: 3,
+        data: [
+          {
+            time: "2023 - 2024",
+            gpa: 4.0,
+            qualified: "Xuất sắc",
+            description: "Giải nhất sinh viên nghiên cứu khoa học cấp trường",
+          },
+          {
+            time: "2021 - 2022",
+            gpa: 3.8,
+            qualified: "Giỏi",
+            description: "Học bổng khuyến khích học tập loại A",
+          },
+        ],
+      },
+      {
+        id: 304,
+        type: "PROJECT",
+        variant: "PROJECTTWO",
+        order: 4,
+        data: [
+          {
+            name: "Chứng chỉ chuyên môn về thiết kế UX của Google",
+            description:
+              "Nghiên cứu áp dụng Deep Learning (CNN) trên tập dữ liệu ảnh X-quang để phát hiện sớm các căn bệnh.",
+            action: "Tác giả chính",
+            publisher: "IEEE 2023",
+            projectLinks: [
+              {
+                link: "https://ieeexplore.ieee.org",
+              },
+            ],
+          },
+          {
+            name: "Hệ thống IoT nông nghiệp",
+            description:
+              "Xây dựng mạng cảm biến không dây theo dõi độ ẩm đất và tự động tưới tiêu, tối ưu hóa năng lượng.",
+            action: "Đồng tác giả",
+            publisher: "Hội nghị Khoa học Sinh viên",
+            projectLinks: [
+              {
+                link: "https://example.com/iot-research",
+              },
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 305,
+        type: "ACTIVITIES",
+        variant: "ACTIVITYONE",
+        order: 5,
+        data: [
+          {
+            name: "Chủ tịch câu lạc bộ lập trình SolCT",
+            date: "2022-08-01 - Nay",
+            description:
+              "Là nguyên chủ tịch CLB với hơn 150 thành viên và đã tổ chức hơn 20 sự kiện lớn nhỏ.",
+          },
+          {
+            name: "Trưởng nhóm mùa hè xanh 2023",
+            date: "2023-06-01",
+            description:
+              "Tổ chức hoạt động tình nguyện cho hơn 200 thành viên, bảo vệ môi trường.",
+          },
+        ],
+      },
+
+      {
+        id: 306,
+        type: "DIPLOMA",
+        variant: "DIPLOMAONE",
+        order: 6,
+        data: [
+          {
+            name: "IELTS 8.0 Overall",
+            provider: "Cơ sở ngoại ngữ HCM",
+            date: "2023-01-01",
+            link: "https://ielts.org",
+          },
+          {
+            name: "Google Data Analytics",
+            provider: "Google",
+            date: "2022-01-01",
+            link: "https://google.com",
+          },
+        ],
+      },
+
+      {
+        id: 307,
+        type: "REFERENCE",
+        variant: "REFERENCEONE",
+        order: 7,
+        data: [
+          {
+            name: "Nguyễn Thị Minh Hằng",
+            position: "Head of Marketing",
+            mail: "hang.nguyen@gmail.com",
+            phone: "0988 123 456",
+          },
+        ],
+      },
+
+      {
+        id: 308,
+        type: "OTHERINFO",
+        variant: "OTHERSEVEN",
+        order: 8,
+        data: [
+          {
+            name: "Bảng điểm đại học (Official) Bảng điểm đại học (Official)",
+            detail: "https://drive.google.com",
+          },
+          {
+            name: "Curriculum Vitae (CV)",
+            detail: "https://drive.google.com",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const PORTFOLIO_MOCK_Main_Block: PortfolioMainBlockItem = {
@@ -433,6 +590,27 @@ export const PORTFOLIO_LIST_MOCK: PortfolioMainBlockItem[] = [
         department: "Kỹ sư phần mềm",
         email: "annhien@gmail.com",
         phone: "0123456789",
+      },
+    },
+  },
+  {
+    portfolioId: 30,
+    userId: 2,
+    portfolio: {
+      name: "Portfolio number three",
+      status: 0,
+    },
+    blocks: {
+      id: 301,
+      type: "INTRO",
+      variant: "INTROTHREE",
+      order: 1,
+      data: {
+        avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+        name: "Phạm An Nhiên",
+        school: "Đại học FPT",
+        department: "Khoa CNTT - Kỹ thuật phần mềm",
+        gpa: 3.9,
       },
     },
   },

@@ -7,6 +7,7 @@ import IntroBlock from "../blocks/intro/introBlock";
 import OtherBlock from "../blocks/other/otherBlock";
 import ProjectBlock from "../blocks/project/projectBlock";
 import ReferenceBlock from "../blocks/references/referenceBlock";
+import ResearchBlock from "../blocks/research/researchBLock";
 import SkillBlock from "../blocks/skill/skillBlock";
 
 export default function BlockRenderer({ block }: { block: any }) {
@@ -32,6 +33,8 @@ export default function BlockRenderer({ block }: { block: any }) {
       return <OtherBlock data={data} variant={variant} />;
     case "REFERENCE":
       return <ReferenceBlock data={data} variant={variant} />;
+    case "RESEARCH":
+      return <ResearchBlock data={data} variant={variant} />;
     default:
       return null;
   }
