@@ -1,4 +1,5 @@
 import SkillOne from "./skillOne";
+import SkillThree from "./skillThree";
 import SkillTwo from "./skillTwo";
 
 type Props = {
@@ -12,6 +13,8 @@ export default function SkillBlock({ data, variant }: Props) {
       return <SkillOne data={data} />;
     case "SKILLTWO":
       return <SkillTwo data={data} />;
+    case "SKILLTHREE":
+      return <SkillThree data={data} />;
     default:
       return null;
   }

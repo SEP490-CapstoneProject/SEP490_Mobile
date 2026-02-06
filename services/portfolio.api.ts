@@ -655,6 +655,126 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       },
     ],
   },
+  {
+    portfolioId: 50,
+    userId: 2,
+    blocks: [
+      {
+        id: 3001,
+        type: "INTRO",
+        variant: "INTROFIVE",
+        order: 1,
+        data: {
+          avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+          name: "ThS. BS. Nguyễn Văn A",
+          studyField: "Tim mạch",
+          experience: 15,
+          department: "Khoa nội tim mạch",
+          school: "Bệnh viện Đại học Y Dược TP.HCM",
+        },
+      },
+      {
+        id: 3002,
+        type: "OTHERINFO",
+        variant: "OTHERFOUR",
+        order: 2,
+        data: {
+          detail:
+            "Một nhà thiết kế sản phẩm đầy nhiệt huyết với hơn 5 năm kinh nghiệm. Tối tập trung vào việc tạo ra những trải nghiệm người dùng trực quan, đẹp mắt và giải quyết các vấn đề phức tạp bằng các giải pháp thiết kế lấy con người làm trung tâm.",
+        },
+      },
+      {
+        id: 3003,
+        type: "SKILL",
+        variant: "SKILLTHREE",
+        order: 3,
+        data: [
+          {
+            name: "Chuẩn đoán",
+            description: "Siêu âm tim, Điện tâm đồ",
+          },
+          {
+            name: "Điều trị & thủ thuật",
+            description:
+              "Can thiệp mạch vành qua da, Điều trị suy tim mạn tính, Đặt máy tạo nhịp tim tạm thời & vĩnh viễn",
+          },
+        ],
+      },
+      {
+        id: 3004,
+        type: "EXPERIMENT",
+        variant: "EXPERIMENTONE",
+        order: 4,
+        data: [
+          {
+            startDate: "2021",
+            endDate: "Hiện tại",
+            jobName: "Phó trưởng khoa nội tim mạch",
+            address: "Bệnh viện Đại học Y Dược TP.HCM",
+            description: "Quản lý chuyên môn & đào tạo bác sĩ nội trú",
+          },
+          {
+            startDate: "2020",
+            endDate: "2021",
+            jobName: "Bác sĩ điều trị",
+            address: "Bệnh viện Chợ Rẫy",
+            description: "Điều trị các ca can thiệp tim",
+          },
+        ],
+      },
+      {
+        id: 3005,
+        type: "TYPICALCASE",
+        variant: "TYPICALCASEONE",
+        order: 5,
+        data: [
+          {
+            patient: "Bệnh nhân nam",
+            age: "65",
+            caseName: "Nhồi máu cơ tim",
+            stage: "Đau ngực dữ dội giờ thứ 2, ST chênh lên V1–V4",
+            regiment: "Can thiệp PCI cấp cứu đặt 1 stent",
+          },
+          {
+            patient: "Bệnh nhân nam",
+            age: "65",
+            caseName: "Nhồi máu cơ tim",
+            stage: "Đau ngực dữ dội giờ thứ 2, ST chênh lên V1–V4",
+            regiment: "Can thiệp PCI cấp cứu đặt 1 stent",
+          },
+        ],
+      },
+      {
+        id: 3006,
+        type: "DIPLOMA",
+        variant: "DIPLOMAONE",
+        order: 6,
+        data: [
+          {
+            name: "Thạc sỹ y học (Nội khoa)",
+            provider: "Đại học Y Dược TP.HCM",
+            date: "2021",
+            link: "https://ieeexplore.ieee.org",
+          },
+          {
+            name: "Bác sĩ đa khoa",
+            provider: "Đại học Y Hà Nội",
+            date: "2015",
+            link: "https://ieeexplore.ieee.org",
+          },
+        ],
+      },
+      {
+        id: 3007,
+        type: "OTHERINFO",
+        variant: "OTHEREIGHT",
+        order: 7,
+        data: {
+          detail: "https://randomuser.me/api/portraits/men/45.jpg",
+        },
+      },
+    ],
+  },
 ];
 
 export const PORTFOLIO_MOCK_Main_Block: PortfolioMainBlockItem = {
@@ -754,6 +874,28 @@ export const PORTFOLIO_LIST_MOCK: PortfolioMainBlockItem[] = [
         name: "PGS. TS. Nguyễn Văn An",
         school: "Đại học Bách Khoa TP.HCM",
         department: "Khoa khoa học & kỹ thuật máy tính",
+      },
+    },
+  },
+  {
+    portfolioId: 50,
+    userId: 2,
+    portfolio: {
+      name: "Portfolio number five",
+      status: 0,
+    },
+    blocks: {
+      id: 3001,
+      type: "INTRO",
+      variant: "INTROFIVE",
+      order: 1,
+      data: {
+        avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+        name: "ThS. BS. Nguyễn Văn A",
+        studyField: "Tim mạch",
+        experience: 15,
+        department: "Khoa nội tim mạch",
+        school: "Bệnh viện Đại học Y Dược TP.HCM",
       },
     },
   },
