@@ -1,3 +1,5 @@
+import OtherFive from "./otherFive";
+import OtherFour from "./otherFour";
 import Hobby from "./otherOne";
 import OtherSeven from "./otherSeven";
 import OtherSix from "./otherSix";
@@ -17,6 +19,10 @@ export default function OtherBlock({ data, variant }: Props) {
       return <OtherTwo data={data} />;
     case "OTHERTHREE":
       return <OtherThree data={data} />;
+    case "OTHERFOUR":
+      return <OtherFour data={data} />;
+    case "OTHERFIVE":
+      return <OtherFive data={data} />;
     case "OTHERSIX":
       return <OtherSix data={data} />;
     case "OTHERSEVEN":
