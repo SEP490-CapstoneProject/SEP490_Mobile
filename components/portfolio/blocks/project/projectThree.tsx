@@ -1,37 +1,38 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
-type item = {
+type projectItem = {
+  name: string;
+  publisher: string;
   time: string;
-  department: string;
-  schoolName: string;
   description: string;
+  action: string;
 };
-export default function EducationTwo({ data }: { data: item[] }) {
+
+export default function ProjectThree({ data }: { data: projectItem[] }) {
   return (
     <View style={styles.container}>
       {/** title */}
       <View style={styles.titleContainer}>
         <View style={styles.backgroundIcon}>
           <Image
-            source={require("../../../../assets/portfolio/graduation-cap-1.png")}
+            source={require("../../../../assets/portfolio/start-up.png")}
             style={styles.icon}
           />
         </View>
-        <Text style={styles.title}>Thành tích học tập</Text>
+        <Text style={styles.title}>Dự án & đề tài</Text>
       </View>
       {/** content */}
       <View style={styles.contentContainer}>
         {data.map((item, index) => (
           <View key={index} style={styles.content}>
-            <View style={styles.left}>
-              <View style={styles.dot} />
-              <View style={styles.line} />
-            </View>
+            <View style={styles.left} />
             <View style={styles.right}>
-              <Text style={styles.time}>{item.time}</Text>
-              <Text style={styles.name}>{item.department}</Text>
-              <Text style={styles.description}>{item.schoolName}</Text>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.publisher}>
+                Nguồn: {item.publisher}.{item.time}
+              </Text>
               <Text style={styles.description}>{item.description}</Text>
+              <Text style={styles.action}>Trạng thái: {item.action}</Text>
             </View>
           </View>
         ))}
@@ -66,52 +67,43 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+
   contentContainer: {
     marginTop: 10,
   },
-  content: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 8,
-    marginTop: 5,
-    alignItems: "flex-start",
-  },
-  left: {
-    alignItems: "center",
-    marginTop: 4,
-  },
-  dot: {
-    backgroundColor: "#3B82F6",
-    width: 12,
-    height: 12,
-    borderRadius: 10,
-  },
-  line: {
-    flex: 1,
-    width: 2,
-    backgroundColor: "#93C5FD",
-    marginTop: 2,
-  },
   right: {
-    flex: 1,
-    paddingBottom: 10,
-    paddingRight: 15,
+    width: "95%",
+    marginTop: 10,
   },
-
-  time: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#3B82F6",
+  publisher: {
+    fontSize: 14.5,
+    lineHeight: 19,
+    color: "#6B7280",
+    marginVertical: 3,
   },
   name: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#000000",
-    paddingVertical: 3,
+    lineHeight: 19,
   },
   description: {
     fontSize: 14.5,
     lineHeight: 19,
-    paddingVertical: 3,
+    marginVertical: 3,
+  },
+  action: {
+    color: "#3B82F6",
+    fontSize: 14.5,
+  },
+  left: {
+    backgroundColor: "#3B82F6",
+    width: 2,
+    height: "auto",
+    marginVertical: 4,
+    marginTop: 13,
+  },
+  content: {
+    flexDirection: "row",
+    gap: 10,
   },
 });

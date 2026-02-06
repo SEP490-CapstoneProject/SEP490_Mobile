@@ -407,7 +407,7 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       {
         id: 303,
         type: "EDUCATION",
-        variant: "EDUCATIONTWO",
+        variant: "EDUCATIONTHREE",
         order: 3,
         data: [
           {
@@ -532,6 +532,129 @@ export const PORTFOLIO_MOCK: PortfolioResponse[] = [
       },
     ],
   },
+  {
+    portfolioId: 40,
+    userId: 2,
+    blocks: [
+      {
+        id: 20001,
+        type: "INTRO",
+        variant: "INTROFOUR",
+        order: 1,
+        data: {
+          avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+          name: "PGS. TS. Nguyễn Văn An",
+          school: "Đại học Bách Khoa TP.HCM",
+          department: "Khoa khoa học & kỹ thuật máy tính",
+        },
+      },
+      {
+        id: 20002,
+        type: "OTHERINFO",
+        variant: "OTHERFOUR",
+        order: 2,
+        data: {
+          detail:
+            "Nhà nghiên cứu và giảng viên với hơn 10 năm kinh nghiệm trong lĩnh vực Trí tuệ nhân tạo, Deep Learning và Thị giác máy tính. Tập trung vào nghiên cứu ứng dụng AI trong y sinh và chẩn đoán hình ảnh.",
+        },
+      },
+      {
+        id: 20003,
+        type: "OTHERINFO",
+        variant: "OTHERFIVE",
+        order: 3,
+        data: [
+          { name: "Học máy y sinh" },
+          { name: "Thị giác máy tính" },
+          { name: "Big Data (Advanced)" },
+          { name: "Deep Learning" },
+        ],
+      },
+      {
+        id: 20004,
+        type: "RESEARCH",
+        variant: "RESEARCHONE",
+        order: 4,
+        data: [
+          {
+            name: "Deep learning approaches for early detection for lung cancer",
+            time: "2024",
+            description:
+              "Nghiên cứu áp dụng Deep Learning (CNN) trên tập dữ liệu ảnh X-quang để phát hiện sớm các bệnh về phổi.",
+            link: "https://ieeexplore.ieee.org",
+          },
+          {
+            name: "Deep learning approaches for early detection for lung cancer",
+            time: "2023",
+            description:
+              "Mở rộng mô hình CNN nhằm tăng độ chính xác trong chẩn đoán hình ảnh y tế.",
+            link: "https://ieeexplore.ieee.org",
+          },
+        ],
+      },
+
+      {
+        id: 20005,
+        type: "PROJECT",
+        variant: "PROJECTTHREE",
+        order: 5,
+        data: [
+          {
+            name: "Hệ thống hỗ trợ chẩn đoán bệnh phổi",
+            publisher: "Quỹ VINIF",
+            time: "2024",
+            description:
+              "Nghiên cứu áp dụng Deep Learning (CNN) trên tập dữ liệu ảnh X-quang để phát hiện sớm các căn bệnh.",
+            action: "Đã nghiệm thu xuất sắc",
+          },
+          {
+            name: "Hệ thống phân tích dữ liệu gen",
+            publisher: "Quỹ VINIF",
+            time: "2024",
+            description:
+              "Nghiên cứu áp dụng Deep Learning (CNN) trên tập dữ liệu ảnh X-quang để phân tích dữ liệu gen.",
+            action: "Đang thực hiện",
+          },
+        ],
+      },
+      {
+        id: 20006,
+        type: "EDUCATION",
+        variant: "EDUCATIONTWO",
+        order: 6,
+        data: [
+          {
+            time: "2018 - 2022",
+            department: "Tiến sĩ khoa học máy tính",
+            schoolName: "KAIST - Hàn Quốc",
+            description: "Tốt nghiệp loại giỏi",
+          },
+          {
+            time: "2013 - 2017",
+            department: "Kỹ sư công nghệ thông tin",
+            schoolName: "Đại học Bách Khoa TP.HCM (HCMUT)",
+            description: "Tốt nghiệp loại giỏi",
+          },
+        ],
+      },
+      {
+        id: 20007,
+        type: "TEACHING",
+        variant: "TEACHINGONE",
+        order: 7,
+        data: [
+          {
+            subject: "Nhập môn trí tuệ nhân tạo",
+            teachingplace: "Đại học FPT",
+          },
+          {
+            subject: "Thị giác máy tính nâng cao",
+            teachingplace: "Đại học FPT",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const PORTFOLIO_MOCK_Main_Block: PortfolioMainBlockItem = {
@@ -611,6 +734,26 @@ export const PORTFOLIO_LIST_MOCK: PortfolioMainBlockItem[] = [
         school: "Đại học FPT",
         department: "Khoa CNTT - Kỹ thuật phần mềm",
         gpa: 3.9,
+      },
+    },
+  },
+  {
+    portfolioId: 40,
+    userId: 2,
+    portfolio: {
+      name: "Portfolio number four",
+      status: 0,
+    },
+    blocks: {
+      id: 20001,
+      type: "INTRO",
+      variant: "INTROFOUR",
+      order: 1,
+      data: {
+        avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+        name: "PGS. TS. Nguyễn Văn An",
+        school: "Đại học Bách Khoa TP.HCM",
+        department: "Khoa khoa học & kỹ thuật máy tính",
       },
     },
   },

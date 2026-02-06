@@ -1,4 +1,5 @@
 import ProjectOne from "./projectOne";
+import ProjectThree from "./projectThree";
 import ProjectTwo from "./projectTwo";
 
 type Props = {
@@ -12,6 +13,8 @@ export default function ProjectBlock({ data, variant }: Props) {
       return <ProjectOne data={data} />;
     case "PROJECTTWO":
       return <ProjectTwo data={data} />;
+    case "PROJECTTHREE":
+      return <ProjectThree data={data} />;
     default:
       return null;
   }

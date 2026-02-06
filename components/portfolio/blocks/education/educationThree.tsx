@@ -1,12 +1,13 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
-type item = {
+type educationItem = {
   time: string;
-  department: string;
-  schoolName: string;
+  gpa: string;
+  qualified: string;
   description: string;
 };
-export default function EducationTwo({ data }: { data: item[] }) {
+
+export default function EducationThree({ data }: { data: educationItem[] }) {
   return (
     <View style={styles.container}>
       {/** title */}
@@ -29,8 +30,9 @@ export default function EducationTwo({ data }: { data: item[] }) {
             </View>
             <View style={styles.right}>
               <Text style={styles.time}>{item.time}</Text>
-              <Text style={styles.name}>{item.department}</Text>
-              <Text style={styles.description}>{item.schoolName}</Text>
+              <Text style={styles.name}>
+                GPA {item.gpa}/4.0 - {item.qualified}
+              </Text>
               <Text style={styles.description}>{item.description}</Text>
             </View>
           </View>

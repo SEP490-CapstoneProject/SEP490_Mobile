@@ -1,4 +1,5 @@
 import EducationOne from "./educationOne";
+import EducationThree from "./educationThree";
 import EducationTwo from "./educationTwo";
 
 type Props = {
@@ -12,6 +13,8 @@ export default function EducationBlock({ data, variant }: Props) {
       return <EducationOne data={data} />;
     case "EDUCATIONTWO":
       return <EducationTwo data={data} />;
+    case "EDUCATIONTHREE":
+      return <EducationThree data={data} />;
     default:
       return null;
   }
