@@ -9,7 +9,7 @@ type SkillBlockProps = {
   data: SkillBaseData;
 };
 
-export default function ({ data }: SkillBlockProps) {
+export default function SkillTwo({ data }: SkillBlockProps) {
   const { languages, frameworks, tools } = data;
   return (
     <View style={styles.container}>

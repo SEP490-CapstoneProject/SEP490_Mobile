@@ -10,6 +10,7 @@ import ReferenceBlock from "../blocks/references/referenceBlock";
 import ResearchBlock from "../blocks/research/researchBLock";
 import SkillBlock from "../blocks/skill/skillBlock";
 import TeachingBlock from "../blocks/teaching/teachingBlock";
+import TypicalCaseBlock from "../blocks/typicalCase/typicalCaseBlock";
 
 export default function BlockRenderer({ block }: { block: any }) {
   const { type, variant, data } = block;
@@ -38,6 +39,8 @@ export default function BlockRenderer({ block }: { block: any }) {
       return <ResearchBlock data={data} variant={variant} />;
     case "TEACHING":
       return <TeachingBlock data={data} variant={variant} />;
+    case "TYPICALCASE":
+      return <TypicalCaseBlock data={data} variant={variant} />;
     default:
       return null;
   }

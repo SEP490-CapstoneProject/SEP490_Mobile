@@ -1,3 +1,4 @@
+import IntroFive from "./introFive";
 import IntroFour from "./introFour";
 import IntroOne from "./introOne";
 import IntroThree from "./introThree";
@@ -18,6 +19,8 @@ export default function IntroBlock({ data, variant }: Props) {
       return <IntroThree data={data} />;
     case "INTROFOUR":
       return <IntroFour data={data} />;
+    case "INTROFIVE":
+      return <IntroFive data={data} />;
     default:
       return null;
   }
