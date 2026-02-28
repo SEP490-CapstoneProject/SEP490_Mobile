@@ -40,7 +40,10 @@ export default function CompanyProfile() {
             }}
           >
             <Text style={styles.name}>{company.companyName}</Text>
-            <Pressable style={styles.bntEdit} onPress={() => router.push("/")}>
+            <Pressable
+              style={styles.bntEdit}
+              onPress={() => router.push("../profile/editProfile/company")}
+            >
               <Image
                 source={require("../../../assets/myApp/edit.png")}
                 style={styles.iconEdit}
@@ -56,12 +59,12 @@ export default function CompanyProfile() {
               flexDirection: "row",
               alignItems: "center",
               gap: 20,
-              marginHorizontal: 14,
+              marginHorizontal: 15,
               marginBottom: 10,
             }}
           >
             <View style={styles.flex}>
-              <Text style={{ fontWeight: "bold", fontSize: 14.5 }}>
+              <Text style={{ fontWeight: "bold", fontSize: 15.5 }}>
                 Lĩnh vực:
               </Text>
               <Text style={styles.text}>{company.activityField}</Text>
@@ -91,9 +94,7 @@ export default function CompanyProfile() {
               icon={require("../../../assets/myApp/manageprofile.png")}
               title="Đăng tuyển dụng"
               subtitle="Đăng tuyển, tìm kiếm ứng viên"
-              onPress={() =>
-                router.push("/(tabs)/profile/user/portfolioManager")
-              }
+              onPress={() => router.push("/(tabs)/profile/company/postManager")}
             />
 
             <CardButton
@@ -178,12 +179,12 @@ const styles = StyleSheet.create({
     tintColor: "#000000",
   },
   description: {
-    marginHorizontal: 14,
-    fontSize: 15,
+    marginHorizontal: 15,
+    fontSize: 15.5,
     lineHeight: 19.5,
   },
   text: {
-    fontSize: 15,
+    fontSize: 15.5,
     lineHeight: 19.5,
   },
   flex: {
