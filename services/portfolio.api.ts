@@ -792,7 +792,7 @@ export const PORTFOLIO_MOCK_Main_Block: PortfolioMainBlockItem = {
     data: {
       avatar: "https://img.timviec.com.vn/2020/10/cong-ty-google-1.jpg",
       name: "Phạm An Nhiên",
-      department: "Frontend Developer",
+      studyField: "Frontend Developer",
       description:
         "2 năm kinh nghiệm React Native, xây dựng UI/UX hiện đại cho mobile app.",
       email: "quyenttse170347@fpt.edu.vn",

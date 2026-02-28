@@ -1,16 +1,16 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import { getAuth } from "@/services/auth.api";
 import { fetchMainPortfoliosManagerByUser } from "@/services/portfolio.api";
+import { shareContent } from "@/services/share";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 type PortfolioBlock = {
@@ -33,9 +33,14 @@ type PortfolioMainBlockItem = {
 
 export default function PortfolioManager() {
   const router = useRouter();
+
   const [user, setUser] = useState<any>(null);
   const [portfolios, setPortfolios] = useState<PortfolioMainBlockItem[]>([]);
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedPortfolio, setSelectedPortfolio] =
+    useState<PortfolioMainBlockItem | null>(null);
 
   useEffect(() => {
     getAuth().then(setUser);
@@ -45,6 +50,19 @@ export default function PortfolioManager() {
     if (!user?.userId) return;
     fetchMainPortfoliosManagerByUser(user.userId).then(setPortfolios);
   }, [user]);
+
+  const openMenu = (event: any, portfolio: PortfolioMainBlockItem) => {
+    event.target.measureInWindow(
+      (x: number, y: number, width: number, height: number) => {
+        setMenuPosition({
+          x: x - 152,
+          y: y + height,
+        });
+        setSelectedPortfolio(portfolio);
+        setMenuVisible(true);
+      },
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -63,6 +81,7 @@ export default function PortfolioManager() {
         {portfolios.map((p) => (
           <View key={p.portfolioId} style={styles.content}>
             <View style={{ marginBottom: 18 }} />
+
             <View style={styles.contentUp}>
               {p.portfolio.status === 1 && (
                 <View style={styles.statusBackground}>
@@ -70,7 +89,7 @@ export default function PortfolioManager() {
                 </View>
               )}
 
-              <Pressable onPress={() => setOpenMenuId(p.portfolioId)}>
+              <Pressable onPress={(e) => openMenu(e, p)}>
                 <Image
                   source={require("../../../../assets/myApp/dots.png")}
                   style={{ width: 25, height: 25 }}
@@ -84,91 +103,103 @@ export default function PortfolioManager() {
               <View style={styles.line} />
               <Text style={styles.name}>{p.portfolio.name}</Text>
             </View>
-
-            {/* MENU MODAL  */}
-            <Modal
-              transparent
-              visible={openMenuId === p.portfolioId}
-              animationType="fade"
-              onRequestClose={() => setOpenMenuId(null)}
-            >
-              <Pressable
-                style={styles.modalBackdrop}
-                onPress={() => setOpenMenuId(null)}
-              />
-
-              <View style={styles.modalMenuWrapper}>
-                <View style={styles.menuBox}>
-                  <Pressable
-                    style={[
-                      styles.menuItem,
-                      styles.menuTop,
-                      { backgroundColor: "#DCFCE7", justifyContent: "center" },
-                    ]}
-                  >
-                    <Text style={{ color: "#1B8442" }}>
-                      {p.portfolio.status
-                        ? "Hủy bản chính"
-                        : "Đặt làm bản chính"}
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[styles.menuItem, { backgroundColor: "#EDF2F9" }]}
-                    onPress={() => {
-                      setOpenMenuId(null);
-                      router.push({
-                        pathname: "/(tabs)/profile/user/portfolioView",
-                        params: { portfolioId: String(p.portfolioId) },
-                      });
-                    }}
-                  >
-                    <Image
-                      source={require("../../../../assets/myApp/view.png")}
-                      style={{ width: 20, height: 20 }}
-                    />
-                    <Text style={{ color: "#6B7280" }}>Xem chi tiết</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[styles.menuItem, { backgroundColor: "#E1EEFF" }]}
-                  >
-                    <Image
-                      source={require("../../../../assets/myApp/pencil1.png")}
-                      style={{ width: 18, height: 18 }}
-                    />
-                    <Text style={{ color: "#2563EB" }}>Chỉnh sửa</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[styles.menuItem, { backgroundColor: "#FAD1D2" }]}
-                  >
-                    <Image
-                      source={require("../../../../assets/myApp/trash.png")}
-                      style={{ width: 18, height: 18 }}
-                    />
-                    <Text style={{ color: "#EF4444" }}>Xóa</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[
-                      styles.menuItem,
-                      styles.menuBottom,
-                      { backgroundColor: "#FFFFFF" },
-                    ]}
-                  >
-                    <Image
-                      source={require("../../../../assets/myApp/share_black.png")}
-                      style={{ width: 18, height: 18 }}
-                    />
-                    <Text>Chia sẻ</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </Modal>
           </View>
         ))}
       </ScrollView>
+
+      {/* CUSTOM POPOVER */}
+      {menuVisible && selectedPortfolio && (
+        <>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setMenuVisible(false)}
+          />
+
+          <View
+            style={[
+              styles.menuBox,
+              {
+                top: menuPosition.y,
+                left: menuPosition.x,
+              },
+            ]}
+          >
+            <Pressable
+              style={[
+                styles.menuItem,
+                {
+                  backgroundColor: "#DCFCE7",
+                  borderTopLeftRadius: 14,
+                  borderTopRightRadius: 14,
+                },
+              ]}
+            >
+              <Text style={{ color: "#1B8442", fontWeight: "600" }}>
+                {selectedPortfolio.portfolio.status
+                  ? "Hủy bản chính"
+                  : "Đặt làm bản chính"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.menuItem, { backgroundColor: "#F0F9FF" }]}
+              onPress={() => {
+                router.push({
+                  pathname: "/(tabs)/profile/user/portfolioView",
+                  params: {
+                    portfolioId: String(selectedPortfolio.portfolioId),
+                  },
+                });
+                setMenuVisible(false);
+              }}
+            >
+              <Image
+                source={require("../../../../assets/myApp/view.png")}
+                style={{ width: 18, height: 18 }}
+              />
+              <Text>Xem chi tiết</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.menuItem, { backgroundColor: "#E1EEFF" }]}
+            >
+              <Image
+                source={require("../../../../assets/myApp/pencil1.png")}
+                style={{ width: 18, height: 18 }}
+              />
+              <Text>Chỉnh sửa</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.menuItem, { backgroundColor: "#FAD1D2" }]}
+            >
+              <Image
+                source={require("../../../../assets/myApp/trash.png")}
+                style={{ width: 18, height: 18 }}
+              />
+              <Text style={{ color: "#EF4444" }}>Xóa</Text>
+            </Pressable>
+
+            <Pressable
+              style={[
+                styles.menuItem,
+                { borderBottomLeftRadius: 14, borderBottomRightRadius: 14 },
+              ]}
+              onPress={() =>
+                shareContent(
+                  `https://skillsnap.io/portfolio/${selectedPortfolio.portfolioId}`,
+                )
+              }
+            >
+              <Image
+                source={require("../../../../assets/myApp/share_black.png")}
+                style={{ width: 18, height: 18 }}
+              />
+              <Text>Chia sẻ</Text>
+            </Pressable>
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -213,49 +244,42 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
 
-  status: { color: "#1B8442", fontSize: 12, fontWeight: "bold" },
-
-  contentDown: { marginTop: 10 },
-  line: { height: 1, backgroundColor: "#E2E8F0", marginHorizontal: 15 },
-  name: { fontSize: 16, fontWeight: "bold", margin: 10 },
-
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.01)",
+  status: {
+    color: "#1B8442",
+    fontSize: 12,
+    fontWeight: "bold",
   },
 
-  modalMenuWrapper: {
-    position: "absolute",
-    top: 160,
-    right: 20,
+  contentDown: { marginTop: 10 },
+
+  line: {
+    height: 1,
+    backgroundColor: "#E2E8F0",
+    marginHorizontal: 15,
+  },
+
+  name: {
+    fontSize: 16,
+    fontWeight: "bold",
+    margin: 10,
   },
 
   menuBox: {
-    width: 180,
+    position: "absolute",
+    width: 190,
     backgroundColor: "#fff",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    elevation: 8,
+    borderRadius: 14,
+    elevation: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
 
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-  },
-
-  menuTop: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-
-  menuBottom: {
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    borderBottomWidth: 0,
+    padding: 14,
   },
 });

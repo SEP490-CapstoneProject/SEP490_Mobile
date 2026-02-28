@@ -1,5 +1,6 @@
 import MediaGrid from "@/components/MediaGrid";
 import { formatTimeAgo } from "@/services/setTime";
+import { shareContent } from "@/services/share";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -144,10 +145,16 @@ export default function Community() {
                     post.isSaved ? { tintColor: "#FFD700" } : {},
                   ]}
                 />
-                <Image
-                  source={require("../../../assets/myApp/share-.png")}
-                  style={[styles.footerIcon]}
-                />
+                <Pressable
+                  onPress={() =>
+                    shareContent(`https://skillsnap.io/post/${post.id}`)
+                  }
+                >
+                  <Image
+                    source={require("../../../assets/myApp/share-.png")}
+                    style={[styles.footerIcon]}
+                  />
+                </Pressable>
               </View>
             </View>
           ))

@@ -1,6 +1,7 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import { fetchPortfolio } from "@/services/home.api";
 import { PortfolioResponse } from "@/services/portfolio.api";
+import { shareContent } from "@/services/share";
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -110,7 +111,11 @@ export default function Home() {
                   />
                 </Pressable>
                 <Pressable
-                  onPress={() => console.log("share", portfolio.portfolioId)}
+                  onPress={() =>
+                    shareContent(
+                      `https://skillsnap.io/portfolio/${portfolio.portfolioId}`,
+                    )
+                  }
                 >
                   <Image
                     source={require("../../../assets/myApp/share_black.png")}
