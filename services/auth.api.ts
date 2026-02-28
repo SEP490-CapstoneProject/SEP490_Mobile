@@ -81,11 +81,12 @@ const demoCompanyProfiles: CompanyProfile[] = [
     companyId: 1,
     companyName: "FPT Software",
     activityField: "CNTT",
-    coverImage: "https://cover-company.png",
-    avatar: "https://logo-company.png",
+    coverImage: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
     taxIdentification: 123456789,
     address: "TP Hồ Chí Minh",
-    description: "Công ty công nghệ",
+    description:
+      "Google Inc. là một công ty của Mỹ, có trụ sở tại Mountain View, California, chuyên về các dịch vụ internet, nổi bật nhất là công cụ tìm kiếm. Tìm kiếm Google được biết đến trên toàn thế giới và chiếm thị phần lớn nhất trong lĩnh vực tìm kiếm internet.",
   },
 ];
 
