@@ -1,15 +1,16 @@
 import { fetchJobs, Job } from "@/services/home.api";
+import { shareContent } from "@/services/share";
 import { Audio, ResizeMode, Video } from "expo-av";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    Dimensions,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Dimensions,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -176,10 +177,16 @@ export default function Home() {
                       job.isSaved ? { tintColor: "#FFD700" } : {},
                     ]}
                   />
-                  <Image
-                    source={require("../../../assets/myApp/share-.png")}
-                    style={styles.iconRight}
-                  />
+                  <Pressable
+                    onPress={() =>
+                      shareContent(`https://skillsnap.io/job/${job.postId}`)
+                    }
+                  >
+                    <Image
+                      source={require("../../../assets/myApp/share-.png")}
+                      style={styles.iconRight}
+                    />
+                  </Pressable>
                 </View>
               </View>
             </View>
