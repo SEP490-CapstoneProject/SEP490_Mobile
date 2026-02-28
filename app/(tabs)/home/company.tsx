@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     alignSelf: "center",
-    backgroundColor: "rgba(243,244,246,0.95)",
+    backgroundColor: "rgba(243, 244, 246, 0.9)",
     width: "100%",
     height: 120,
     paddingTop: 10,
