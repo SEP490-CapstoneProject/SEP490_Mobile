@@ -47,7 +47,7 @@ export type JobDetail = {
   isSaved: boolean;
 };
 
-const demoJobs: Job[] = [
+export const demoJobs: Job[] = [
   {
     postId: 1,
     position: "Senior UX Designer",
@@ -103,7 +103,7 @@ const demoJobs: Job[] = [
   },
 ];
 
-const demoJobsDetail: JobDetail[] = [
+export const demoJobsDetail: JobDetail[] = [
   {
     postId: 1,
     companyId: 101,
@@ -142,7 +142,7 @@ const demoJobsDetail: JobDetail[] = [
     position: "Backend Developer (NodeJS)",
     companyName: "VNG Corporation",
     companyAvatar:
-      "https://upload.wikimedia.org/wikipedia/commons/3/32/VNG_logo.png",
+      "https://itplus-academy.edu.vn/upload/c47d9c29fc44c2b7996a2613aec3c1f9/files/7.jpg",
 
     mediaType: "video",
     mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
@@ -173,7 +173,7 @@ const demoJobsDetail: JobDetail[] = [
     position: "Mobile Developer (React Native)",
     companyName: "Tiki Corporation",
     companyAvatar:
-      "https://upload.wikimedia.org/wikipedia/commons/7/7b/Tiki_logo.png",
+      "https://itplus-academy.edu.vn/upload/c47d9c29fc44c2b7996a2613aec3c1f9/files/7.jpg",
 
     mediaType: "image",
     mediaUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
