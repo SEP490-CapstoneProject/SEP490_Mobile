@@ -1,3 +1,5 @@
+import { demoJobs, demoJobsDetail, Job, JobDetail } from "./home.api";
+
 export type CompanyJobPost = {
   postId: number;
   companyId: number;
@@ -45,6 +47,28 @@ export const fetchCompanyJobPostsByCompanyId = async (
       resolve(
         demoCompanyJobPosts.filter((post) => post.companyId === companyId),
       );
+    }, 30);
+  });
+};
+
+export const fetchCompanyJobPostByPostId = async (
+  postId: number,
+): Promise<Job | null> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const post = demoJobs.find((p) => p.postId === postId);
+      resolve(post || null);
+    }, 30);
+  });
+};
+
+export const fetchJobDetailById = async (
+  postId: number,
+): Promise<JobDetail | null> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const jobDetail = demoJobsDetail.find((j) => j.postId === postId);
+      resolve(jobDetail || null);
     }, 30);
   });
 };

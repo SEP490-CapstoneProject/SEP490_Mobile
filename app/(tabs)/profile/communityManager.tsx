@@ -53,7 +53,7 @@ export default function CommunityManager() {
       <View style={styles.headerContainer}>
         <Pressable onPress={() => router.back()}>
           <Image
-            source={require("../../../../assets/myApp/arrow.png")}
+            source={require("../../../assets/myApp/arrow.png")}
             style={styles.headerIcon}
           />
         </Pressable>
@@ -75,7 +75,7 @@ export default function CommunityManager() {
           <View style={{ position: "relative" }}>
             <View style={styles.sortWrapper}>
               <Image
-                source={require("../../../../assets/myApp/sort.png")}
+                source={require("../../../assets/myApp/sort.png")}
                 style={styles.sortIcon}
               />
               <Pressable
@@ -147,7 +147,7 @@ export default function CommunityManager() {
                         />
                         {item.author.role === "COMPANY" && (
                           <Image
-                            source={require("../../../../assets/myApp/checklist.png")}
+                            source={require("../../../assets/myApp/checklist.png")}
                             style={styles.avataIcon}
                           />
                         )}
@@ -162,7 +162,7 @@ export default function CommunityManager() {
                     </View>
                     <Pressable>
                       <Image
-                        source={require("../../../../assets/myApp/option.png")}
+                        source={require("../../../assets/myApp/option.png")}
                         style={styles.iconHeaderLeft}
                       />
                     </Pressable>
@@ -174,7 +174,7 @@ export default function CommunityManager() {
                   {item.portfolioId && (
                     <Pressable style={styles.linkContainer}>
                       <Image
-                        source={require("../../../../assets/myApp/link.png")}
+                        source={require("../../../assets/myApp/link.png")}
                         style={styles.iconLinkbody}
                       />
                       <Text style={styles.textLinkBody}>Xem chi tiết</Text>
@@ -188,7 +188,7 @@ export default function CommunityManager() {
                 <View style={styles.footerContainer}>
                   <View style={styles.favoriteCount}>
                     <Image
-                      source={require("../../../../assets/myApp/heartA (1).png")}
+                      source={require("../../../assets/myApp/heartA (1).png")}
                       style={[
                         styles.footerIcon,
                         item.isFavorited ? { tintColor: "#FF4848" } : {},
@@ -210,7 +210,7 @@ export default function CommunityManager() {
                     }
                   >
                     <Image
-                      source={require("../../../../assets/myApp/message.png")}
+                      source={require("../../../assets/myApp/message.png")}
                       style={styles.footerIcon}
                     />
                     <Text style={styles.textFavoriteCount}>
@@ -218,14 +218,14 @@ export default function CommunityManager() {
                     </Text>
                   </Pressable>
                   <Image
-                    source={require("../../../../assets/myApp/bookmark.png")}
+                    source={require("../../../assets/myApp/bookmark.png")}
                     style={[
                       styles.footerIcon,
                       item.isSaved ? { tintColor: "#FFD700" } : {},
                     ]}
                   />
                   <Image
-                    source={require("../../../../assets/myApp/share-.png")}
+                    source={require("../../../assets/myApp/share-.png")}
                     style={[styles.footerIcon]}
                   />
                 </View>

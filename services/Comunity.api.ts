@@ -404,8 +404,8 @@ export const COMMUNITY_POSTS_BY_USER_MOCK: CommunityPost[] = [
   {
     id: 3,
     author: {
-      id: 2,
-      name: "Nguyễn Văn A",
+      id: 1,
+      name: "Nguyễn Văn AA",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
       role: "USER",
     },

@@ -1,21 +1,21 @@
 import MediaGrid from "@/components/MediaGrid";
 import {
-    CommunityPost,
-    fetchPostComments,
-    fetchPostDetail,
-    PostCommentsResponse,
+  CommunityPost,
+  fetchPostComments,
+  fetchPostDetail,
+  PostCommentsResponse,
 } from "@/services/Comunity.api";
 import { formatTimeAgo } from "@/services/setTime";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 export default function Comment() {
