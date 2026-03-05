@@ -1,6 +1,6 @@
 import { JobDetail } from "@/services/home.api";
 import { fetchJobDetailById } from "@/services/post.api";
-import { Video } from "expo-av";
+import { ResizeMode, Video } from "expo-av";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -68,7 +68,7 @@ export default function PostDetail() {
           <Video
             source={{ uri: jobDetail?.mediaUrl as string }}
             style={{ width: "100%", height: 250 }}
-            resizeMode="cover"
+            resizeMode={ResizeMode.COVER}
             shouldPlay={false}
             isMuted
             useNativeControls={false}
