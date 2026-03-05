@@ -3,7 +3,7 @@ import {
   CompanyJobPost,
   fetchCompanyJobPostsByCompanyId,
 } from "@/services/post.api";
-import { Video } from "expo-av";
+import { ResizeMode, Video } from "expo-av";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -77,7 +77,7 @@ export default function PostManager() {
                 <Video
                   source={{ uri: post.mediaUrl }}
                   style={styles.media}
-                  resizeMode="cover"
+                  resizeMode={ResizeMode.COVER}
                   shouldPlay={false}
                   isMuted
                   useNativeControls={false}
