@@ -179,18 +179,6 @@ export default function PostDetail() {
             <Text style={styles.text}>{jobDetail?.benefits}</Text>
           </View>
         </View>
-        {/* Footer Content */}
-        <View style={styles.footerContent}>
-          <Pressable style={styles.bntFooterContent}>
-            <Text style={{ color: "white" }}>Tham gia ứng tuyển</Text>
-          </Pressable>
-          <Pressable style={styles.bntDotFooter}>
-            <Image
-              source={require("../../../../assets/myApp/dots.png")}
-              style={{ width: 30, height: 30 }}
-            />
-          </Pressable>
-        </View>
       </ScrollView>
     </View>
   );
@@ -332,35 +320,5 @@ const styles = StyleSheet.create({
   YeuTienChuyenMonText: {
     color: "#3B82F6",
     fontWeight: "bold",
-  },
-
-  footerContent: {
-    marginTop: 20,
-    alignSelf: "center",
-    marginBottom: 30,
-    flexDirection: "row",
-    gap: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  bntFooterContent: {
-    backgroundColor: "#3B82F6",
-    width: 250,
-    height: 40,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  bntDotFooter: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 20,
-    backgroundColor: "#EFF6FF",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
   },
 });

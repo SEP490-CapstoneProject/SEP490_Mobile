@@ -1,3 +1,4 @@
+import { Picker } from "@react-native-picker/picker";
 import { ResizeMode, Video } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -8,6 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
@@ -16,6 +18,10 @@ export default function PostCreate() {
   const [media, setMedia] = useState<any>(null);
   const videoRef = useRef<Video>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [description, setDescription] = useState("");
+  const [obligatory, setObligatory] = useState("");
+  const [preferred, setPreferred] = useState("");
+  const [benefits, setBenefits] = useState("");
 
   const pickMedia = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -42,46 +48,183 @@ export default function PostCreate() {
         <Text style={styles.title}>Tạo thông tin tuyển dụng</Text>
       </View>
       <ScrollView style={styles.bodyContainer}>
-        {!media && (
-          <Pressable style={styles.uploadBox} onPress={pickMedia}>
-            <Image
-              source={require("../../../../assets/myApp/upload.png")}
-              style={styles.iconUpload}
-            />
-            <Text style={styles.title}>Chạm để tải lên</Text>
-            <Text style={styles.sub}>Ảnh hoặc video</Text>
-          </Pressable>
-        )}
-
-        {media && (
-          <View>
-            <Pressable style={styles.changeButton} onPress={pickMedia}>
+        <View>
+          {!media && (
+            <Pressable style={styles.uploadBox} onPress={pickMedia}>
               <Image
-                source={require("../../../../assets/myApp/camera.png")}
-                style={styles.cameraIcon}
+                source={require("../../../../assets/myApp/upload.png")}
+                style={styles.iconUpload}
               />
+              <Text style={styles.title}>Chạm để tải lên</Text>
+              <Text style={styles.sub}>Ảnh hoặc video</Text>
             </Pressable>
+          )}
 
-            {media.type === "image" && (
-              <Image
-                source={{ uri: media.uri }}
-                style={styles.media}
-                resizeMode={ResizeMode.CONTAIN}
-              />
-            )}
+          {media && (
+            <View>
+              <Pressable style={styles.changeButton} onPress={pickMedia}>
+                <Image
+                  source={require("../../../../assets/myApp/camera.png")}
+                  style={styles.cameraIcon}
+                />
+              </Pressable>
 
-            {media.type === "video" && (
-              <Video
-                ref={videoRef}
-                source={{ uri: media.uri }}
-                style={styles.media}
-                resizeMode={ResizeMode.CONTAIN}
-                useNativeControls
-                isLooping
-              />
-            )}
+              {media.type === "image" && (
+                <Image
+                  source={{ uri: media.uri }}
+                  style={styles.media}
+                  resizeMode={ResizeMode.CONTAIN}
+                />
+              )}
+
+              {media.type === "video" && (
+                <Video
+                  ref={videoRef}
+                  source={{ uri: media.uri }}
+                  style={styles.media}
+                  resizeMode={ResizeMode.CONTAIN}
+                  useNativeControls
+                  isLooping
+                />
+              )}
+            </View>
+          )}
+        </View>
+        <View style={styles.firstContent}>
+          <View style={styles.boderInput}>
+            <TextInput placeholder="Vị trí tuyển dụng (VD: Senior UX/UI)" />
           </View>
-        )}
+          <View style={[styles.boderInput, styles.flexInput]}>
+            <Image
+              source={require("../../../../assets/myApp/maps-and-flags1.png")}
+              style={styles.iconInput}
+            />
+            <TextInput placeholder="Địa điểm làm việc" />
+          </View>
+          <View style={[styles.boderInput, styles.flexInput]}>
+            <Image
+              source={require("../../../../assets/myApp/money1.png")}
+              style={styles.iconInput}
+            />
+            <TextInput placeholder="Mức lương" />
+          </View>
+          <View style={[styles.boderInput]}>
+            <View>
+              <Picker selectedValue={""} onValueChange={() => {}}>
+                <Picker.Item label="Chọn hình thức làm việc" value="" />
+                <Picker.Item label="Toàn thời gian" value="full-time" />
+                <Picker.Item label="Bán thời gian" value="part-time" />
+                <Picker.Item label="Làm việc từ xa" value="remote" />
+              </Picker>
+            </View>
+          </View>
+          <View style={[styles.boderInput, styles.flexInput]}>
+            <Image
+              source={require("../../../../assets/myApp/star.png")}
+              style={styles.iconInput}
+            />
+            <TextInput placeholder="Số năm KN" />
+          </View>
+          <View style={[styles.boderInput, styles.flexInput]}>
+            <Image
+              source={require("../../../../assets/myApp/group1.png")}
+              style={styles.iconInput}
+            />
+            <TextInput placeholder="Số lượng cần tuyển" />
+          </View>
+        </View>
+        <View style={styles.secondContent}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
+            <View style={styles.lineLeft} />
+            <Text style={styles.title}>Mô tả công việc</Text>
+          </View>
+          <TextInput
+            placeholder="Mô tả chi tiết công việc, trách nhiệm chính ..."
+            multiline
+            numberOfLines={6}
+            textAlignVertical="top"
+            style={styles.inputDes}
+            value={description}
+            onChangeText={setDescription}
+          />
+        </View>
+
+        <View style={styles.secondContent}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
+            <View style={styles.lineLeft} />
+            <Text style={styles.title}>Yêu cầu chuyên môn</Text>
+          </View>
+          <View style={styles.boderContentSecond}>
+            <View style={styles.obligatory}>
+              <Text style={styles.obligatoryText}>Bắt buộc</Text>
+            </View>
+            <TextInput
+              placeholder="Mô tả yêu cầu bắt buộc"
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+              style={styles.inputDes}
+              value={obligatory}
+              onChangeText={setObligatory}
+            />
+            <View style={styles.preferred}>
+              <Text style={styles.preferredText}>Ưu tiên</Text>
+            </View>
+            <TextInput
+              placeholder="Mô tả yêu cầu ưu tiên"
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+              style={styles.inputDes}
+              value={preferred}
+              onChangeText={setPreferred}
+            />
+          </View>
+        </View>
+        <View style={styles.secondContent}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
+            <View style={styles.lineLeft} />
+            <Text style={styles.title}>Quyền lợi & Đãi ngộ</Text>
+          </View>
+          <TextInput
+            placeholder="Mô tả quyền lợi & đãi ngộ"
+            multiline
+            numberOfLines={6}
+            textAlignVertical="top"
+            style={styles.inputDes}
+            value={benefits}
+            onChangeText={setBenefits}
+          />
+        </View>
+        <View>
+          <Pressable style={styles.bnt}>
+            <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
+              Đăng tin
+            </Text>
+            <Image
+              source={require("../../../../assets/myApp/send.png")}
+              style={styles.iconHeader}
+            />
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
@@ -163,5 +306,95 @@ const styles = StyleSheet.create({
   cameraIcon: {
     width: 20,
     height: 20,
+  },
+  firstContent: {
+    borderColor: "#E2E8F0",
+    borderWidth: 1.5,
+    borderRadius: 10,
+    marginHorizontal: 14,
+    marginTop: 20,
+    padding: 10,
+    gap: 8,
+  },
+  boderInput: {
+    borderColor: "#E2E8F0",
+    borderWidth: 1.5,
+    borderRadius: 10,
+  },
+  iconInput: {
+    width: 19,
+    height: 19,
+    marginLeft: 5,
+    marginRight: 3,
+  },
+  flexInput: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  lineLeft: {
+    backgroundColor: "#3B82F6",
+    width: 4,
+    height: "100%",
+    borderRadius: 2,
+    marginRight: 10,
+  },
+  secondContent: {
+    marginHorizontal: 14,
+    marginTop: 20,
+  },
+  inputDes: {
+    borderColor: "#E2E8F0",
+    borderWidth: 1.5,
+    borderRadius: 10,
+    padding: 10,
+    paddingLeft: 15,
+    minHeight: 200,
+  },
+  boderContentSecond: {
+    borderColor: "#E2E8F0",
+    borderWidth: 1.5,
+    borderRadius: 10,
+    padding: 10,
+  },
+  obligatory: {
+    borderColor: "#FF4848",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 10,
+    width: 80,
+    alignItems: "center",
+    backgroundColor: "#EFF6FF",
+  },
+  preferred: {
+    borderColor: "#3B82F6",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 3,
+    alignItems: "center",
+    width: 80,
+    backgroundColor: "#EFF6FF",
+    marginVertical: 10,
+    marginTop: 20,
+  },
+  obligatoryText: {
+    color: "#FF4848",
+    fontWeight: "bold",
+  },
+  preferredText: {
+    color: "#3B82F6",
+    fontWeight: "bold",
+  },
+  bnt: {
+    backgroundColor: "#3B82F6",
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginHorizontal: 14,
+    marginTop: 30,
+    marginBottom: 50,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
   },
 });
