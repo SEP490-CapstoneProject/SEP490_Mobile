@@ -106,15 +106,31 @@ export default function CompanyProfile() {
 
             <CardButton
               icon={require("../../../assets/myApp/statistics.png")}
-              title="Dữ liệu hiệu suất"
-              subtitle="Thống kê & dữ liệu"
-              onPress={() => router.push("/")}
+              title="Quản lý ứng tuyển"
+              subtitle="Quản lý các yêu cầu ứng tuyển"
+              onPress={() =>
+                router.push("/(tabs)/profile/company/applicationManagement")
+              }
             />
 
             <CardButton
               icon={require("../../../assets/myApp/save.png")}
               title="Quan tâm"
               subtitle="Danh sách đã lưu"
+              onPress={() =>
+                router.push("/(tabs)/profile/company/careManagement")
+              }
+            />
+            <CardButton
+              icon={require("../../../assets/myApp/calenda1.png")}
+              title="Lịch phỏng vấn"
+              subtitle="Quản lý lịch phỏng vấn"
+              onPress={() => router.push("/")}
+            />
+            <CardButton
+              icon={require("../../../assets/myApp/save.png")}
+              title="Nhân sự"
+              subtitle="Quản lý nhân sự công ty"
               onPress={() => router.push("/")}
             />
           </View>
