@@ -122,7 +122,7 @@ export default function UserProfile() {
               icon={require("../../../assets/myApp/save.png")}
               title="Quan tâm"
               subtitle="Danh sách đã lưu"
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/(tabs)/profile/user/careManagement")}
             />
           </View>
           <Pressable style={styles.premiumBnt}>
