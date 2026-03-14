@@ -1,41 +1,157 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import MediaGrid from "@/components/MediaGrid";
+import { fetchCommunity } from "@/services/company/careManagement.api";
+import { CommunityPost } from "@/services/Comunity.api";
+import { formatTimeAgo } from "@/services/setTime";
+import { shareContent } from "@/services/share";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function CarePostScreen() {
+  const router = useRouter();
+  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedPosts = await fetchCommunity();
+        setPosts(fetchedPosts);
+      } catch (error) {
+        console.error("Error fetching community posts:", error);
+      }
+      setIsLoading(false);
+    };
+    loadPosts();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <View style={styles.card}>
-        <View style={styles.header}>
-          <Image
-            source={{
-              uri: "https://randomuser.me/api/portraits/women/20.jpg",
-            }}
-            style={styles.avatar}
-          />
+      {/* content */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {isLoading ? (
+          <Text>Loading...</Text>
+        ) : (
+          posts.map((post) => (
+            <View key={post.id} style={styles.contentContainer}>
+              {/** header content **/}
+              {post.author && (
+                <View style={styles.headerContent}>
+                  <View style={styles.headerContentLeft}>
+                    <View style={styles.avataContainer}>
+                      <Image
+                        source={{ uri: post.author.avatar }}
+                        style={styles.avata}
+                      />
+                      {post.author.role === "COMPANY" && (
+                        <Image
+                          source={require("../../../../../assets/myApp/checklist.png")}
+                          style={styles.avataIcon}
+                        />
+                      )}
+                    </View>
 
-          <View>
-            <Text style={styles.name}>Lê Thu Hà</Text>
-            <Text style={styles.time}>2 giờ trước</Text>
-          </View>
-        </View>
-
-        <Text style={styles.content}>
-          Hôm nay mình xin chia sẻ công thức làm món sườn xào chua ngọt...
-        </Text>
-
-        <Image
-          source={{
-            uri: "https://images.unsplash.com/photo-1604908176997-4319e07b4d45",
-          }}
-          style={styles.image}
-        />
-      </View>
+                    <View>
+                      <Text style={styles.name}>{post.author.name}</Text>
+                      <Text style={styles.time}>
+                        {formatTimeAgo(post.createdAt)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Pressable>
+                    <Image
+                      source={require("../../../../../assets/myApp/option.png")}
+                      style={styles.iconHeaderLeft}
+                    />
+                  </Pressable>
+                </View>
+              )}
+              {/** body content */}
+              <View>
+                <Text style={styles.textContent}>{post.description}</Text>
+                {post.portfolioId && (
+                  <Pressable style={styles.linkContainer}>
+                    <Image
+                      source={require("../../../../../assets/myApp/link.png")}
+                      style={styles.iconLinkbody}
+                    />
+                    <Text style={styles.textLinkBody}>Xem chi tiết</Text>
+                  </Pressable>
+                )}
+                {post.media && post.media.length > 0 && (
+                  <MediaGrid media={post.media} />
+                )}
+              </View>
+              {/** footer content */}
+              <View style={styles.footerContainer}>
+                <View style={styles.favoriteCount}>
+                  <Image
+                    source={require("../../../../../assets/myApp/heartA (1).png")}
+                    style={[
+                      styles.footerIcon,
+                      post.isFavorited ? { tintColor: "#FF4848" } : {},
+                    ]}
+                  />
+                  <Text style={styles.textFavoriteCount}>
+                    {post.favoriteCount}
+                  </Text>
+                </View>
+                <Pressable
+                  style={styles.favoriteCount}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/community/comment",
+                      params: {
+                        postId: post.id,
+                      },
+                    })
+                  }
+                >
+                  <Image
+                    source={require("../../../../../assets/myApp/message.png")}
+                    style={styles.footerIcon}
+                  />
+                  <Text style={styles.textFavoriteCount}>
+                    {post.commentCount}
+                  </Text>
+                </Pressable>
+                <Image
+                  source={require("../../../../../assets/myApp/bookmark.png")}
+                  style={[
+                    styles.footerIcon,
+                    post.isSaved ? { tintColor: "#FFD700" } : {},
+                  ]}
+                />
+                <Pressable
+                  onPress={() =>
+                    shareContent(`https://skillsnap.io/post/${post.id}`)
+                  }
+                >
+                  <Image
+                    source={require("../../../../../assets/myApp/share-.png")}
+                    style={[styles.footerIcon]}
+                  />
+                </Pressable>
+              </View>
+            </View>
+          ))
+        )}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    marginBottom: 200,
   },
 
   card: {
@@ -44,35 +160,95 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
 
-  header: {
+  contentContainer: {
+    width: "100%",
+    height: "auto",
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderTopWidth: 2,
+    borderTopColor: "#E2E8F0",
+    borderBottomWidth: 2,
+    borderBottomColor: "#E2E8F0",
+  },
+
+  headerContent: {
     flexDirection: "row",
-    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
+
+  headerContentLeft: {
+    flexDirection: "row",
     gap: 10,
+    marginBottom: 5,
   },
-
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  avataContainer: {
+    position: "relative",
   },
-
+  avata: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  avataIcon: {
+    width: 15,
+    height: 15,
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+  },
   name: {
+    fontSize: 17,
     fontWeight: "bold",
   },
-
   time: {
-    color: "#64748B",
     fontSize: 12,
+    color: "#6B7280",
   },
-
-  content: {
-    marginTop: 10,
+  iconHeaderLeft: {
+    width: 20,
+    height: 20,
   },
-
-  image: {
-    width: "100%",
-    height: 200,
-    marginTop: 10,
-    borderRadius: 10,
+  textContent: {
+    fontSize: 15,
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  linkContainer: {
+    flexDirection: "row",
+    gap: 5,
+    marginVertical: 10,
+    alignItems: "center",
+  },
+  iconLinkbody: {
+    width: 15,
+    height: 15,
+  },
+  textLinkBody: {
+    fontSize: 15,
+    color: "#3B82F6",
+  },
+  footerContainer: {
+    borderTopColor: "#E2E8F0",
+    borderTopWidth: 1,
+    marginTop: 15,
+    flexDirection: "row",
+    gap: 30,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  footerIcon: {
+    width: 25,
+    height: 25,
+    tintColor: "#cbd2dcff",
+  },
+  favoriteCount: {
+    flexDirection: "row",
+    gap: 3,
+    alignItems: "center",
+  },
+  textFavoriteCount: {
+    color: "#6B7280",
+    fontSize: 13,
   },
 });
