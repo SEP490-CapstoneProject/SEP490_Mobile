@@ -165,11 +165,7 @@ export default function Home() {
                     </Pressable>
                   </View>
                 </View>
-                <View style={{ marginTop: -120 }}>
-                  <Image
-                    source={require("../../../assets/myApp/connection1.png")}
-                    style={styles.iconRight}
-                  />
+                <View style={{ marginTop: -10 }}>
                   <Image
                     source={require("../../../assets/myApp/bookmark.png")}
                     style={[
