@@ -113,9 +113,11 @@ export default function UserProfile() {
 
             <CardButton
               icon={require("../../../assets/myApp/statistics.png")}
-              title="Dữ liệu hiệu suất"
-              subtitle="Thống kê & dữ liệu"
-              onPress={() => router.push("/")}
+              title="Ứng tuyển"
+              subtitle="Quản lí lịch sử ứng tuyển"
+              onPress={() =>
+                router.push("/(tabs)/profile/user/interviewManager")
+              }
             />
 
             <CardButton
