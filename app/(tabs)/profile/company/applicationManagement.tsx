@@ -91,6 +91,7 @@ export default function ApplicationManagement() {
             justifyContent: "center",
             borderRadius: 10,
             backgroundColor: "#F9FAFB",
+            height: 30,
           }}
         >
           <Text style={{ color: "#111827" }}>Đánh dấu tất cả</Text>
