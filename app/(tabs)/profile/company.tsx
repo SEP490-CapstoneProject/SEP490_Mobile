@@ -125,13 +125,9 @@ export default function CompanyProfile() {
               icon={require("../../../assets/myApp/calenda1.png")}
               title="Lịch phỏng vấn"
               subtitle="Quản lý lịch phỏng vấn"
-              onPress={() => router.push("/")}
-            />
-            <CardButton
-              icon={require("../../../assets/myApp/save.png")}
-              title="Nhân sự"
-              subtitle="Quản lý nhân sự công ty"
-              onPress={() => router.push("/")}
+              onPress={() =>
+                router.push("/(tabs)/profile/company/interviewSchedule")
+              }
             />
           </View>
           <Pressable style={styles.premiumBnt}>
