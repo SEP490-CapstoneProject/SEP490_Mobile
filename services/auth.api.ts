@@ -1,156 +1,148 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+const BASE_URL = process.env.EXPO_PUBLIC_AUTH_API;
 
-/* =====================
-   TYPES (GIỮ NGUYÊN)
-===================== */
-export type UserProfile = {
-  userId: number;
-  email: string;
-
-  employeeId: number;
-  name: string;
-  phone: string;
-  coverImage: string;
-  avatar: string;
-};
-
-export type CompanyProfile = {
-  userId: number;
-  email: string;
-
-  companyId: number;
-  companyName: string;
-  activityField: string;
-  coverImage: string;
-  avatar: string;
-  taxIdentification: number;
-  address: string;
-  description: string;
-};
-
-export type LoginResponse =
-  | {
-      success: true;
-      message: string;
-      data: UserProfile | CompanyProfile;
-    }
-  | {
-      success: false;
-      message: string;
-      data: null;
-    };
-
-/* =====================
-   FAKE DATA
-===================== */
-const demoUsers = [
-  {
-    userId: 1,
-    email: "company@gmail.com",
-    password: "123",
-    status: 1,
-    role: "COMPANY",
-  },
-  {
-    userId: 2,
-    email: "user@gmail.com",
-    password: "123",
-    status: 1,
-    role: "USER",
-  },
-];
-
-const demoUserProfiles: UserProfile[] = [
-  {
-    userId: 2,
-    email: "user@gmail.com",
-
-    employeeId: 1,
-    name: "Nguyễn Văn A",
-    phone: "0909123456",
-    coverImage: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
-    avatar:
-      "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=300&h=300&fit=crop",
-  },
-];
-
-const demoCompanyProfiles: CompanyProfile[] = [
-  {
-    userId: 1,
-    email: "company@gmail.com",
-    companyId: 1,
-    companyName: "FPT Software",
-    activityField: "CNTT",
-    coverImage: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    taxIdentification: 123456789,
-    address: "TP Hồ Chí Minh",
-    description:
-      "Google Inc. là một công ty của Mỹ, có trụ sở tại Mountain View, California, chuyên về các dịch vụ internet, nổi bật nhất là công cụ tìm kiếm. Tìm kiếm Google được biết đến trên toàn thế giới và chiếm thị phần lớn nhất trong lĩnh vực tìm kiếm internet.",
-  },
-];
-
-/* =====================
-   STORAGE
-===================== */
+const TOKEN_KEY = "token";
+const REFRESH_TOKEN_KEY = "refreshToken";
 const STORAGE_KEY = "auth";
 
-export const saveAuth = async (data: UserProfile | CompanyProfile) => {
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+export const saveToken = async (token: string) => {
+  await AsyncStorage.setItem(TOKEN_KEY, token);
 };
 
-export const getAuth = async (): Promise<
-  UserProfile | CompanyProfile | null
-> => {
+export const getToken = async (): Promise<string | null> => {
+  return await AsyncStorage.getItem(TOKEN_KEY);
+};
+
+export const removeToken = async () => {
+  await AsyncStorage.removeItem(TOKEN_KEY);
+};
+
+export const saveRefreshToken = async (refreshToken: string) => {
+  await AsyncStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+};
+
+export const getRefreshToken = async (): Promise<string | null> => {
+  return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+};
+export const removeRefreshToken = async () => {
+  await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+};
+
+export const saveAuth = async (user: any) => {
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+};
+
+export const getAuth = async () => {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   return raw ? JSON.parse(raw) : null;
 };
 
-export const logout = async () => {
+export const removeAuth = async () => {
   await AsyncStorage.removeItem(STORAGE_KEY);
 };
 
-/* =====================
-   LOGIN API
-===================== */
-export const login = async (
+export const refreshToken = async () => {
+  try {
+    const refresh = await getRefreshToken();
+
+    const res = await fetch(`${BASE_URL}/api/Auth/refresh`, {
+      method: "POST",
+      body: JSON.stringify({ refreshToken: refresh }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    await removeRefreshToken();
+    await saveRefreshToken(data.refreshToken);
+    await removeAuth();
+    await saveAuth(data.user);
+    return data.accessToken;
+  } catch {
+    return null;
+  }
+};
+
+export const login = async (email: string, password: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/Auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    if (!res.ok) {
+      return false;
+    }
+
+    const data = await res.json();
+
+    const token = data.data.accessToken;
+    const refreshToken = data.data.refreshToken;
+    const user = data.data.user;
+
+    if (user.role === 1 && !user.employeeId) {
+      return {
+        needSetup: true,
+        role: user.role,
+      };
+    }
+
+    if (user.role === 2 && !user.companyId) {
+      return {
+        needSetup: true,
+        role: user.role,
+      };
+    }
+
+    await saveToken(token);
+    await saveRefreshToken(refreshToken);
+    await saveAuth(user);
+
+    return {
+      needSetup: false,
+      role: user.role,
+    };
+  } catch (err: any) {
+    throw err;
+  }
+};
+
+export const register = async (
   email: string,
   password: string,
-): Promise<LoginResponse> => {
-  const user = demoUsers.find(
-    (u) => u.email === email && u.password === password,
-  );
+  role: number,
+) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/Auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        role,
+      }),
+    });
 
-  if (!user) {
-    return {
-      success: false,
-      message: "Sai email hoặc mật khẩu",
-      data: null,
-    };
+    const data = await res.json();
+    return data;
+  } catch (err: any) {
+    throw err;
   }
+};
 
-  let profile: UserProfile | CompanyProfile | null = null;
-
-  if (user.role === "USER") {
-    profile = demoUserProfiles.find((p) => p.userId === user.userId) ?? null;
-  }
-
-  if (user.role === "COMPANY") {
-    profile = demoCompanyProfiles.find((p) => p.userId === user.userId) ?? null;
-  }
-
-  if (!profile) {
-    return {
-      success: false,
-      message: "Không tìm thấy hồ sơ người dùng",
-      data: null,
-    };
-  }
-  await saveAuth(profile);
-
-  return {
-    success: true,
-    message: "Đăng nhập thành công",
-    data: profile,
-  };
+export const logout = async () => {
+  await AsyncStorage.removeItem(TOKEN_KEY);
+  await AsyncStorage.removeItem(STORAGE_KEY);
+  await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
 };

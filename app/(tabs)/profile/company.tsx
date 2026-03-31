@@ -1,6 +1,7 @@
 import CardButton from "@/components/CardButton";
 import ProfilePage from "@/components/profile/ProfilePage";
-import { getAuth } from "@/services/auth.api";
+import { getUser } from "@/services/auth.api";
+
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,7 +18,7 @@ export default function CompanyProfile() {
   const [company, setCompany] = useState<any>(null);
 
   useEffect(() => {
-    getAuth().then(setCompany);
+    getUser().then(setCompany);
   }, []);
 
   if (!company) return null;

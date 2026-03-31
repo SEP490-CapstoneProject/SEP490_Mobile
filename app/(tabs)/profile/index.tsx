@@ -15,7 +15,7 @@ export default function ProfileIndex() {
     return <Redirect href="/(auth)/login" />;
   }
 
-  if ("companyId" in auth) {
+  if (auth.role === 2) {
     return <Redirect href="/(tabs)/profile/company" />;
   }
 

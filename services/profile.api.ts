@@ -1,63 +1,105 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getToken } from "./auth.api";
+const BASE_URL_USER = process.env.EXPO_PUBLIC_USER_API;
 
-export interface UserProfile {
-  displayName: string;
-  bio: string;
-  email: string;
-  phone: string;
-  avatarUri?: string;
-  lastUpdated: string;
-}
+const PROFILE_KEY = "profile";
 
-const STORAGE_KEY = 'user_profile';
-
-export const profileApi = {
-  // Save profile data
-  saveProfile: async (profile: UserProfile): Promise<void> => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-      console.log('Profile saved successfully:', profile);
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      throw error;
-    }
-  },
-
-  // Get profile data
-  getProfile: async (): Promise<UserProfile | null> => {
-    try {
-      const data = await AsyncStorage.getItem(STORAGE_KEY);
-      if (data) {
-        return JSON.parse(data);
-      }
-      return null;
-    } catch (error) {
-      console.error('Error retrieving profile:', error);
-      throw error;
-    }
-  },
-
-  // Clear profile data
-  clearProfile: async (): Promise<void> => {
-    try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
-      console.log('Profile cleared successfully');
-    } catch (error) {
-      console.error('Error clearing profile:', error);
-      throw error;
-    }
-  },
-
-  // Check if profile exists
-  profileExists: async (): Promise<boolean> => {
-    try {
-      const data = await AsyncStorage.getItem(STORAGE_KEY);
-      return data !== null;
-    } catch (error) {
-      console.error('Error checking profile existence:', error);
-      return false;
-    }
-  },
+export const saveProfile = async (data: any) => {
+  await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(data));
 };
 
-export default profileApi;
+export const getProfile = async () => {
+  const raw = await AsyncStorage.getItem(PROFILE_KEY);
+  return raw ? JSON.parse(raw) : null;
+};
+
+export const clearProfile = async () => {
+  await AsyncStorage.removeItem(PROFILE_KEY);
+};
+
+export const fetchEmployeeProfile = async () => {
+  const token = await getToken();
+
+  const res = await fetch(`${BASE_URL_USER}/api/Employee/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 401) {
+    const error: any = new Error("Unauthorized");
+    error.status = 401;
+    throw error;
+  }
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!res.ok) {
+    throw new Error("Lấy employee thất bại");
+  }
+
+  await saveProfile(data);
+  return data;
+};
+
+export const fetchCompanyProfile = async () => {
+  try {
+    const token = await getToken();
+
+    const res = await fetch(`${BASE_URL_USER}/api/Company/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Lấy company thất bại");
+    }
+
+    await saveProfile(data);
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+// export const updateEmployeeProfile = async (
+//   id: number,
+//   name?: string,
+//   phone?: string,
+//   avatar?: any,
+//   coverImage?: any,
+// ) => {
+//   const token = await getToken();
+
+//   const formData = new FormData();
+
+//   if (name) formData.append("Name", name);
+//   if (phone) formData.append("Phone", phone);
+
+//   if (avatar) {
+//     formData.append("Avatar", avatar);
+//   }
+
+//   if (coverImage) {
+//     formData.append("CoverImage", coverImage);
+//   }
+
+//   const res = await fetch(`${BASE_URL_USER}/api/Employee/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: formData,
+//   });
+
+//   const data = await res.json();
+
+//   if (!res.ok) throw new Error(data.message || "Update thất bại");
+
+//   return data;
+// };

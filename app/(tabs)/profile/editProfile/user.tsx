@@ -1,26 +1,29 @@
 import { getAuth } from "@/services/auth.api";
+import { getProfile } from "@/services/profile.api";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 export default function EditUserProfile() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [auth, setAuth] = useState<any>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
 
   useEffect(() => {
-    getAuth().then(setUser);
+    getProfile().then(setUser);
+    getAuth().then(setAuth);
   }, []);
 
   const pickImage = async (onPick: (uri: string) => void) => {
@@ -36,8 +39,10 @@ export default function EditUserProfile() {
     }
   };
 
-  const handleSave = () => {
-    router.push("../user");
+  const handleSave = async () => {
+    // await updateEmployeeProfile(user?.id, name, phone, avatar, coverImage);
+    // showSuccess("Cập nhật thành công", "Thông tin cá nhân đã được cập nhật");
+    // router.push("../user");
   };
 
   return (
@@ -137,7 +142,7 @@ export default function EditUserProfile() {
               style={styles.iconTextRight}
             />
             <TextInput
-              placeholder={user?.email}
+              placeholder={auth?.email}
               style={styles.input}
               editable={false}
             />
