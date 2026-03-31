@@ -1,7 +1,6 @@
 import { getAuth } from "@/services/auth.api";
-import { getProfile } from "@/services/profile.api";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -14,15 +13,21 @@ import {
 
 export default function EditUserProfile() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const { user } = useLocalSearchParams();
   const [auth, setAuth] = useState<any>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
 
+  const parsedUser = user ? JSON.parse(user as string) : null;
   useEffect(() => {
-    getProfile().then(setUser);
+    if (parsedUser) {
+      setName(parsedUser.name || "");
+      setPhone(parsedUser.phone || "");
+      setAvatar(parsedUser.avatar || null);
+      setCoverImage(parsedUser.coverImage || null);
+    }
     getAuth().then(setAuth);
   }, []);
 
@@ -61,7 +66,7 @@ export default function EditUserProfile() {
       <View>
         <View>
           <Image
-            source={{ uri: coverImage ?? user?.coverImage }}
+            source={{ uri: coverImage ?? parsedUser?.coverImage }}
             style={styles.coverImage}
           />
           <Pressable
@@ -77,7 +82,7 @@ export default function EditUserProfile() {
 
         <View style={styles.avatarWrapper}>
           <Image
-            source={{ uri: avatar ?? user?.avatar }}
+            source={{ uri: avatar ?? parsedUser?.avatar }}
             style={styles.avatar}
           />
           <Pressable
@@ -104,7 +109,7 @@ export default function EditUserProfile() {
               style={styles.iconTextRight}
             />
             <TextInput
-              placeholder={user?.name}
+              placeholder={parsedUser?.name}
               value={name}
               onChangeText={setName}
               style={styles.input}
@@ -123,7 +128,7 @@ export default function EditUserProfile() {
               style={styles.iconTextRight}
             />
             <TextInput
-              placeholder={user?.phone}
+              placeholder={parsedUser?.phone}
               value={phone}
               onChangeText={setPhone}
               style={styles.input}
