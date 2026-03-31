@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { decode as atob } from "base-64";
 const BASE_URL = process.env.EXPO_PUBLIC_AUTH_API;
 
 const TOKEN_KEY = "token";
@@ -41,9 +42,22 @@ export const removeAuth = async () => {
   await AsyncStorage.removeItem(STORAGE_KEY);
 };
 
+export const isTokenExpired = (token: string) => {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const exp = payload.exp * 1000;
+
+    return Date.now() > exp - 60000;
+  } catch {
+    return true;
+  }
+};
+
 export const refreshToken = async () => {
   try {
+    console.log("Token hết hạn → refresh Token");
     const refresh = await getRefreshToken();
+    if (!refresh) return null;
 
     const res = await fetch(`${BASE_URL}/api/Auth/refresh`, {
       method: "POST",
@@ -53,13 +67,15 @@ export const refreshToken = async () => {
       },
     });
 
-    if (!res.ok) return null;
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
 
-    const data = await res.json();
-    await removeRefreshToken();
+    if (!res.ok || !data) return null;
+
+    await saveToken(data.accessToken);
     await saveRefreshToken(data.refreshToken);
-    await removeAuth();
     await saveAuth(data.user);
+
     return data.accessToken;
   } catch {
     return null;

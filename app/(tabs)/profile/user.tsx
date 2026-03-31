@@ -1,12 +1,7 @@
 import CardButton from "@/components/CardButton";
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import ProfilePage from "@/components/profile/ProfilePage";
-import {
-  refreshToken,
-  removeAuth,
-  removeToken,
-  saveToken,
-} from "@/services/auth.api";
+import { logout } from "@/services/auth.api";
 
 import { fetchMainBlockPortfolioByUserId } from "@/services/portfolio.api";
 import { fetchEmployeeProfile } from "@/services/profile.api";
@@ -33,20 +28,11 @@ export default function UserProfile() {
         setUser(user);
       } catch (err: any) {
         if (err.status === 401) {
-          console.log("Token hết hạn → refresh");
+          console.log("Token hết hạn → logout");
 
-          const newToken = await refreshToken();
+          await logout();
 
-          if (newToken) {
-            await saveToken(newToken);
-
-            const user = await fetchEmployeeProfile();
-            setUser(user);
-          } else {
-            await removeToken();
-            await removeAuth();
-            router.replace("/(auth)/login");
-          }
+          router.replace("/(auth)/login");
         } else {
           console.log("Lỗi khác:", err);
         }
@@ -80,7 +66,14 @@ export default function UserProfile() {
             <Text style={styles.name}>{user.name}</Text>
             <Pressable
               style={styles.bntEdit}
-              onPress={() => router.push("../profile/editProfile/user")}
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/profile/editProfile/user",
+                  params: {
+                    user: JSON.stringify(user),
+                  },
+                })
+              }
             >
               <Image
                 source={require("../../../assets/myApp/edit.png")}
