@@ -1,17 +1,17 @@
-import { getAuth } from "@/services/auth.api";
+import { getToken } from "@/services/auth.api";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 
 export default function Index() {
-  const [auth, setAuth] = useState<any>(undefined);
+  const [token, setToken] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
-    getAuth().then(setAuth);
+    getToken().then(setToken);
   }, []);
 
-  if (auth === undefined) return null;
+  if (token === undefined) return null;
 
-  if (!auth) {
+  if (!token) {
     return <Redirect href="/(auth)/login" />;
   }
 

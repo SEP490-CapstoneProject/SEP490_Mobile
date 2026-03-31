@@ -1,8 +1,15 @@
 import CardButton from "@/components/CardButton";
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import ProfilePage from "@/components/profile/ProfilePage";
-import { getAuth } from "@/services/auth.api";
+import {
+  refreshToken,
+  removeAuth,
+  removeToken,
+  saveToken,
+} from "@/services/auth.api";
+
 import { fetchMainBlockPortfolioByUserId } from "@/services/portfolio.api";
+import { fetchEmployeeProfile } from "@/services/profile.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -20,7 +27,33 @@ export default function UserProfile() {
   const [portfolio, setPortfolio] = useState<any>(null);
 
   useEffect(() => {
-    getAuth().then(setUser);
+    const loadData = async () => {
+      try {
+        const user = await fetchEmployeeProfile();
+        setUser(user);
+      } catch (err: any) {
+        if (err.status === 401) {
+          console.log("Token hết hạn → refresh");
+
+          const newToken = await refreshToken();
+
+          if (newToken) {
+            await saveToken(newToken);
+
+            const user = await fetchEmployeeProfile();
+            setUser(user);
+          } else {
+            await removeToken();
+            await removeAuth();
+            router.replace("/(auth)/login");
+          }
+        } else {
+          console.log("Lỗi khác:", err);
+        }
+      }
+    };
+
+    loadData();
   }, []);
 
   useEffect(() => {

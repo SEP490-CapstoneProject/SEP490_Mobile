@@ -1,4 +1,6 @@
+import { useConfirm } from "@/components/ConfirmContext";
 import { login } from "@/services/auth.api";
+import { showError } from "@/utils/toast";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -11,20 +13,45 @@ import {
 } from "react-native";
 
 export default function Login() {
+  const { showConfirm } = useConfirm();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    const res = await login(email, password);
-
-    if (!res.success) {
-      alert(res.message);
+    if (!email || !password) {
+      showError("Đăng nhập thất bại", "Vui lòng nhập đầy đủ thông tin");
       return;
     }
 
+    const res = await login(email, password);
+    if (!res) {
+      showError("Đăng nhập thất bại!", "Email hoặc mật khẩu không đúng");
+      return;
+    }
+
+    // if (res.needSetup) {
+    //   if (res.role === 1) {
+    //     router.replace("/(auth)/setupProfileUser");
+    //   } else {
+    //     router.replace("/(auth)/setupProfileCompany");
+    //   }
+    //   return;
+    // }
+
     router.replace("/");
   };
+
+  // const handleDelete = () => {
+  //   showConfirm({
+  //     title: "Xóa bài đăng",
+  //     message: "Bạn có chắc muốn xóa không?",
+  //     onConfirm: async () => {
+  //       await deletePost(id);
+  //       showSuccess("Xóa thành công", "");
+  //     },
+  //   });
+  // };
 
   return (
     <View>

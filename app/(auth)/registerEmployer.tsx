@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View
+  View,
 } from "react-native";
 
 export default function RegisterEmployerPage() {
@@ -19,28 +19,13 @@ export default function RegisterEmployerPage() {
         Đăng ký là nhà tuyển dụng.
       </Text>
 
-      <Text style={styles.label}>Tên hiển thị</Text>
-      <View style={styles.inputWrapper}>
-        <Image
-          source={require("../../assets/myApp/id-card.png")}
-          style={styles.icon}
-        />
-        <TextInput
-          placeholder="Nhập tên công ty/tổ chức"
-          style={styles.input}
-        />
-      </View>
-
       <Text style={styles.label}>Mã số thuế</Text>
       <View style={styles.inputWrapper}>
         <Image
           source={require("../../assets/myApp/no-tax.png")}
           style={styles.icon}
         />
-        <TextInput
-          placeholder="Nhập mã số thuế"
-          style={styles.input}
-        />
+        <TextInput placeholder="Nhập mã số thuế" style={styles.input} />
       </View>
 
       <Text style={styles.label}>Email</Text>

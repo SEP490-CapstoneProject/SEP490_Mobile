@@ -11,7 +11,7 @@ export default function HomeIndex() {
 
   if (!auth) return null;
 
-  if ("companyId" in auth) {
+  if (auth.role === 2) {
     return <Redirect href="/(tabs)/home/company" />;
   }
 

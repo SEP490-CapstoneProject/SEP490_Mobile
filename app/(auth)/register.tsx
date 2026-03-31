@@ -1,3 +1,5 @@
+import { register } from "@/services/auth.api";
+import { showError, showSuccess } from "@/utils/toast";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -6,28 +8,49 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View
+  View,
 } from "react-native";
 
-export default function register() {
+export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showFogetPassword, setShowFogetPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleRegister = async () => {
+    try {
+      if (!email || !password || !confirmPassword) {
+        showError("Đăng kí thất bại!", "Vui lòng nhập đầy đủ thông tin");
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError("Đăng kí thất bại!", "Email không hợp lệ");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError("Đăng kí thất bại!", "Mật khẩu không khớp");
+        return;
+      }
+
+      await register(email, password, 1);
+
+      showSuccess("", "Đăng ký thành công");
+
+      router.replace("/(auth)/login");
+    } catch (err: any) {
+      showError("Lỗi", err.message || "Đã xảy ra lỗi rồi :(");
+    }
+  };
 
   return (
-    
     <View>
       <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
         Đăng ký tại đây.
       </Text>
-      
-      <Text style={styles.label}>Tên hiển thị</Text>
-      <View style={styles.inputWrapper}>
-        <Image
-          source={require("../../assets/myApp/id-card.png")}
-          style={styles.icon}
-        />
-        <TextInput placeholder="Nhập tên bạn muốn hiển thị" style={styles.input} />
-      </View>
 
       <Text style={styles.label}>Email</Text>
       <View style={styles.inputWrapper}>
@@ -35,7 +58,12 @@ export default function register() {
           source={require("../../assets/myApp/mail.png")}
           style={styles.icon}
         />
-        <TextInput placeholder="Nhập địa chỉ email" style={styles.input} />
+        <TextInput
+          placeholder="Nhập địa chỉ email"
+          style={styles.input}
+          onChangeText={setEmail}
+          value={email}
+        />
       </View>
 
       <Text style={styles.label}>Mật khẩu</Text>
@@ -48,6 +76,8 @@ export default function register() {
           placeholder="Nhập mật khẩu"
           secureTextEntry={!showPassword}
           style={styles.input}
+          onChangeText={setPassword}
+          value={password}
         />
         <Pressable
           style={styles.iconRight}
@@ -63,7 +93,7 @@ export default function register() {
           />
         </Pressable>
       </View>
-      
+
       <Text style={styles.label}>Xác nhận mật khẩu</Text>
       <View style={styles.inputWrapper}>
         <Image
@@ -74,6 +104,8 @@ export default function register() {
           placeholder="Nhập lại mật khẩu"
           secureTextEntry={!showFogetPassword}
           style={styles.input}
+          onChangeText={setConfirmPassword}
+          value={confirmPassword}
         />
         <Pressable
           style={styles.iconRight}
@@ -90,11 +122,14 @@ export default function register() {
         </Pressable>
       </View>
 
-      <Text style={styles.forgetPassword} onPress={() => router.push("/(auth)/registerEmployer")}>
+      <Text
+        style={styles.forgetPassword}
+        onPress={() => router.push("/(auth)/registerEmployer")}
+      >
         Đăng ký là nhà tuyển dụng?
       </Text>
 
-      <Pressable style={styles.LoginButton} onPress={() => {}}>
+      <Pressable style={styles.LoginButton} onPress={handleRegister}>
         <Text style={styles.LoginButtonText}>Đăng ký</Text>
       </Pressable>
 
