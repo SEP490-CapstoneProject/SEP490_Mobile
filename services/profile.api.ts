@@ -77,39 +77,60 @@ export const fetchCompanyProfile = async () => {
   return data;
 };
 
-// export const updateEmployeeProfile = async (
-//   id: number,
-//   name?: string,
-//   phone?: string,
-//   avatar?: any,
-//   coverImage?: any,
-// ) => {
-//   const token = await getToken();
+export const updateEmployeeProfile = async (
+  id: number,
+  name?: string,
+  phone?: string,
+  avatar?: string | null,
+  coverImage?: string | null,
+) => {
+  const token = await getToken();
 
-//   const formData = new FormData();
+  const formData = new FormData();
 
-//   if (name) formData.append("Name", name);
-//   if (phone) formData.append("Phone", phone);
+  if (name) formData.append("Name", name);
+  if (phone) formData.append("Phone", phone);
 
-//   if (avatar) {
-//     formData.append("Avatar", avatar);
-//   }
+  console.log("avatar:", avatar);
+  if (avatar) {
+    formData.append("Avatar", {
+      uri: avatar,
+      name: "avatar.jpg",
+      type: "image/jpeg",
+    } as any);
+  }
 
-//   if (coverImage) {
-//     formData.append("CoverImage", coverImage);
-//   }
+  console.log("coverImage:", coverImage);
+  if (coverImage) {
+    formData.append("CoverImage", {
+      uri: coverImage,
+      name: "cover.jpg",
+      type: "image/jpeg",
+    } as any);
+  }
 
-//   const res = await fetch(`${BASE_URL_USER}/api/Employee/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//     body: formData,
-//   });
+  const res = await fetch(`${BASE_URL_USER}/api/Employee/${id}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
 
-//   const data = await res.json();
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
 
-//   if (!res.ok) throw new Error(data.message || "Update thất bại");
+  if (!res.ok) {
+    let message = "Cập nhật thất bại";
 
-//   return data;
-// };
+    if (data?.message) {
+      message = data.message;
+    } else if (data?.errors) {
+      message = Object.values(data.errors).flat().join("\n");
+    }
+
+    throw new Error(message);
+  }
+
+  return data;
+};

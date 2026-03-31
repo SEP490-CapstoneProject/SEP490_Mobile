@@ -1,4 +1,6 @@
 import { getAuth } from "@/services/auth.api";
+import { updateEmployeeProfile } from "@/services/profile.api";
+import { showError, showSuccess } from "@/utils/toast";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -45,9 +47,22 @@ export default function EditUserProfile() {
   };
 
   const handleSave = async () => {
-    // await updateEmployeeProfile(user?.id, name, phone, avatar, coverImage);
-    // showSuccess("Cập nhật thành công", "Thông tin cá nhân đã được cập nhật");
-    // router.push("../user");
+    try {
+      await updateEmployeeProfile(
+        parsedUser?.id,
+        name,
+        phone,
+        avatar,
+        coverImage,
+      );
+
+      console.log("Update thành công");
+      showSuccess("Thành công", "Cập nhật thông tin cá nhân thành công");
+      router.replace("/(tabs)/profile/user");
+    } catch (err: any) {
+      showError("Lỗi", err.message || "Cập nhật thất bại");
+      console.log("Update lỗi:", err);
+    }
   };
 
   return (
