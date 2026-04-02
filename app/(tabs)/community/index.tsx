@@ -1,6 +1,7 @@
 import MediaGrid from "@/components/MediaGrid";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
+import { usePostStore } from "@/utils/postStore";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -15,7 +16,7 @@ import { fetchCommunityPosts } from "../../../services/Comunity.api";
 
 export default function Community() {
   const router = useRouter();
-  const [posts, setPosts] = useState<any[]>([]);
+  const { posts, setPosts } = usePostStore();
   const [cursor, setCursor] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,8 +30,8 @@ export default function Community() {
 
       const res = await fetchCommunityPosts(10);
 
-      setPosts(res.items); // 👈 tùy backend trả gì
-      setCursor(res.nextCursor); // 👈 cursor tiếp theo
+      setPosts(res.items);
+      setCursor(res.nextCursor);
     } catch (err: any) {
       console.log(err);
 
@@ -73,7 +74,7 @@ export default function Community() {
       {/* content */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        onScrollEndDrag={loadMore}
+        onMomentumScrollEnd={loadMore}
       >
         {loading ? (
           <Text>Loading...</Text>
