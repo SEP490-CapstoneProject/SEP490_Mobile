@@ -56,7 +56,9 @@ export const isTokenExpired = (token: string) => {
 export const refreshToken = async () => {
   try {
     console.log("Token hết hạn → refresh Token");
+    console.log("token cũ:", await getToken());
     const refresh = await getRefreshToken();
+    console.log("refresh token:", refresh);
     if (!refresh) return null;
 
     const res = await fetch(`${BASE_URL}/api/Auth/refresh`, {
@@ -68,14 +70,16 @@ export const refreshToken = async () => {
     });
 
     const text = await res.text();
-    const data = text ? JSON.parse(text) : null;
+    const raw = text ? JSON.parse(text) : null;
 
-    if (!res.ok || !data) return null;
+    if (!res.ok || !raw || !raw.data) return null;
+    const data = raw.data;
 
+    console.log("Refresh token thành công, token mới:", data.accessToken);
     await saveToken(data.accessToken);
     await saveRefreshToken(data.refreshToken);
     await saveAuth(data.user);
-
+    console.log(" Refresh Token mới đã lưu:", await getRefreshToken());
     return data.accessToken;
   } catch {
     return null;

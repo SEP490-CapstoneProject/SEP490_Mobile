@@ -1,4 +1,4 @@
-import { fetchJobs, Job } from "@/services/home.api";
+import { fetchJobs } from "@/services/home.api";
 import { shareContent } from "@/services/share";
 import { Audio, ResizeMode, Video } from "expo-av";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -16,7 +16,7 @@ import {
 const { width, height } = Dimensions.get("window");
 
 export default function Home() {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();

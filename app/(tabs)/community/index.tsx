@@ -11,29 +11,49 @@ import {
   Text,
   View,
 } from "react-native";
-import {
-  CommunityPost,
-  fetchCommunityPosts,
-} from "../../../services/Comunity.api";
+import { fetchCommunityPosts } from "../../../services/Comunity.api";
 
 export default function Community() {
   const router = useRouter();
-  const [posts, setPosts] = useState<CommunityPost[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [cursor, setCursor] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const loadPosts = async () => {
-      setIsLoading(true);
-      try {
-        const fetchedPosts = await fetchCommunityPosts();
-        setPosts(fetchedPosts);
-      } catch (error) {
-        console.error("Error fetching community posts:", error);
-      }
-      setIsLoading(false);
-    };
     loadPosts();
   }, []);
+
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetchCommunityPosts(10);
+
+      setPosts(res.items); // 👈 tùy backend trả gì
+      setCursor(res.nextCursor); // 👈 cursor tiếp theo
+    } catch (err: any) {
+      console.log(err);
+
+      if (err.status === 401) {
+        router.replace("/(auth)/login");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    if (!cursor) return;
+
+    try {
+      const res = await fetchCommunityPosts(10, cursor);
+
+      setPosts((prev) => [...prev, ...res.items]);
+      setCursor(res.nextCursor);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -51,8 +71,11 @@ export default function Community() {
         </Pressable>
       </View>
       {/* content */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {isLoading ? (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        onScrollEndDrag={loadMore}
+      >
+        {loading ? (
           <Text>Loading...</Text>
         ) : (
           posts.map((post) => (

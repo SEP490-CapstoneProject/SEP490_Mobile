@@ -208,10 +208,6 @@ export const COMMUNITY_POSTS_MOCK: CommunityPost[] = [
   },
 ];
 
-export const fetchCommunityPosts = async (): Promise<CommunityPost[]> => {
-  return COMMUNITY_POSTS_MOCK;
-};
-
 export const POST_COMMENTS_MOCK: PostCommentsResponse[] = [
   {
     postId: 1,
@@ -357,7 +353,7 @@ export const COMMUNITY_POSTS_BY_USER_MOCK: CommunityPost[] = [
   {
     id: 1,
     author: {
-      id: 2,
+      id: 9,
       name: "Nguyễn Văn A",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
       role: "USER",
@@ -377,7 +373,7 @@ export const COMMUNITY_POSTS_BY_USER_MOCK: CommunityPost[] = [
   {
     id: 2,
     author: {
-      id: 2,
+      id: 9,
       name: "Nguyễn Văn A",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
       role: "USER",
@@ -404,7 +400,7 @@ export const COMMUNITY_POSTS_BY_USER_MOCK: CommunityPost[] = [
   {
     id: 3,
     author: {
-      id: 1,
+      id: 9,
       name: "Nguyễn Văn AA",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
       role: "USER",
@@ -439,6 +435,7 @@ export const fetchPostComments = async (
 export const fetchCommunityPostsByUser = (
   userId: number,
 ): Promise<CommunityPost[]> => {
+  console.log("Fetching posts for user ID:", userId);
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(
@@ -448,4 +445,97 @@ export const fetchCommunityPostsByUser = (
       );
     }, 10);
   });
+};
+
+import { getToken, isTokenExpired, refreshToken } from "@/services/auth.api";
+
+const BASE_URL_COMMUNITY = process.env.EXPO_PUBLIC_COMMUNITY_API;
+
+export const fetchCommunityPosts = async (
+  pageSize: number = 20,
+  cursor?: number,
+) => {
+  let url = `${BASE_URL_COMMUNITY}/api/community/posts?pageSize=${pageSize}`;
+
+  if (cursor) {
+    url += `&cursor=${cursor}`;
+  }
+
+  const res = await fetch(url);
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!res.ok) {
+    throw new Error(data?.message || "Lấy bài đăng thất bại");
+  }
+
+  return data;
+};
+
+export const fetchCreatePost = async (
+  description: string,
+  media: any[],
+  portfolioId?: number,
+) => {
+  let token = await getToken();
+
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+    if (!newToken) throw { status: 401 };
+    token = newToken;
+  }
+
+  const formData = new FormData();
+
+  media.forEach((item, index) => {
+    const uri = item.uri;
+
+    const ext = item.type === "video" ? "mp4" : uri.split(".").pop() || "jpg";
+
+    const fileName = `file_${index}.${ext}`;
+
+    let fileType =
+      item.type === "video" ? "video/mp4" : item.mimeType || "image/jpeg";
+
+    if (fileType === "image/heic") {
+      fileType = "image/jpeg";
+    }
+
+    formData.append("files", {
+      uri,
+      name: fileName,
+      type: fileType,
+    } as any);
+  });
+
+  const postJson = {
+    description,
+    portfolioId: portfolioId ?? null,
+    status: 1,
+  };
+
+  formData.append("postJson", JSON.stringify(postJson));
+
+  const res = await fetch(`${BASE_URL_COMMUNITY}/api/community/posts`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!res.ok) {
+    let message = "Đăng bài thất bại";
+
+    if (data?.message) message = data.message;
+    if (data?.errors) message = Object.values(data.errors).flat().join("\n");
+
+    throw new Error(message);
+  }
+
+  return data;
 };

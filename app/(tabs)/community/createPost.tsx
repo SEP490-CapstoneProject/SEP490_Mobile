@@ -1,3 +1,5 @@
+import { fetchCreatePost } from "@/services/Comunity.api";
+import { showError, showSuccess } from "@/utils/toast";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -17,6 +19,8 @@ export default function createPost() {
   const router = useRouter();
   const [media, setMedia] = useState<ImagePicker.ImagePickerAsset[]>([]);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [description, setDescription] = useState<string>("");
+  const [portfolioId, setPortfolioId] = useState<number | null>(null);
 
   const mediaUris = media.map((item) => item.uri);
   const removeMedia = (index: number) => {
@@ -40,6 +44,18 @@ export default function createPost() {
     }
   };
 
+  const handleCreatePost = async () => {
+    try {
+      const res = await fetchCreatePost(description, media);
+
+      showSuccess("Thành công", "Bài đăng của bạn đã được tạo");
+
+      router.replace("/(tabs)/community");
+    } catch (err: any) {
+      showError("Lỗi", err.message || "Tạo bài đăng thất bại");
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/** header */}
@@ -51,7 +67,7 @@ export default function createPost() {
           />
         </Pressable>
         <Text style={styles.title}>Tạo bài đăng</Text>
-        <Pressable style={styles.bntHeader}>
+        <Pressable style={styles.bntHeader} onPress={handleCreatePost}>
           <Text style={styles.bntTextHeader}>Đăng</Text>
         </Pressable>
       </View>
@@ -67,6 +83,8 @@ export default function createPost() {
           style={styles.postInput}
           spellCheck={false}
           autoCorrect={false}
+          value={description}
+          onChangeText={setDescription}
         />
         <View style={styles.media}>
           {mediaUris.length > 0 && (

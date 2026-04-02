@@ -1,4 +1,4 @@
-import { JobDetail, fetchJobById } from "@/services/home.api";
+import { fetchJobById } from "@/services/home.api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -14,7 +14,7 @@ export default function Detail() {
   const router = useRouter();
   const { postId } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
-  const [jobDetail, setJobDetail] = useState<JobDetail | null>(null);
+  const [jobDetail, setJobDetail] = useState<any | null>(null);
 
   useEffect(() => {
     const loadJobDetail = async () => {
@@ -58,7 +58,9 @@ export default function Detail() {
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Image
-          source={{ uri: jobDetail?.mediaUrl }}
+          source={{
+            uri: jobDetail?.media?.[0]?.url || jobDetail?.coverImageUrl || "",
+          }}
           style={{ width: "100%", height: 250 }}
         />
         {/* Header Content */}
