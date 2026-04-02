@@ -1,15 +1,19 @@
 import MediaGrid from "@/components/MediaGrid";
 import {
   CommunityPost,
+  createComment,
   fetchPostComments,
   fetchPostDetail,
   PostCommentsResponse,
+  replyComment,
 } from "@/services/Comunity.api";
 import { formatTimeAgo } from "@/services/setTime";
+import { usePostStore } from "@/utils/postStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Image,
+  Keyboard,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -33,18 +37,57 @@ export default function Comment() {
 
   const [replyingTo, setReplyingTo] = useState<ReplyTarget | null>(null);
   const [openRep, setOpenRep] = useState(false);
+  const [input, setInput] = useState("");
+  const inputRef = useRef<TextInput>(null);
+  const updateCommentCount = usePostStore((s) => s.updateCommentCount);
 
   useEffect(() => {
     const id = Number(postId);
     if (Number.isNaN(id)) return;
 
-    Promise.all([fetchPostDetail(id), fetchPostComments(id)]).then(
-      ([postRes, commentsRes]) => {
-        setPost(postRes);
+    const fetchData = async () => {
+      try {
+        const [postRes, commentsRes] = await Promise.all([
+          fetchPostDetail(id),
+          fetchPostComments(id),
+        ]);
+
+        if (postRes) {
+          setPost(postRes);
+        }
+
         setCommentsData(commentsRes);
-      },
-    );
+      } catch (err) {
+        console.error("Load post detail error:", err);
+      }
+    };
+
+    fetchData();
   }, [postId]);
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    const id = Number(postId);
+
+    try {
+      if (replyingTo) {
+        await replyComment(replyingTo.commentId, input, replyingTo.userId);
+      } else {
+        await createComment(id, input);
+        updateCommentCount(id);
+      }
+
+      setInput("");
+      setReplyingTo(null);
+      Keyboard.dismiss();
+      const commentsRes = await fetchPostComments(id);
+      setCommentsData(commentsRes);
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* title */}
@@ -93,7 +136,7 @@ export default function Comment() {
           {/** body content */}
           <View>
             <Text style={styles.textContent}>{post?.description}</Text>
-            {post?.link && (
+            {(post as any)?.link && (
               <Pressable style={styles.linkContainer}>
                 <Image
                   source={require("../../../assets/myApp/link.png")}
@@ -322,13 +365,16 @@ export default function Comment() {
 
         <View style={styles.commentInput}>
           <TextInput
+            value={input}
             placeholder={"Viết bình luận..."}
             multiline
             numberOfLines={3}
             textAlignVertical="top"
             style={styles.textInput}
+            onChangeText={setInput}
+            ref={inputRef}
           />
-          <Pressable style={styles.sendContainer}>
+          <Pressable style={styles.sendContainer} onPress={handleSend}>
             <Image
               source={require("../../../assets/myApp/send.png")}
               style={styles.send}
