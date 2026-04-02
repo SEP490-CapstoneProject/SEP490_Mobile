@@ -29,8 +29,9 @@ export default function CommunityManager() {
       setIsLoading(true);
       const auth = await getAuth();
       setUser(auth);
-      if (auth?.userId) {
-        const posts = await fetchCommunityPostsByUser(auth.userId);
+      if (auth?.id) {
+        console.log("User ID from auth:", auth.id);
+        const posts = await fetchCommunityPostsByUser(auth.id);
         setPosts(posts);
       }
 

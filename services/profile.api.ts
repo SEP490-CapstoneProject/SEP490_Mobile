@@ -26,7 +26,7 @@ export const fetchEmployeeProfile = async () => {
     if (!newToken) {
       throw { status: 401 };
     }
-
+    token = newToken;
     res = await fetch(`${BASE_URL_USER}/api/Employee/me`, {
       headers: {
         Authorization: `Bearer ${newToken}`,
