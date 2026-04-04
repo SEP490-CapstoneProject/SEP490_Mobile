@@ -11,7 +11,7 @@ class RealtimeService {
   public initConnection(accessToken: string) {
     if (this.connection) return;
 
-    const hubUrl = `https://api-gateway.grayforest-11aba44e.southeastasia.azurecontainerapps.io/hubs/realtime`;
+    const hubUrl = `${BASE_URL_REALTIME}/hubs/realtime`;
 
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {

@@ -8,6 +8,7 @@ import {
 } from "@/services/Comunity.api";
 import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
+import { usePostStore } from "@/utils/postStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -35,6 +36,7 @@ export default function Comment() {
   const [openRep, setOpenRep] = useState(false);
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
+  const updateCommentCount = usePostStore((s) => s.updateCommentCount);
 
   useEffect(() => {
     const id = Number(postId);
@@ -66,14 +68,14 @@ export default function Comment() {
     let isMounted = true;
 
     const setupRealtime = async () => {
-      const token = await getToken(); // ✅ FIX
+      const token = await getToken();
 
       if (!token || !isMounted) return;
 
       const id = String(postId);
 
       realtimeService.initConnection(token);
-      await realtimeService.start(); // ✅ nên await
+      await realtimeService.start();
       realtimeService.joinPost(id);
 
       // ===== COMMENT =====
@@ -178,6 +180,7 @@ export default function Comment() {
         await replyComment(replyingTo.commentId, input, replyingTo.userId);
       } else {
         await createComment(id, input);
+        updateCommentCount(id);
       }
 
       setInput("");

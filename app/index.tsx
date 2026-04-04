@@ -1,4 +1,4 @@
-import { getToken } from "@/services/auth.api";
+import { getToken, isTokenExpired, refreshToken } from "@/services/auth.api";
 import { realtimeService } from "@/services/realtimeService";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
@@ -11,12 +11,29 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (token) {
-      realtimeService.initConnection(token);
-      realtimeService.start();
-    }
-    return () => realtimeService.stop();
-  }, [token]);
+    const initAuth = async () => {
+      let currentToken = token;
+
+      if (!currentToken || isTokenExpired(currentToken)) {
+        const newToken = await refreshToken();
+
+        if (!newToken) {
+          console.log("Token hết hạn, cần login lại");
+          return;
+        }
+
+        setToken(newToken);
+        currentToken = newToken;
+      }
+
+      if (currentToken) {
+        realtimeService.initConnection(currentToken);
+        realtimeService.start();
+      }
+    };
+
+    initAuth();
+  }, []);
 
   if (token === undefined) return null;
 
