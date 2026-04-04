@@ -358,3 +358,44 @@ export const fetchSavedPosts = async () => {
 
   return data;
 };
+
+export const likePost = async (postId: number) => {
+  let token = await getToken();
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+
+    if (!newToken) {
+      throw { status: 401 };
+    }
+    token = newToken;
+  }
+  const res = await fetch(
+    `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/favorite`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) throw new Error("Like failed");
+};
+
+export const unlikePost = async (postId: number) => {
+  let token = await getToken();
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+
+    if (!newToken) {
+      throw { status: 401 };
+    }
+    token = newToken;
+  }
+  const res = await fetch(
+    `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/favorite`,
+    { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+  );
+
+  if (!res.ok) throw new Error("Unlike failed");
+};
