@@ -331,7 +331,16 @@ export const unsavePost = async (postId: number) => {
 };
 
 export const fetchSavedPosts = async () => {
-  const token = await getToken();
+  let token = await getToken();
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+
+    if (!newToken) {
+      throw { status: 401 };
+    }
+
+    token = newToken;
+  }
 
   const res = await fetch(`${BASE_URL_COMMUNITY}/api/community/posts/saved`, {
     method: "GET",
