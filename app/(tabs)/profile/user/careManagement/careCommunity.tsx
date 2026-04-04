@@ -1,9 +1,8 @@
 import MediaGrid from "@/components/MediaGrid";
-
-import { CommunityPost } from "@/services/Comunity.api";
+import { fetchSavedPosts } from "@/services/Comunity.api";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
-import { fetchCommunity } from "@/services/user/careManagement.api";
+import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,14 +16,14 @@ import {
 
 export default function CareCommunityScreen() {
   const router = useRouter();
-  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
       try {
-        const fetchedPosts = await fetchCommunity();
+        const fetchedPosts = await fetchSavedPosts();
         setPosts(fetchedPosts);
       } catch (error) {
         console.error("Error fetching community posts:", error);
@@ -124,13 +123,11 @@ export default function CareCommunityScreen() {
                     {post.commentCount}
                   </Text>
                 </Pressable>
-                <Image
-                  source={require("../../../../../assets/myApp/bookmark.png")}
-                  style={[
-                    styles.footerIcon,
-                    post.isSaved ? { tintColor: "#FFD700" } : {},
-                  ]}
-                />
+                {post.isSaved === true ? (
+                  <FontAwesome name="bookmark" size={24} color="#FFD700" />
+                ) : (
+                  <FontAwesome name="bookmark" size={24} color="#cbd2dc" />
+                )}
                 <Pressable
                   onPress={() =>
                     shareContent(`https://skillsnap.io/post/${post.id}`)

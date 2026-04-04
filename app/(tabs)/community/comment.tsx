@@ -1,19 +1,17 @@
 import MediaGrid from "@/components/MediaGrid";
+import { getToken } from "@/services/auth.api";
 import {
-  CommunityPost,
   createComment,
   fetchPostComments,
   fetchPostDetail,
-  PostCommentsResponse,
   replyComment,
 } from "@/services/Comunity.api";
+import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
-import { usePostStore } from "@/utils/postStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Image,
-  Keyboard,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -25,10 +23,8 @@ import {
 export default function Comment() {
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const router = useRouter();
-  const [post, setPost] = useState<CommunityPost | null>(null);
-  const [commentsData, setCommentsData] = useState<PostCommentsResponse | null>(
-    null,
-  );
+  const [post, setPost] = useState<any | null>(null);
+  const [commentsData, setCommentsData] = useState<any | null>(null);
   type ReplyTarget = {
     commentId: number;
     userId: number;
@@ -39,7 +35,6 @@ export default function Comment() {
   const [openRep, setOpenRep] = useState(false);
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
-  const updateCommentCount = usePostStore((s) => s.updateCommentCount);
 
   useEffect(() => {
     const id = Number(postId);
@@ -65,6 +60,114 @@ export default function Comment() {
     fetchData();
   }, [postId]);
 
+  useEffect(() => {
+    if (!postId) return;
+
+    let isMounted = true;
+
+    const setupRealtime = async () => {
+      const token = await getToken(); // ✅ FIX
+
+      if (!token || !isMounted) return;
+
+      const id = String(postId);
+
+      realtimeService.initConnection(token);
+      await realtimeService.start(); // ✅ nên await
+      realtimeService.joinPost(id);
+
+      // ===== COMMENT =====
+      const handleComment = (data: any) => {
+        if (String(data.postId) !== id) return;
+
+        setCommentsData((prev: any) => {
+          if (!prev) return prev;
+
+          if (prev.comments.some((c: any) => c.id === data.commentId)) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            comments: [
+              {
+                id: data.commentId,
+                content: data.content,
+                createdAt: data.createdAt,
+                author: {
+                  id: Number(data.actorId || data.userId),
+                  name: data.author?.name || data.actorName,
+                  avatar: data.author?.avatar || data.actorAvatar,
+                  role: data.author?.role || data.actorType,
+                },
+                replies: [],
+              },
+              ...prev.comments,
+            ],
+          };
+        });
+      };
+
+      // ===== REPLY =====
+      const handleReply = (data: any) => {
+        if (String(data.postId) !== id) return;
+
+        setCommentsData((prev: any) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            comments: prev.comments.map((c: any) => {
+              if (Number(c.id) !== Number(data.parentCommentId)) return c;
+
+              if (c.replies.some((r: any) => r.id === data.commentId)) {
+                return c;
+              }
+
+              return {
+                ...c,
+                replies: [
+                  ...c.replies,
+                  {
+                    id: data.commentId,
+                    content: data.content,
+                    createdAt: data.createdAt,
+                    author: {
+                      id: Number(data.actorId || data.userId),
+                      name: data.author?.name || data.actorName,
+                      avatar: data.author?.avatar || data.actorAvatar,
+                      role: data.author?.role || data.actorType,
+                    },
+                    replyToUser: {
+                      id: data.replyToUserId,
+                      name: data.replyToUserName || "User",
+                    },
+                  },
+                ],
+              };
+            }),
+          };
+        });
+      };
+
+      realtimeService.onComment(handleComment);
+      realtimeService.onReply(handleReply);
+
+      return () => {
+        realtimeService.leavePost(id);
+        realtimeService.offComment(handleComment);
+        realtimeService.offReply(handleReply);
+      };
+    };
+
+    const cleanupPromise = setupRealtime();
+
+    return () => {
+      isMounted = false;
+      cleanupPromise.then((cleanup) => cleanup && cleanup());
+    };
+  }, [postId]);
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -75,16 +178,12 @@ export default function Comment() {
         await replyComment(replyingTo.commentId, input, replyingTo.userId);
       } else {
         await createComment(id, input);
-        updateCommentCount(id);
       }
 
       setInput("");
       setReplyingTo(null);
-      Keyboard.dismiss();
-      const commentsRes = await fetchPostComments(id);
-      setCommentsData(commentsRes);
-    } catch (err: any) {
-      console.error(err);
+    } catch (err) {
+      console.error("Send comment error:", err);
     }
   };
 
@@ -186,7 +285,7 @@ export default function Comment() {
         {/** Comments Section */}
         <View style={{ flex: 1 }}>
           {commentsData && commentsData.comments.length > 0 ? (
-            commentsData.comments.map((comment) => (
+            commentsData.comments.map((comment: any) => (
               <View key={comment.id}>
                 {/* COMMENT CHA */}
                 <View style={styles.commentRow}>
@@ -253,7 +352,7 @@ export default function Comment() {
                       </View>
                     ) : (
                       <View>
-                        {comment.replies.map((reply) => (
+                        {comment.replies.map((reply: any) => (
                           <View key={reply.id} style={styles.replyRow}>
                             {/* Avatar cha */}
                             <View style={styles.avatarWrapper}>

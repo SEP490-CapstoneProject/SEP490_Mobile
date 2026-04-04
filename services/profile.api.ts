@@ -1,8 +1,23 @@
-import { getToken, isTokenExpired, refreshToken } from "./auth.api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuth, getToken, isTokenExpired, refreshToken } from "./auth.api";
 const BASE_URL_USER = process.env.EXPO_PUBLIC_USER_API;
+
+export const saveProfile = async (profile: any) => {
+  await AsyncStorage.setItem("profile", JSON.stringify(profile));
+};
+
+export const getProfile = async () => {
+  const raw = await AsyncStorage.getItem("profile");
+  return raw ? JSON.parse(raw) : null;
+};
+
+export const removeProfile = async () => {
+  await AsyncStorage.removeItem("profile");
+};
 
 export const fetchEmployeeProfile = async () => {
   let token = await getToken();
+  const auth = await getAuth();
 
   if (!token || isTokenExpired(token)) {
     const newToken = await refreshToken();
@@ -40,12 +55,13 @@ export const fetchEmployeeProfile = async () => {
   if (!res.ok) {
     throw new Error("Lấy employee thất bại");
   }
-
+  saveProfile({ ...data, role: auth?.role || "" });
   return data;
 };
 
 export const fetchCompanyProfile = async () => {
   let token = await getToken();
+  const auth = await getAuth();
 
   if (!token || isTokenExpired(token)) {
     const newToken = await refreshToken();
@@ -73,7 +89,7 @@ export const fetchCompanyProfile = async () => {
   if (!res.ok) {
     throw new Error("Lấy company thất bại");
   }
-
+  saveProfile({ ...data, role: auth?.role || "" });
   return data;
 };
 
@@ -84,7 +100,17 @@ export const updateEmployeeProfile = async (
   avatar?: string | null,
   coverImage?: string | null,
 ) => {
-  const token = await getToken();
+  let token = await getToken();
+
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+
+    if (!newToken) {
+      throw { status: 401 };
+    }
+
+    token = newToken;
+  }
 
   const formData = new FormData();
 
@@ -132,5 +158,6 @@ export const updateEmployeeProfile = async (
     throw new Error(message);
   }
 
+  fetchEmployeeProfile();
   return data;
 };

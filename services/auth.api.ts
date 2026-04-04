@@ -1,5 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode as atob } from "base-64";
+import {
+  fetchCompanyProfile,
+  fetchEmployeeProfile,
+  removeProfile,
+} from "./profile.api";
 const BASE_URL = process.env.EXPO_PUBLIC_AUTH_API;
 
 const TOKEN_KEY = "token";
@@ -127,6 +132,11 @@ export const login = async (email: string, password: string) => {
     await saveRefreshToken(refreshToken);
     await saveAuth(user);
 
+    if (user.role === 1) {
+      await fetchEmployeeProfile();
+    } else if (user.role === 2) {
+      await fetchCompanyProfile();
+    }
     return {
       needSetup: false,
       role: user.role,
@@ -165,4 +175,5 @@ export const logout = async () => {
   await AsyncStorage.removeItem(TOKEN_KEY);
   await AsyncStorage.removeItem(STORAGE_KEY);
   await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+  await removeProfile();
 };

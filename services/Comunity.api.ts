@@ -1,70 +1,3 @@
-export interface CommunityPost {
-  id: number;
-
-  author: {
-    id: number;
-    name: string;
-    avatar: string;
-    role: "COMPANY" | "USER";
-  };
-  description?: string;
-  media?: string[];
-  portfolioId?: number;
-  portfolioPreview?: {
-    type: string;
-    variant: string;
-    data: any;
-  };
-  favoriteCount: number;
-  commentCount: number;
-  isFavorited: boolean;
-  isSaved: boolean;
-  createdAt: string;
-}
-
-export interface CommentUser {
-  id: number;
-  name: string;
-  avatar: string;
-  role: "COMPANY" | "USER";
-}
-
-export interface ReplyComment {
-  id: number;
-  author: CommentUser;
-  replyToUser: CommentUser;
-  content: string;
-  createdAt: string;
-}
-
-export interface PostComment {
-  id: number;
-  author: CommentUser;
-  content: string;
-  createdAt: string;
-  replies: ReplyComment[];
-}
-
-export interface PostCommentsResponse {
-  postId: number;
-  comments: PostComment[];
-}
-
-// export const fetchCommunityPostsByUser = (
-//   userId: number,
-// ): Promise<CommunityPost[]> => {
-//   console.log("Fetching posts for user ID:", userId);
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve(
-//         COMMUNITY_POSTS_BY_USER_MOCK.filter(
-//           (post) => post.author.id === userId,
-//         ),
-//       );
-//     }, 10);
-//   });
-// };
-
 import { getToken, isTokenExpired, refreshToken } from "@/services/auth.api";
 
 const BASE_URL_COMMUNITY = process.env.EXPO_PUBLIC_COMMUNITY_API;
@@ -79,7 +12,21 @@ export const fetchCommunityPosts = async (
     url += `&cursor=${cursor}`;
   }
 
-  const res = await fetch(url);
+  let token = await getToken();
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+
+    if (!newToken) {
+      throw { status: 401 };
+    }
+
+    token = newToken;
+  }
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   const text = await res.text();
   const data = text ? JSON.parse(text) : null;
@@ -160,7 +107,16 @@ export const fetchCreatePost = async (
 
 export const fetchPostDetail = async (postId: number) => {
   try {
-    const token = await getToken();
+    let token = await getToken();
+    if (!token || isTokenExpired(token)) {
+      const newToken = await refreshToken();
+
+      if (!newToken) {
+        throw { status: 401 };
+      }
+
+      token = newToken;
+    }
 
     const res = await fetch(
       `${BASE_URL_COMMUNITY}/api/community/posts/${postId}`,
@@ -186,7 +142,16 @@ export const fetchPostDetail = async (postId: number) => {
 
 export const fetchPostComments = async (postId: number) => {
   try {
-    const token = await getToken();
+    let token = await getToken();
+    if (!token || isTokenExpired(token)) {
+      const newToken = await refreshToken();
+
+      if (!newToken) {
+        throw { status: 401 };
+      }
+
+      token = newToken;
+    }
 
     const res = await fetch(
       `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/comments`,
@@ -214,34 +179,37 @@ export const fetchPostComments = async (postId: number) => {
 };
 
 export const createComment = async (postId: number, content: string) => {
-  try {
-    const token = await getToken();
+  let token = await getToken();
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
 
-    const res = await fetch(
-      `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/comments`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          content,
-        }),
-      },
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.message || "Tạo comment thất bại");
+    if (!newToken) {
+      throw { status: 401 };
     }
 
-    return data;
-  } catch (err) {
-    console.error("createComment error:", err);
-    throw err;
+    token = newToken;
   }
+
+  const res = await fetch(
+    `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/comments`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ content }),
+    },
+  );
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!res.ok) {
+    throw new Error(data?.message || "Tạo comment thất bại");
+  }
+
+  return data;
 };
 
 export const replyComment = async (
@@ -250,7 +218,16 @@ export const replyComment = async (
   replyToUserId: number,
 ) => {
   try {
-    const token = await getToken();
+    let token = await getToken();
+    if (!token || isTokenExpired(token)) {
+      const newToken = await refreshToken();
+
+      if (!newToken) {
+        throw { status: 401 };
+      }
+
+      token = newToken;
+    }
 
     const res = await fetch(
       `${BASE_URL_COMMUNITY}/api/community/comments/${commentId}/replies`,
@@ -267,7 +244,8 @@ export const replyComment = async (
       },
     );
 
-    const data = await res.json();
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
 
     if (!res.ok) {
       throw new Error(data?.message || "Reply thất bại");
@@ -278,4 +256,96 @@ export const replyComment = async (
     console.error("replyComment error:", err);
     throw err;
   }
+};
+
+export const fetchCommunityPostsByUser = async (userId: number) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL_COMMUNITY}/api/community/posts/user/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+        },
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    return data;
+  } catch (error) {
+    return error instanceof Error ? error.message : "Lỗi không xác định";
+  }
+};
+
+export const savePost = async (postId: number) => {
+  let token = await getToken();
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+
+    if (!newToken) {
+      throw { status: 401 };
+    }
+
+    token = newToken;
+  }
+  const res = await fetch(
+    `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/save`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) throw new Error("Save failed");
+};
+
+export const unsavePost = async (postId: number) => {
+  let token = await getToken();
+  if (!token || isTokenExpired(token)) {
+    const newToken = await refreshToken();
+
+    if (!newToken) {
+      throw { status: 401 };
+    }
+
+    token = newToken;
+  }
+  const res = await fetch(
+    `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/save`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) throw new Error("Unsave failed");
+};
+
+export const fetchSavedPosts = async () => {
+  const token = await getToken();
+
+  const res = await fetch(`${BASE_URL_COMMUNITY}/api/community/posts/saved`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!res.ok) {
+    throw new Error(data?.message || "Lấy danh sách bài đã lưu thất bại");
+  }
+
+  return data;
 };
