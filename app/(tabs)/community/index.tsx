@@ -1,4 +1,5 @@
 import MediaGrid from "@/components/MediaGrid";
+import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
 import { usePostStore } from "@/utils/postStore";
@@ -15,7 +16,9 @@ import {
 } from "react-native";
 import {
   fetchCommunityPosts,
+  likePost,
   savePost,
+  unlikePost,
   unsavePost,
 } from "../../../services/Comunity.api";
 
@@ -24,6 +27,8 @@ export default function Community() {
   const { posts, setPosts, toggleSave } = usePostStore();
   const [cursor, setCursor] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const { updateFavoriteRealtime } = usePostStore();
+  const { toggleFavorite } = usePostStore();
 
   useEffect(() => {
     loadPosts();
@@ -78,6 +83,39 @@ export default function Community() {
     } catch (err) {
       console.log(err);
       toggleSave(postId);
+    }
+  };
+
+  useEffect(() => {
+    const handler = (data: any) => {
+      console.log("🔥 FAVORITE REALTIME:", data);
+
+      updateFavoriteRealtime(
+        data.postId,
+        Number(data.userId),
+        data.action, // boolean
+        data.newFavoriteCount,
+      );
+    };
+
+    realtimeService.onFavorite(handler);
+
+    return () => {
+      realtimeService.offFavorite(handler);
+    };
+  }, []);
+
+  const handleLike = async (postId: number) => {
+    toggleFavorite(postId);
+
+    try {
+      if (!posts.find((p) => p.id === postId)?.isFavorited) {
+        await likePost(postId);
+      } else {
+        await unlikePost(postId);
+      }
+    } catch (err) {
+      toggleFavorite(postId);
     }
   };
 
@@ -157,13 +195,15 @@ export default function Community() {
               {/** footer content */}
               <View style={styles.footerContainer}>
                 <View style={styles.favoriteCount}>
-                  <Image
-                    source={require("../../../assets/myApp/heartA (1).png")}
-                    style={[
-                      styles.footerIcon,
-                      post.isFavorited ? { tintColor: "#FF4848" } : {},
-                    ]}
-                  />
+                  <Pressable onPress={() => handleLike(post.id)}>
+                    <Image
+                      source={require("../../../assets/myApp/heartA (1).png")}
+                      style={[
+                        styles.footerIcon,
+                        post.isFavorited ? { tintColor: "#FF4848" } : {},
+                      ]}
+                    />
+                  </Pressable>
                   <Text style={styles.textFavoriteCount}>
                     {post.favoriteCount}
                   </Text>

@@ -40,7 +40,6 @@ class RealtimeService {
     });
   }
 
-  // 👉 subscribe
   onComment(cb: Function) {
     this.commentListeners.push(cb);
   }
@@ -53,7 +52,6 @@ class RealtimeService {
     this.favoriteListeners.push(cb);
   }
 
-  // 👉 unsubscribe
   offComment(cb: Function) {
     this.commentListeners = this.commentListeners.filter((c) => c !== cb);
   }
