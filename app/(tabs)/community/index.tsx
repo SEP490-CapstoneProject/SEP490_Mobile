@@ -2,6 +2,7 @@ import MediaGrid from "@/components/MediaGrid";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
 import { usePostStore } from "@/utils/postStore";
+import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -12,11 +13,15 @@ import {
   Text,
   View,
 } from "react-native";
-import { fetchCommunityPosts } from "../../../services/Comunity.api";
+import {
+  fetchCommunityPosts,
+  savePost,
+  unsavePost,
+} from "../../../services/Comunity.api";
 
 export default function Community() {
   const router = useRouter();
-  const { posts, setPosts } = usePostStore();
+  const { posts, setPosts, toggleSave } = usePostStore();
   const [cursor, setCursor] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +58,26 @@ export default function Community() {
       setCursor(res.nextCursor);
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const handleSave = async (postId: number) => {
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return;
+
+    const wasSaved = post.isSaved;
+
+    toggleSave(postId);
+
+    try {
+      if (wasSaved) {
+        await unsavePost(postId);
+      } else {
+        await savePost(postId);
+      }
+    } catch (err) {
+      console.log(err);
+      toggleSave(postId);
     }
   };
 
@@ -162,13 +187,13 @@ export default function Community() {
                     {post.commentCount}
                   </Text>
                 </Pressable>
-                <Image
-                  source={require("../../../assets/myApp/bookmark.png")}
-                  style={[
-                    styles.footerIcon,
-                    post.isSaved ? { tintColor: "#FFD700" } : {},
-                  ]}
-                />
+                <Pressable onPress={() => handleSave(post.id)}>
+                  {post.isSaved === true ? (
+                    <FontAwesome name="bookmark" size={24} color="#FFD700" />
+                  ) : (
+                    <FontAwesome name="bookmark" size={24} color="#cbd2dc" />
+                  )}
+                </Pressable>
                 <Pressable
                   onPress={() =>
                     shareContent(`https://skillsnap.io/post/${post.id}`)

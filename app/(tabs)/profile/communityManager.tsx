@@ -1,9 +1,6 @@
 import MediaGrid from "@/components/MediaGrid";
 import { getAuth } from "@/services/auth.api";
-import {
-  CommunityPost,
-  fetchCommunityPostsByUser,
-} from "@/services/Comunity.api";
+import { fetchCommunityPostsByUser } from "@/services/Comunity.api";
 import { formatTimeAgo } from "@/services/setTime";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -18,9 +15,8 @@ import {
 
 export default function CommunityManager() {
   const router = useRouter();
-  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [user, setUser] = useState<any>(null);
   const [sortOrder, setSortOrder] = useState<"NEWEST" | "OLDEST">("NEWEST");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,9 +24,7 @@ export default function CommunityManager() {
     const loadData = async () => {
       setIsLoading(true);
       const auth = await getAuth();
-      setUser(auth);
       if (auth?.id) {
-        console.log("User ID from auth:", auth.id);
         const posts = await fetchCommunityPostsByUser(auth.id);
         setPosts(posts);
       }

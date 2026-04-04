@@ -4,7 +4,7 @@ import ProfilePage from "@/components/profile/ProfilePage";
 import { logout } from "@/services/auth.api";
 
 import { fetchMainBlockPortfolioByUserId } from "@/services/portfolio.api";
-import { fetchEmployeeProfile } from "@/services/profile.api";
+import { getProfile } from "@/services/profile.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -24,18 +24,18 @@ export default function UserProfile() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const user = await fetchEmployeeProfile();
-        setUser(user);
-      } catch (err: any) {
-        if (err.status === 401) {
-          console.log("Token hết hạn → logout");
+        const user = await getProfile();
 
+        if (!user) {
+          console.log("Không có user → logout");
           await logout();
-
           router.replace("/(auth)/login");
-        } else {
-          console.log("Lỗi khác:", err);
+          return;
         }
+
+        setUser(user);
+      } catch (err) {
+        console.log("Lỗi load profile:", err);
       }
     };
 
