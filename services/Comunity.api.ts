@@ -260,12 +260,24 @@ export const replyComment = async (
 
 export const fetchCommunityPostsByUser = async (userId: number) => {
   try {
+    let token = await getToken();
+    if (!token || isTokenExpired(token)) {
+      const newToken = await refreshToken();
+
+      if (!newToken) {
+        throw { status: 401 };
+      }
+
+      token = newToken;
+    }
+
     const res = await fetch(
       `${BASE_URL_COMMUNITY}/api/community/posts/user/${userId}`,
       {
         method: "GET",
         headers: {
           Accept: "*/*",
+          Authorization: `Bearer ${token}`,
         },
       },
     );
@@ -328,35 +340,6 @@ export const unsavePost = async (postId: number) => {
   );
 
   if (!res.ok) throw new Error("Unsave failed");
-};
-
-export const fetchSavedPosts = async () => {
-  let token = await getToken();
-  if (!token || isTokenExpired(token)) {
-    const newToken = await refreshToken();
-
-    if (!newToken) {
-      throw { status: 401 };
-    }
-
-    token = newToken;
-  }
-
-  const res = await fetch(`${BASE_URL_COMMUNITY}/api/community/posts/saved`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
-
-  if (!res.ok) {
-    throw new Error(data?.message || "Lấy danh sách bài đã lưu thất bại");
-  }
-
-  return data;
 };
 
 export const likePost = async (postId: number) => {

@@ -1,7 +1,8 @@
 import MediaGrid from "@/components/MediaGrid";
-import { fetchSavedPosts } from "@/services/Comunity.api";
+
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
+import { fetchSavedPosts } from "@/services/user/careManagement.api";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";

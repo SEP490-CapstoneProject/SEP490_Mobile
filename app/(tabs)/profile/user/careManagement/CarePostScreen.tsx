@@ -1,4 +1,3 @@
-import { Job } from "@/services/home.api";
 import { shareContent } from "@/services/share";
 import { fetchSavedJobs } from "@/services/user/careManagement.api";
 import { ResizeMode, Video } from "expo-av";
@@ -15,9 +14,14 @@ import {
 
 export default function CarePostScreen() {
   const router = useRouter();
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]);
   useEffect(() => {
-    fetchSavedJobs().then(setJobs);
+    const loadSaved = async () => {
+      const data = await fetchSavedJobs();
+      setJobs(data);
+    };
+
+    loadSaved();
   }, []);
 
   return (
