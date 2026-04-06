@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuth, getToken, isTokenExpired, refreshToken } from "./auth.api";
 const BASE_URL_USER = process.env.EXPO_PUBLIC_USER_API;
+const BASE_URL_COMPANY = process.env.EXPO_PUBLIC_COMPANY_API;
 
 export const saveProfile = async (profile: any) => {
   await AsyncStorage.setItem("profile", JSON.stringify(profile));

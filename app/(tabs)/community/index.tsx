@@ -3,7 +3,6 @@ import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
 import { usePostStore } from "@/utils/postStore";
-import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -228,11 +227,13 @@ export default function Community() {
                   </Text>
                 </Pressable>
                 <Pressable onPress={() => handleSave(post.id)}>
-                  {post.isSaved === true ? (
-                    <FontAwesome name="bookmark" size={24} color="#FFD700" />
-                  ) : (
-                    <FontAwesome name="bookmark" size={24} color="#cbd2dc" />
-                  )}
+                  <Image
+                    source={require("../../../assets/myApp/bookmark.png")}
+                    style={[
+                      styles.footerIcon,
+                      post.isSaved ? { tintColor: "#FFD700" } : {},
+                    ]}
+                  />
                 </Pressable>
                 <Pressable
                   onPress={() =>

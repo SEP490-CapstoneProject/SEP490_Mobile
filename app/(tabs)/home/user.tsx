@@ -1,5 +1,6 @@
-import { fetchJobs } from "@/services/home.api";
+import { fetchJobs, saveJob, unSaveJob } from "@/services/home.api";
 import { shareContent } from "@/services/share";
+import { useJobStore } from "@/utils/jobPostStore";
 import { Audio, ResizeMode, Video } from "expo-av";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -16,10 +17,12 @@ import {
 const { width, height } = Dimensions.get("window");
 
 export default function Home() {
-  const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
+  const jobs = useJobStore((s) => s.jobs);
+  const setJobs = useJobStore((s) => s.setJobs);
+  const toggleSave = useJobStore((s) => s.toggleSave);
 
   // refs cho video
   const videoRefs = useRef<(Video | null)[]>([]);
@@ -51,16 +54,25 @@ export default function Home() {
         const video = videoRefs.current[activeIndex];
         if (!video || !isActive) return;
 
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          staysActiveInBackground: false,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: false,
-        });
+        try {
+          const status = await video.getStatusAsync();
 
-        await video.setIsMutedAsync(false);
-        await video.setVolumeAsync(1.0);
-        await video.replayAsync();
+          if (!status.isLoaded) return;
+
+          await Audio.setAudioModeAsync({
+            allowsRecordingIOS: false,
+            staysActiveInBackground: false,
+            playsInSilentModeIOS: true,
+            shouldDuckAndroid: false,
+          });
+
+          await video.setIsMutedAsync(false);
+          await video.setVolumeAsync(1.0);
+
+          await video.playAsync();
+        } catch (e) {
+          console.log("Video chưa load xong");
+        }
       };
 
       autoPlay();
@@ -80,6 +92,21 @@ export default function Home() {
   const onScrollEnd = (e: any) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setActiveIndex(index);
+  };
+
+  const handleSaveJob = async (postId: number, isSaved: boolean) => {
+    toggleSave(postId);
+
+    try {
+      if (isSaved) {
+        await unSaveJob(postId);
+      } else {
+        await saveJob(postId);
+      }
+    } catch (error) {
+      console.log("❌ Save lỗi → rollback");
+      toggleSave(postId);
+    }
   };
 
   return (
@@ -166,13 +193,17 @@ export default function Home() {
                   </View>
                 </View>
                 <View style={{ marginTop: -10 }}>
-                  <Image
-                    source={require("../../../assets/myApp/bookmark.png")}
-                    style={[
-                      styles.iconRight,
-                      job.isSaved ? { tintColor: "#FFD700" } : {},
-                    ]}
-                  />
+                  <Pressable
+                    onPress={() => handleSaveJob(job.postId, job.isSaved)}
+                  >
+                    <Image
+                      source={require("../../../assets/myApp/bookmark.png")}
+                      style={[
+                        styles.iconRight,
+                        job.isSaved ? { tintColor: "#FFD700" } : {},
+                      ]}
+                    />
+                  </Pressable>
                   <Pressable
                     onPress={() =>
                       shareContent(`https://skillsnap.io/job/${job.postId}`)
