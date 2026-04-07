@@ -1,7 +1,11 @@
-import { updateCompanyProfile } from "@/services/profile.api";
-import { showError, showSuccess } from "@/utils/toast";
+import { getAuth } from "@/services/auth.api";
+import {
+  createCompanyProfile,
+  fetchCompanyProfile,
+} from "@/services/profile.api";
+import { showError } from "@/utils/toast";
 import * as ImagePicker from "expo-image-picker";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -13,12 +17,9 @@ import {
   View,
 } from "react-native";
 
-export default function EditCompanyProfile() {
+export default function SetupProfileCompany() {
   const router = useRouter();
-
-  const params = useLocalSearchParams();
-  const user = params.user ? JSON.parse(params.user as string) : null;
-
+  const [user, setUser] = useState<any>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
@@ -27,17 +28,8 @@ export default function EditCompanyProfile() {
   const [address, setAddress] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
-  // 🔥 GIỐNG USER → set state ban đầu
   useEffect(() => {
-    if (user) {
-      setName(user.companyName || "");
-      setTaxId(user.taxIdentification?.toString() || "");
-      setActivityField(user.activityField || "");
-      setAddress(user.address || "");
-      setDescription(user.description || "");
-      setAvatar(user.avatar || null);
-      setCoverImage(user.coverImage || null);
-    }
+    getAuth().then(setUser);
   }, []);
 
   const pickImage = async (onPick: (uri: string) => void) => {
@@ -55,21 +47,24 @@ export default function EditCompanyProfile() {
 
   const handleSave = async () => {
     try {
-      await updateCompanyProfile({
-        id: user.id,
+      if (name.trim() === "") {
+        alert("Vui lòng nhập tên công ty");
+        return;
+      }
+      await createCompanyProfile({
         companyName: name,
-        activityField,
-        taxIdentification: taxId ? Number(taxId) : undefined,
+        activityField: activityField,
+        taxIdentification: taxId,
         address,
         description,
         avatar,
         coverImage,
       });
 
-      showSuccess("Thành công", "Cập nhật thông tin cá nhân thành công");
-      router.replace("/(tabs)/profile/company");
+      await fetchCompanyProfile();
+      router.replace("/(tabs)/home");
     } catch (err: any) {
-      showError("Lỗi", err.message || "Cập nhật thất bại");
+      showError("Lỗi", err.message || "Tạo hồ sơ thất bại");
     }
   };
 
@@ -77,28 +72,29 @@ export default function EditCompanyProfile() {
     <View style={styles.container}>
       {/* header */}
       <View style={styles.headerContainer}>
-        <Pressable onPress={() => router.back()}>
-          <Image
-            source={require("../../../../assets/myApp/arrow.png")}
-            style={styles.headerIcon}
-          />
-        </Pressable>
-        <Text style={styles.title}>Chỉnh sửa thông tin cá nhân</Text>
+        <Text style={styles.title}>Chào mừng người mới</Text>
       </View>
-
-      <ScrollView>
+      {/* body */}
+      <ScrollView style={{ flex: 1, marginBottom: 50 }}>
         <View>
           <View>
-            <Image
-              source={{ uri: coverImage ?? user?.coverImage }}
-              style={styles.coverImage}
-            />
+            {coverImage || user?.coverImage ? (
+              <Image
+                source={{ uri: coverImage ?? user?.coverImage }}
+                style={styles.coverImage}
+              />
+            ) : (
+              <View style={styles.coverPlaceholder}>
+                <Text style={styles.placeholderText}>Chưa có ảnh</Text>
+              </View>
+            )}
+
             <Pressable
               style={styles.cameraCover}
               onPress={() => pickImage(setCoverImage)}
             >
               <Image
-                source={require("../../../../assets/myApp/camera.png")}
+                source={require("../assets/myApp/camera.png")}
                 style={styles.cameraIcon}
               />
             </Pressable>
@@ -114,79 +110,79 @@ export default function EditCompanyProfile() {
               onPress={() => pickImage(setAvatar)}
             >
               <Image
-                source={require("../../../../assets/myApp/camera.png")}
+                source={require("../assets/myApp/camera.png")}
                 style={styles.cameraIcon}
               />
             </Pressable>
           </View>
         </View>
-
         <View style={{ padding: 20, gap: 20, marginTop: 70 }}>
           <View style={{ gap: 7 }}>
             <Text style={styles.label}>Tên hiển thị</Text>
             <View style={{ position: "relative" }}>
               <Image
-                source={require("../../../../assets/myApp/user.png")}
+                source={require("../assets/myApp/user.png")}
                 style={styles.iconTextLeft}
               />
               <Image
-                source={require("../../../../assets/myApp/pencil.png")}
+                source={require("../assets/myApp/pencil.png")}
                 style={styles.iconTextRight}
               />
               <TextInput
+                placeholder={"Không được để trống"}
                 value={name}
                 onChangeText={setName}
                 style={styles.input}
               />
             </View>
           </View>
-
           <View style={{ gap: 7 }}>
             <Text style={styles.label}>Mã số thuế</Text>
             <View style={{ position: "relative" }}>
               <Image
-                source={require("../../../../assets/myApp/no-tax.png")}
+                source={require("../assets/myApp/no-tax.png")}
                 style={styles.iconTextLeft}
               />
               <Image
-                source={require("../../../../assets/myApp/padlock.png")}
+                source={require("../assets/myApp/pencil.png")}
                 style={styles.iconTextRight}
               />
               <TextInput
+                placeholder={"Không được để trống"}
                 value={taxId}
                 onChangeText={setTaxId}
                 style={styles.input}
               />
             </View>
           </View>
-
           <View style={{ gap: 7 }}>
             <Text style={styles.label}>Lĩnh vực hoạt động</Text>
             <View style={{ position: "relative" }}>
               <Image
-                source={require("../../../../assets/myApp/pencil.png")}
+                source={require("../assets/myApp/pencil.png")}
                 style={styles.iconTextRight}
               />
               <TextInput
+                placeholder={"Không được để trống"}
                 value={activityField}
                 onChangeText={setActivityField}
                 style={styles.input}
               />
             </View>
           </View>
-
           <View style={{ gap: 7 }}>
             <Text style={styles.label}>Địa chỉ</Text>
             <View style={{ position: "relative" }}>
               <Image
-                source={require("../../../../assets/myApp/maps-and-flags1.png")}
+                source={require("../assets/myApp/maps-and-flags1.png")}
                 style={styles.iconTextLeft}
               />
               <Image
-                source={require("../../../../assets/myApp/pencil.png")}
+                source={require("../assets/myApp/pencil.png")}
                 style={styles.iconTextRight}
               />
               <TextInput
+                placeholder={"Không được để trống"}
                 value={address}
                 onChangeText={setAddress}
                 style={styles.input}
@@ -198,10 +194,11 @@ export default function EditCompanyProfile() {
             <Text style={styles.label}>Mô tả</Text>
             <View style={{ position: "relative" }}>
               <Image
-                source={require("../../../../assets/myApp/pencil.png")}
+                source={require("../assets/myApp/pencil.png")}
                 style={styles.iconTextRight}
               />
               <TextInput
+                placeholder={"Không được để trống"}
                 multiline
                 numberOfLines={6}
                 textAlignVertical="top"
@@ -211,32 +208,12 @@ export default function EditCompanyProfile() {
               />
             </View>
           </View>
-
-          <View style={{ gap: 7 }}>
-            <Text style={styles.label}>Email</Text>
-            <View style={{ position: "relative" }}>
-              <Image
-                source={require("../../../../assets/myApp/mail1.png")}
-                style={styles.iconTextLeft}
-              />
-              <Image
-                source={require("../../../../assets/myApp/padlock.png")}
-                style={styles.iconTextRight}
-              />
-              <TextInput
-                placeholder={user?.email}
-                style={styles.input}
-                editable={false}
-              />
-            </View>
-          </View>
         </View>
-
-        <View>
+        <View style={{ marginBottom: 30 }}>
           <Pressable style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Lưu thay đổi</Text>
+            <Text style={styles.saveButtonText}>xác nhận</Text>
             <Image
-              source={require("../../../../assets/myApp/check1.png")}
+              source={require("../assets/myApp/check1.png")}
               style={styles.saveButtonIcon}
             />
           </Pressable>
@@ -261,6 +238,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     marginTop: 30,
     gap: 20,
+    justifyContent: "center",
   },
   headerIcon: {
     width: 23,
@@ -268,7 +246,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   coverImage: {
     width: "100%",
@@ -362,5 +340,18 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     tintColor: "#FFFFFF",
+  },
+  coverPlaceholder: {
+    height: 180,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F1F5F9",
+  },
+
+  placeholderText: {
+    color: "#94A3B8",
+    fontSize: 14,
   },
 });

@@ -1,6 +1,7 @@
 import CardButton from "@/components/CardButton";
 import ProfilePage from "@/components/profile/ProfilePage";
-import { getUser } from "@/services/auth.api";
+import { logout } from "@/services/auth.api";
+import { getProfile } from "@/services/profile.api";
 
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -18,20 +19,35 @@ export default function CompanyProfile() {
   const [company, setCompany] = useState<any>(null);
 
   useEffect(() => {
-    getUser().then(setCompany);
-  }, []);
+    const loadData = async () => {
+      try {
+        const user = await getProfile();
 
-  if (!company) return null;
+        if (!user) {
+          console.log("Không có user → logout");
+          await logout();
+          router.replace("/(auth)/login");
+          return;
+        }
+
+        setCompany(user);
+      } catch (err) {
+        console.log("Lỗi load profile:", err);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
     <ProfilePage>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
         <View>
           <Image
-            source={{ uri: company.coverImage }}
+            source={{ uri: company?.coverImage }}
             style={styles.coverImage}
           />
-          <Image source={{ uri: company.avatar }} style={styles.avata} />
+          <Image source={{ uri: company?.avatar }} style={styles.avata} />
           <View
             style={{
               marginLeft: 20,
@@ -40,10 +56,17 @@ export default function CompanyProfile() {
               gap: 15,
             }}
           >
-            <Text style={styles.name}>{company.companyName}</Text>
+            <Text style={styles.name}>{company?.companyName}</Text>
             <Pressable
               style={styles.bntEdit}
-              onPress={() => router.push("../profile/editProfile/company")}
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/profile/editProfile/company",
+                  params: {
+                    user: JSON.stringify(company),
+                  },
+                })
+              }
             >
               <Image
                 source={require("../../../assets/myApp/edit.png")}
@@ -68,17 +91,17 @@ export default function CompanyProfile() {
               <Text style={{ fontWeight: "bold", fontSize: 15.5 }}>
                 Lĩnh vực:
               </Text>
-              <Text style={styles.text}>{company.activityField}</Text>
+              <Text style={styles.text}>{company?.activityField}</Text>
             </View>
             <View style={styles.flex}>
               <Image
                 source={require("../../../assets/myApp/maps-and-flags1.png")}
                 style={{ width: 14, height: 14, tintColor: "#000000" }}
               />
-              <Text style={styles.text}>{company.address}</Text>
+              <Text style={styles.text}>{company?.address}</Text>
             </View>
           </View>
-          <Text style={styles.description}>{company.description}</Text>
+          <Text style={styles.description}>{company?.description}</Text>
         </View>
         <View>
           <View

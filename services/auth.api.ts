@@ -1,9 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode as atob } from "base-64";
 import {
-  fetchCompanyProfile,
-  fetchEmployeeProfile,
-  removeProfile,
+  removeProfile
 } from "./profile.api";
 const BASE_URL = process.env.EXPO_PUBLIC_AUTH_API;
 
@@ -114,33 +112,11 @@ export const login = async (email: string, password: string) => {
     const refreshToken = data.data.refreshToken;
     const user = data.data.user;
 
-    if (user.role === 1 && !user.employeeId) {
-      return {
-        needSetup: true,
-        role: user.role,
-      };
-    }
-
-    if (user.role === 2 && !user.companyId) {
-      return {
-        needSetup: true,
-        role: user.role,
-      };
-    }
-
     await saveToken(token);
     await saveRefreshToken(refreshToken);
     await saveAuth(user);
 
-    if (user.role === 1) {
-      await fetchEmployeeProfile();
-    } else if (user.role === 2) {
-      await fetchCompanyProfile();
-    }
-    return {
-      needSetup: false,
-      role: user.role,
-    };
+    return data.data;
   } catch (err: any) {
     throw err;
   }

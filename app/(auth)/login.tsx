@@ -30,15 +30,6 @@ export default function Login() {
       return;
     }
 
-    // if (res.needSetup) {
-    //   if (res.role === 1) {
-    //     router.replace("/(auth)/setupProfileUser");
-    //   } else {
-    //     router.replace("/(auth)/setupProfileCompany");
-    //   }
-    //   return;
-    // }
-
     router.replace("/");
   };
 
