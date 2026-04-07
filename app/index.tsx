@@ -1,45 +1,61 @@
-import { getToken, isTokenExpired, refreshToken } from "@/services/auth.api";
+import {
+  getAuth,
+  getToken,
+  isTokenExpired,
+  refreshToken,
+} from "@/services/auth.api";
+import {
+  fetchCompanyProfile,
+  fetchEmployeeProfile,
+} from "@/services/profile.api";
 import { realtimeService } from "@/services/realtimeService";
-import { Redirect } from "expo-router";
-import { useEffect, useState } from "react";
+import { router } from "expo-router";
+import { useEffect } from "react";
 
 export default function Index() {
-  const [token, setToken] = useState<string | null | undefined>(undefined);
-
   useEffect(() => {
-    getToken().then(setToken);
-  }, []);
+    const init = async () => {
+      let token = await getToken();
 
-  useEffect(() => {
-    const initAuth = async () => {
-      let currentToken = token;
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
 
-      if (!currentToken || isTokenExpired(currentToken)) {
+      if (isTokenExpired(token)) {
         const newToken = await refreshToken();
-
         if (!newToken) {
-          console.log("Token hết hạn, cần login lại");
+          router.replace("/(auth)/login");
           return;
         }
-
-        setToken(newToken);
-        currentToken = newToken;
+        token = newToken;
       }
 
-      if (currentToken) {
-        realtimeService.initConnection(currentToken);
-        realtimeService.start();
+      realtimeService.initConnection(token as string);
+      await realtimeService.start();
+
+      const auth = await getAuth();
+      let profile;
+      if (auth?.role === 1) {
+        profile = await fetchEmployeeProfile();
+      } else {
+        profile = await fetchCompanyProfile();
       }
+
+      if (profile?.needSetup) {
+        if (profile.role === 1) {
+          router.replace("/setupProfileUser");
+        } else if (profile.role === 2) {
+          router.replace("/setupProfileCompany");
+        }
+        return;
+      }
+
+      router.replace("/(tabs)/home");
     };
 
-    initAuth();
+    init();
   }, []);
 
-  if (token === undefined) return null;
-
-  if (!token) {
-    return <Redirect href="/(auth)/login" />;
-  }
-
-  return <Redirect href="/(tabs)/home" />;
+  return null;
 }

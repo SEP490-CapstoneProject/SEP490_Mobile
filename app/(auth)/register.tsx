@@ -17,6 +17,7 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState(1);
 
   const handleRegister = async () => {
     try {
@@ -36,7 +37,7 @@ export default function RegisterScreen() {
         return;
       }
 
-      await register(email, password, 1);
+      await register(email, password, role);
 
       showSuccess("", "Đăng ký thành công");
 
@@ -122,12 +123,34 @@ export default function RegisterScreen() {
         </Pressable>
       </View>
 
-      <Text
-        style={styles.forgetPassword}
-        onPress={() => router.push("/(auth)/registerEmployer")}
-      >
-        Đăng ký là nhà tuyển dụng?
-      </Text>
+      <Text style={styles.label}>Đăng kí với tư cách là</Text>
+      <View style={styles.roleContainer}>
+        <Pressable
+          style={[
+            styles.roleButton,
+            role === 1 && styles.roleButtonActive,
+            styles.roleLeft,
+          ]}
+          onPress={() => setRole(1)}
+        >
+          <Text style={[styles.roleText, role === 1 && styles.roleTextActive]}>
+            Người dùng
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.roleButton,
+            role === 2 && styles.roleButtonActive,
+            styles.roleRight,
+          ]}
+          onPress={() => setRole(2)}
+        >
+          <Text style={[styles.roleText, role === 2 && styles.roleTextActive]}>
+            Nhà tuyển dụng
+          </Text>
+        </Pressable>
+      </View>
 
       <Pressable style={styles.LoginButton} onPress={handleRegister}>
         <Text style={styles.LoginButtonText}>Đăng ký</Text>
@@ -225,5 +248,43 @@ const styles = StyleSheet.create({
   anotherText: {
     fontSize: 14,
     color: "#B2B9C1",
+  },
+  roleContainer: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+
+  roleButton: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#6B7280",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#E2E8F0",
+  },
+
+  roleRight: {
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  roleLeft: {
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+  },
+
+  roleButtonActive: {
+    backgroundColor: "#028AE0",
+    borderColor: "#028AE0",
+  },
+
+  roleText: {
+    color: "#6B7280",
+    fontSize: 14,
+  },
+
+  roleTextActive: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 });
