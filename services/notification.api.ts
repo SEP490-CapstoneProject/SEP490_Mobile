@@ -1,3 +1,5 @@
+import { getToken, isTokenExpired, refreshToken } from "./auth.api";
+
 export type NotificationType =
   | "CONNECTION_ACCEPTED"
   | "CONNECTION_REJECTED"
@@ -129,3 +131,70 @@ export async function fetchUserNotifications(
 
   return MOCK_USER_NOTIFICATIONS.filter((n) => n.userId === userId);
 }
+
+const BASE_URL_NOTIFICATION = process.env.EXPO_PUBLIC_NOTIFICATION_API;
+
+export const fetchNotifications = async (cursor?: number) => {
+  let token = await getToken();
+
+  if (token && isTokenExpired(token)) {
+    token = await refreshToken();
+  }
+
+  const res = await fetch(
+    `${BASE_URL_NOTIFICATION}/api/notifications?limit=20`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const data = await res.json();
+
+  return data;
+};
+
+export const markNotificationAsRead = async (id: number) => {
+  let token = await getToken();
+
+  if (token && isTokenExpired(token)) {
+    token = await refreshToken();
+  }
+
+  const res = await fetch(
+    `${BASE_URL_NOTIFICATION}/api/notifications/${id}/read`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Mark read failed");
+  }
+};
+
+export const markAllNotificationsAsRead = async () => {
+  let token = await getToken();
+
+  if (token && isTokenExpired(token)) {
+    token = await refreshToken();
+  }
+
+  const res = await fetch(
+    `${BASE_URL_NOTIFICATION}/api/notifications/read-all`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Mark all read failed");
+  }
+};

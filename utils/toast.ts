@@ -61,3 +61,24 @@ export const showInfo = (title: string, message: string) => {
     topOffset: 60,
   });
 };
+
+export const Notification = (title: string, message: string) => {
+  Toast.show({
+    type: "info",
+    text1: title,
+    text2: message,
+
+    text1Style: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: "#000",
+    },
+    text2Style: {
+      fontSize: 14,
+      color: "#000",
+    },
+
+    position: "top",
+    topOffset: 60,
+  });
+};

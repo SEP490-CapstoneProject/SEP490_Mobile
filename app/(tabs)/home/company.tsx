@@ -1,6 +1,5 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import { fetchPortfolio } from "@/services/home.api";
-import { PortfolioResponse } from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -14,20 +13,34 @@ import {
 } from "react-native";
 const { width, height } = Dimensions.get("window");
 export default function Home() {
-  const [portfolios, setPortfolios] = useState<PortfolioResponse[]>([]);
+  const [portfolios, setPortfolios] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const verticalRefs = useRef<(ScrollView | null)[]>([]);
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    fetchPortfolio().then(setPortfolios);
+    const init = async () => {
+      try {
+        const data = await fetchPortfolio(1, 10, false);
+        setPortfolios(data);
+        setPage(1);
+        setHasMore(data.length === 10);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    init();
   }, []);
 
   const handleScroll = (e: any) => {
     const offsetX = e.nativeEvent.contentOffset.x;
     const diff = Math.abs(offsetX - activeIndex * width);
 
-    if (diff > width * 0.5 && isExpanded) {
+    if (diff > width * 0.1 && isExpanded) {
       setIsExpanded(false);
     }
   };
@@ -40,6 +53,28 @@ export default function Home() {
       ref?.scrollTo({ y: 0, animated: false }),
     );
   };
+
+  const loadMore = async () => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      const nextPage = page + 1;
+
+      const data = await fetchPortfolio(nextPage, 10, false);
+
+      setPortfolios((prev) => [...prev, ...data]);
+      setPage(nextPage);
+
+      if (data.length < 10) setHasMore(false);
+    } catch (e) {
+      console.log(e);
+    }
+
+    setIsLoadingMore(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -56,8 +91,17 @@ export default function Home() {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
+          nestedScrollEnabled
+          directionalLockEnabled
           onScroll={handleScroll}
-          onMomentumScrollEnd={handleScrollEnd}
+          onMomentumScrollEnd={(e) => {
+            handleScrollEnd(e);
+
+            const index = Math.round(e.nativeEvent.contentOffset.x / width);
+            if (index >= portfolios.length - 2) {
+              loadMore();
+            }
+          }}
           scrollEventThrottle={16}
         >
           {portfolios.map((portfolio, index) => (
@@ -68,38 +112,17 @@ export default function Home() {
                 }}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100 }}
-                scrollEnabled={isExpanded}
               >
                 <PortfolioRenderer blocks={portfolio.blocks} />
               </ScrollView>
-              {!isExpanded && (
-                <Pressable
-                  style={styles.expandButton}
-                  onPress={() => setIsExpanded(true)}
-                >
-                  <Text style={styles.expandText}>Xem thêm</Text>
-                </Pressable>
-              )}
-              <View style={styles.actionBar}>
-                <Pressable
-                  onPress={() =>
-                    console.log(
-                      "DisLike pressed for portfolio",
-                      portfolio.portfolioId,
-                    )
-                  }
-                >
-                  <Image
-                    source={require("../../../assets/myApp/close1.png")}
-                    style={styles.icon}
-                  />
-                </Pressable>
+
+              <View style={[styles.actionBar, styles.expandButton]}>
                 <Pressable
                   onPress={() => console.log("connect", portfolio.portfolioId)}
                 >
                   <Image
-                    source={require("../../../assets/myApp/1.png")}
-                    style={styles.icon}
+                    source={require("../../../assets/myApp/rating.png")}
+                    style={styles.iconRating}
                   />
                 </Pressable>
                 <Pressable
@@ -164,28 +187,25 @@ const styles = StyleSheet.create({
     bottom: 5,
     left: 20,
     right: 20,
-    height: 70,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,1)",
-    borderColor: "#E2E8F0",
-    borderWidth: 1,
-    alignItems: "center",
-    borderTopColor: "#E2E8F0",
-    borderTopWidth: 1,
     flexDirection: "row",
     justifyContent: "space-around",
   },
   icon: {
-    width: 25,
-    height: 25,
+    width: 27,
+    height: 27,
+  },
+  iconRating: {
+    width: 40,
+    height: 40,
   },
   expandButton: {
     position: "absolute",
     bottom: 0,
     alignSelf: "center",
     backgroundColor: "rgba(243, 244, 246, 0.9)",
-    width: "100%",
-    height: 120,
+    width: "90%",
+    height: 70,
     paddingTop: 10,
     alignItems: "center",
   },

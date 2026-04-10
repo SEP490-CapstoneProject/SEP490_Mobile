@@ -7,6 +7,7 @@ class RealtimeService {
   private commentListeners: Function[] = [];
   private replyListeners: Function[] = [];
   private favoriteListeners: Function[] = [];
+  private notificationListeners: Function[] = [];
 
   public initConnection(accessToken: string) {
     if (this.connection) return;
@@ -38,6 +39,9 @@ class RealtimeService {
     this.connection.on("ReceivePostFavoriteChanged", (data) => {
       this.favoriteListeners.forEach((cb) => cb(data));
     });
+    this.connection.on("ReceiveNotification", (event) => {
+      this.notificationListeners.forEach((cb) => cb(event));
+    });
   }
 
   onComment(cb: Function) {
@@ -52,6 +56,10 @@ class RealtimeService {
     this.favoriteListeners.push(cb);
   }
 
+  onNotification(cb: Function) {
+    this.notificationListeners.push(cb);
+  }
+
   offComment(cb: Function) {
     this.commentListeners = this.commentListeners.filter((c) => c !== cb);
   }
@@ -62,6 +70,12 @@ class RealtimeService {
 
   offFavorite(cb: Function) {
     this.favoriteListeners = this.favoriteListeners.filter((c) => c !== cb);
+  }
+
+  offNotification(cb: Function) {
+    this.notificationListeners = this.notificationListeners.filter(
+      (c) => c !== cb,
+    );
   }
 
   async start() {
