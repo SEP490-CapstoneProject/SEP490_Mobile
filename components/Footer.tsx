@@ -1,3 +1,4 @@
+import { useNotificationStore } from "@/utils/notificationStore";
 import { usePathname, useRouter } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 
@@ -37,6 +38,9 @@ const tabs = [
 export default function Footer() {
   const router = useRouter();
   const pathname = usePathname();
+  const notifications = useNotificationStore((s) => s.notifications);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <View
@@ -60,15 +64,43 @@ export default function Footer() {
               justifyContent: "center",
             }}
           >
-            <Image
-              source={tab.icon}
-              style={{
-                width: tab.size,
-                height: tab.size,
-                tintColor: active ? "#3B82F6" : "#6B7280",
-                marginBottom: 4,
-              }}
-            />
+            <View style={{ position: "relative" }}>
+              <Image
+                source={tab.icon}
+                style={{
+                  width: tab.size,
+                  height: tab.size,
+                  tintColor: active ? "#3B82F6" : "#6B7280",
+                  marginBottom: 4,
+                }}
+              />
+              {tab.path === "/notification" && unreadCount > 0 && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -4,
+                    right: -8,
+                    backgroundColor: "red",
+                    borderRadius: 10,
+                    minWidth: 16,
+                    height: 16,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    paddingHorizontal: 3,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#fff",
+                      fontSize: 10,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </Text>
+                </View>
+              )}
+            </View>
             <Text
               style={{
                 fontSize: 12,

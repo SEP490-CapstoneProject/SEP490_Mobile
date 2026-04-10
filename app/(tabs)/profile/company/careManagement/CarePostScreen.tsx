@@ -1,8 +1,8 @@
 import MediaGrid from "@/components/MediaGrid";
-import { fetchCommunity } from "@/services/company/careManagement.api";
-import { CommunityPost } from "@/services/Comunity.api";
+
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
+import { fetchSavedPosts } from "@/services/user/careManagement.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -16,14 +16,14 @@ import {
 
 export default function CarePostScreen() {
   const router = useRouter();
-  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
       try {
-        const fetchedPosts = await fetchCommunity();
+        const fetchedPosts = await fetchSavedPosts();
         setPosts(fetchedPosts);
       } catch (error) {
         console.error("Error fetching community posts:", error);

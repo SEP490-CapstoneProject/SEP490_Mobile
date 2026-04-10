@@ -1,4 +1,5 @@
 import ProjectLinks from "@/components/ProjectLinks";
+import { useRef, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 type ProjectLink = {
@@ -16,6 +17,28 @@ type ProjectItem = {
 };
 
 export default function ProjectOne({ data }: { data: ProjectItem[] }) {
+  const scrollRef = useRef<ScrollView>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const ITEM_WIDTH = 270;
+  const scrollToIndex = (index: number) => {
+    if (index < 0 || index >= data.length) return;
+
+    setCurrentIndex(index);
+
+    scrollRef.current?.scrollTo({
+      x: index * ITEM_WIDTH,
+      animated: true,
+    });
+  };
+
+  const goLeft = () => {
+    scrollToIndex(currentIndex - 1);
+  };
+
+  const goRight = () => {
+    scrollToIndex(currentIndex + 1);
+  };
   return (
     <View style={styles.container}>
       {/** title */}
@@ -30,8 +53,13 @@ export default function ProjectOne({ data }: { data: ProjectItem[] }) {
       </View>
       {/** content */}
       <ScrollView
+        ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          flexDirection: "row",
+          paddingRight: 40,
+        }}
         style={styles.contentContainer}
       >
         {data.map((item, index) => (
@@ -51,6 +79,25 @@ export default function ProjectOne({ data }: { data: ProjectItem[] }) {
           </View>
         ))}
       </ScrollView>
+      <View style={styles.navContainer}>
+        <Text style={styles.navButton} onPress={goLeft}>
+          <Image
+            source={require("../../../../assets/myApp/forward.png")}
+            style={{
+              width: 20,
+              height: 20,
+              tintColor: "white",
+              transform: [{ rotate: "180deg" }],
+            }}
+          />
+        </Text>
+        <Text style={styles.navButton} onPress={goRight}>
+          <Image
+            source={require("../../../../assets/myApp/forward.png")}
+            style={{ width: 20, height: 20, tintColor: "white" }}
+          />
+        </Text>
+      </View>
     </View>
   );
 }
@@ -124,5 +171,20 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     justifyContent: "space-around",
     paddingHorizontal: 10,
+  },
+  navContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 20,
+    marginTop: 10,
+  },
+
+  navButton: {
+    fontSize: 22,
+    backgroundColor: "#3B82F6",
+    color: "#fff",
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
 });

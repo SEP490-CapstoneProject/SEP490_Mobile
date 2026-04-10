@@ -58,7 +58,15 @@ export default function Community() {
     try {
       const res = await fetchCommunityPosts(10, cursor);
 
-      setPosts((prev) => [...prev, ...res.items]);
+      setPosts((prev) => {
+        const map = new Map();
+
+        [...prev, ...res.items].forEach((item) => {
+          map.set(item.id, item);
+        });
+
+        return Array.from(map.values());
+      });
       setCursor(res.nextCursor);
     } catch (err) {
       console.log(err);
