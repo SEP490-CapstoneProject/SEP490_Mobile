@@ -111,8 +111,6 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Khám phá</Text>
-
       {loading ? (
         <Text style={{ textAlign: "center" }}>Loading...</Text>
       ) : (
@@ -227,16 +225,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
   },
-
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-
   contentcontainer: {
     width,
     height: height - 180,
