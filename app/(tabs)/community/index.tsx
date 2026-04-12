@@ -1,3 +1,4 @@
+import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
@@ -142,14 +143,14 @@ export default function Community() {
         </Pressable>
       </View>
       {/* content */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        onMomentumScrollEnd={loadMore}
-      >
-        {loading ? (
-          <Text>Loading...</Text>
-        ) : (
-          posts.map((post) => (
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollEnd={loadMore}
+        >
+          {posts.map((post) => (
             <View key={post.id} style={styles.contentContainer}>
               {/** header content **/}
               {post.author && (
@@ -255,9 +256,9 @@ export default function Community() {
                 </Pressable>
               </View>
             </View>
-          ))
-        )}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }

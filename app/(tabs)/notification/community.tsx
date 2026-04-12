@@ -1,3 +1,4 @@
+import CustomLoading from "@/components/CustomLoading";
 import {
   fetchNotifications,
   markAllNotificationsAsRead,
@@ -9,7 +10,7 @@ import { useNotificationStore } from "@/utils/notificationStore";
 import { Notification, showError } from "@/utils/toast";
 import { router } from "expo-router";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -27,13 +28,16 @@ export default function CommunityNotification() {
     markAllRead,
     markOneRead,
   } = useNotificationStore();
-
+  const [loading, setLoading] = useState(false);
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       const res = await fetchNotifications();
-      setNotifications(res?.items || []);
+
+      setNotifications(res?.items);
+      setLoading(false);
     };
 
     load();
@@ -96,46 +100,54 @@ export default function CommunityNotification() {
   return (
     <View style={styles.container}>
       {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>
-          Bạn có <Text style={{ color: "red" }}>{unreadCount}</Text> thông báo
-          chưa đọc
-        </Text>
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <View>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>
+              Bạn có <Text style={{ color: "red" }}>{unreadCount}</Text> thông
+              báo chưa đọc
+            </Text>
 
-        <Pressable style={styles.btn} onPress={() => handleMarkAllRead()}>
-          <Text style={{ color: "#fff", fontSize: 11 }}>
-            Đánh dấu đọc tất cả
-          </Text>
-        </Pressable>
-      </View>
+            <Pressable style={styles.btn} onPress={() => handleMarkAllRead()}>
+              <Text style={{ color: "#fff", fontSize: 11 }}>
+                Đánh dấu đọc tất cả
+              </Text>
+            </Pressable>
+          </View>
 
-      {/* LIST */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {notifications.map((item) => (
-          <Pressable
-            key={item.id}
-            onPress={() => {
-              handlePress(item);
-            }}
-          >
-            <View key={item.id} style={styles.card}>
-              <Image
-                source={{ uri: item.actor?.avatar }}
-                style={styles.avatar}
-              />
+          {/* LIST */}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {notifications.map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => {
+                  handlePress(item);
+                }}
+              >
+                <View key={item.id} style={styles.card}>
+                  <Image
+                    source={{ uri: item.actor?.avatar }}
+                    style={styles.avatar}
+                  />
 
-              <View style={{ flex: 1 }}>
-                <Text style={styles.text}>
-                  {item.actor?.name} {item.content}
-                </Text>
-                <Text style={styles.time}>{formatTimeAgo(item.createdAt)}</Text>
-              </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.text}>
+                      {item.actor?.name} {item.content}
+                    </Text>
+                    <Text style={styles.time}>
+                      {formatTimeAgo(item.createdAt)}
+                    </Text>
+                  </View>
 
-              {!item.isRead && <View style={styles.dot} />}
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView>
+                  {!item.isRead && <View style={styles.dot} />}
+                </View>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }

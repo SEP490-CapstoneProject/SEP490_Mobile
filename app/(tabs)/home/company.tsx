@@ -1,3 +1,4 @@
+import CustomLoading from "@/components/CustomLoading";
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import { getAuth } from "@/services/auth.api";
 import { fetchPortfolio } from "@/services/home.api";
@@ -21,13 +22,16 @@ export default function Home() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [auth, setAuth] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       getAuth().then(setAuth);
       try {
+        setLoading(true);
         const data = await fetchPortfolio(1, 10, false);
         setPortfolios(data);
+        setLoading(false);
         setPage(1);
         setHasMore(data.length === 10);
       } catch (e) {
@@ -80,39 +84,41 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <View style={{ flex: 1 }}>
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          nestedScrollEnabled
-          directionalLockEnabled
-          onScroll={handleScroll}
-          onMomentumScrollEnd={(e) => {
-            handleScrollEnd(e);
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <View style={{ flex: 1 }}>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled
+            directionalLockEnabled
+            onScroll={handleScroll}
+            onMomentumScrollEnd={(e) => {
+              handleScrollEnd(e);
 
-            const index = Math.round(e.nativeEvent.contentOffset.x / width);
-            if (index >= portfolios.length - 2) {
-              loadMore();
-            }
-          }}
-          scrollEventThrottle={32}
-        >
-          {portfolios.map((portfolio, index) => (
-            <View key={portfolio.portfolioId} style={styles.page}>
-              <ScrollView
-                ref={(ref) => {
-                  verticalRefs.current[index] = ref;
-                }}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 }}
-              >
-                <PortfolioRenderer blocks={portfolio.blocks} />
-              </ScrollView>
+              const index = Math.round(e.nativeEvent.contentOffset.x / width);
+              if (index >= portfolios.length - 2) {
+                loadMore();
+              }
+            }}
+            scrollEventThrottle={32}
+          >
+            {portfolios.map((portfolio, index) => (
+              <View key={portfolio.portfolioId} style={styles.page}>
+                <ScrollView
+                  ref={(ref) => {
+                    verticalRefs.current[index] = ref;
+                  }}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ paddingBottom: 100 }}
+                >
+                  <PortfolioRenderer blocks={portfolio.blocks} />
+                </ScrollView>
 
-              <View style={[styles.actionBar, styles.expandButton]}>
-                {auth?.role === 2 && (
-                  <View>
+                <View style={[styles.actionBar, styles.expandButton]}>
+                  {auth?.role === 2 && (
                     <Pressable
                       onPress={() =>
                         console.log("connect", portfolio.portfolioId)
@@ -123,6 +129,8 @@ export default function Home() {
                         style={styles.iconRating}
                       />
                     </Pressable>
+                  )}
+                  {auth?.role === 2 && (
                     <Pressable
                       onPress={() => console.log("save", portfolio.portfolioId)}
                     >
@@ -131,26 +139,25 @@ export default function Home() {
                         style={styles.icon}
                       />
                     </Pressable>
-                  </View>
-                )}
-
-                <Pressable
-                  onPress={() =>
-                    shareContent(
-                      `https://skillsnap.io/portfolio/${portfolio.portfolioId}`,
-                    )
-                  }
-                >
-                  <Image
-                    source={require("../../../assets/myApp/share_black.png")}
-                    style={styles.icon}
-                  />
-                </Pressable>
+                  )}
+                  <Pressable
+                    onPress={() =>
+                      shareContent(
+                        `https://skillsnap.io/portfolio/${portfolio.portfolioId}`,
+                      )
+                    }
+                  >
+                    <Image
+                      source={require("../../../assets/myApp/share_black.png")}
+                      style={styles.icon}
+                    />
+                  </Pressable>
+                </View>
               </View>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+            ))}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }
