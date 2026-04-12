@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 interface SidebarMenuProps {
@@ -20,25 +21,26 @@ export default function SidebarMenu({
   onTermsPolicy,
 }: SidebarMenuProps) {
   if (!isOpen) return null;
+  const router = useRouter();
 
   const menuItems = [
     {
       id: 1,
       label: "Trung tâm Hỗ trợ",
       icon: require("../../assets/myApp/customersupport.png"),
-      onPress: onSupportCenter,
+      onPress: () => router.push("/settings/supportCenter"),
     },
     {
       id: 2,
       label: "Trung tâm Quyền riêng tư",
       icon: require("../../assets/myApp/lock.png"),
-      onPress: onPrivacyCenter,
+      onPress: () => router.push("/settings/privacy"),
     },
     {
       id: 3,
       label: "Điều khoản & Chính sách",
       icon: require("../../assets/myApp/warning.png"),
-      onPress: onTermsPolicy,
+      onPress: () => router.push("/settings/terms"),
     },
     {
       id: 4,

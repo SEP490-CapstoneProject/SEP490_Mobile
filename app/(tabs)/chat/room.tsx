@@ -1,4 +1,6 @@
-import { fetchMessagesByRoom, MessageItem } from "@/services/chat.api";
+import { getToken } from "@/services/auth.api";
+import { fetchMessagesByRoom } from "@/services/chat.api";
+import { realtimeService } from "@/services/realtimeService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -24,15 +26,31 @@ export default function ChatRoom() {
     coverImage?: string;
     role?: "COMPANY" | "USER";
   }>();
-  const [messages, setMessages] = useState<MessageItem[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!roomId) return;
+    const init = async () => {
+      const token = await getToken();
 
-    const id = Number(roomId);
-    if (Number.isNaN(id)) return;
+      realtimeService.initConnection(token as string);
+      await realtimeService.start();
+      await realtimeService.joinRoom(Number(roomId));
+    };
 
-    fetchMessagesByRoom(id).then(setMessages);
+    init();
+  }, [roomId]);
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      const roomIdNumber = Number(roomId);
+      if (!roomIdNumber) return;
+
+      const data = await fetchMessagesByRoom(roomIdNumber);
+
+      setMessages(Array.isArray(data) ? data : []);
+    };
+
+    loadMessages();
   }, [roomId]);
 
   return (

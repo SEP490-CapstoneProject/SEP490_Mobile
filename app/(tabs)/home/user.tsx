@@ -1,7 +1,9 @@
+import CustomLoading from "@/components/CustomLoading";
 import { fetchJobs, saveJob, unSaveJob } from "@/services/home.api";
 import { shareContent } from "@/services/share";
 import { useJobStore } from "@/utils/jobPostStore";
-import { Audio, ResizeMode, Video } from "expo-av";
+import { ResizeMode, Video } from "expo-av";
+import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -48,52 +50,47 @@ export default function Home() {
   // PLAY / PAUSE VIDEO
   useFocusEffect(
     useCallback(() => {
-      let isActive = true;
-
-      const autoPlay = async () => {
+      const playVideo = async () => {
         const video = videoRefs.current[activeIndex];
-        if (!video || !isActive) return;
+        if (!video) return;
 
-        try {
-          const status = await video.getStatusAsync();
+        setTimeout(async () => {
+          try {
+            const status = await video.getStatusAsync();
 
-          if (!status.isLoaded) return;
+            if (!status?.isLoaded) return;
 
-          await Audio.setAudioModeAsync({
-            allowsRecordingIOS: false,
-            staysActiveInBackground: false,
-            playsInSilentModeIOS: true,
-            shouldDuckAndroid: false,
-          });
-
-          await video.setIsMutedAsync(false);
-          await video.setVolumeAsync(1.0);
-
-          await video.playAsync();
-        } catch (e) {
-          console.log("Video chưa load xong");
-        }
+            await video.setIsMutedAsync(false);
+            await video.playAsync();
+          } catch {}
+        }, 300);
       };
 
-      autoPlay();
+      playVideo();
 
       return () => {
-        isActive = false;
         videoRefs.current.forEach(async (v) => {
           if (!v) return;
-          await v.pauseAsync();
-          await v.setIsMutedAsync(true);
+
+          try {
+            const status = await v.getStatusAsync();
+
+            if (!status?.isLoaded) return;
+
+            await v.pauseAsync();
+            await v.setIsMutedAsync(true);
+          } catch {}
         });
       };
     }, [activeIndex]),
   );
 
   // SCROLL END → SET INDEX
-  const onScrollEnd = (e: any) => {
-    const index = Math.round(e.nativeEvent.contentOffset.x / width);
+  const handleScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / 320); // chiều cao card
     setActiveIndex(index);
   };
-
   const handleSaveJob = async (postId: number, isSaved: boolean) => {
     toggleSave(postId);
 
@@ -112,13 +109,12 @@ export default function Home() {
   return (
     <View style={styles.container}>
       {loading ? (
-        <Text style={{ textAlign: "center" }}>Loading...</Text>
+        <CustomLoading />
       ) : (
         <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={onScrollEnd}
+          showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
         >
           {jobs.map((job, index) => (
             <View key={job.postId} style={styles.contentcontainer}>
@@ -126,7 +122,7 @@ export default function Home() {
                 <Image
                   source={{ uri: job.mediaUrl }}
                   style={styles.media}
-                  resizeMode="contain"
+                  resizeMode="cover"
                 />
               ) : (
                 <Video
@@ -135,11 +131,20 @@ export default function Home() {
                   }}
                   source={{ uri: job.mediaUrl }}
                   style={styles.media}
-                  resizeMode={ResizeMode.CONTAIN}
+                  resizeMode={ResizeMode.COVER}
                   isLooping
                   isMuted={index !== activeIndex}
                 />
               )}
+              <LinearGradient
+                colors={[
+                  "rgba(0,0,0,0)",
+                  "rgba(0,0,0,0.3)",
+                  "rgba(0,0,0,0.4)",
+                  "rgba(0,0,0,0.5)",
+                ]}
+                style={styles.gradient}
+              />
               <View style={styles.content}>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <Image
@@ -182,15 +187,21 @@ export default function Home() {
                         })
                       }
                     >
-                      <Text style={{ color: "#FFFFFF" }}>Xem chi tiết</Text>
+                      <Text style={{ color: "#FFFFFF", fontSize: 11 }}>
+                        Xem chi tiết
+                      </Text>
                       <Image
                         source={require("../../../assets/myApp/upper-right-arrow.png")}
-                        style={{ width: 20, height: 20 }}
+                        style={{ width: 15, height: 15 }}
                       />
                     </Pressable>
                   </View>
                 </View>
-                <View style={{ marginTop: -10 }}>
+                <View
+                  style={{
+                    marginRight: 9,
+                  }}
+                >
                   <Pressable
                     onPress={() => handleSaveJob(job.postId, job.isSaved)}
                   >
@@ -227,32 +238,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentcontainer: {
-    width,
-    height: height - 180,
-    backgroundColor: "#9FAD91",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
+    width: "94%",
+    height: 300,
+    backgroundColor: "#EFF6FF",
+    marginVertical: 10,
+    borderRadius: 15,
+    overflow: "hidden",
+    alignSelf: "center",
   },
 
   content: {
     position: "absolute",
-    bottom: 20,
-    left: 10,
+    bottom: -45,
     flexDirection: "row",
     justifyContent: "space-between",
-    width: width - 25,
+    width: "100%",
   },
 
   media: {
-    width,
-    height: height - 180,
+    width: "100%",
+    height: "100%",
   },
 
   avata: {
     width: 55,
     height: 55,
     borderRadius: 32.5,
+    marginLeft: 5,
   },
   position: {
     color: "#FFFFFF",
@@ -265,14 +277,14 @@ const styles = StyleSheet.create({
   },
 
   iconLefft: {
-    width: 16,
-    height: 16,
+    width: 14,
+    height: 14,
     marginTop: 5,
   },
 
   contentLeft: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 13,
     marginLeft: 20,
     marginTop: -18,
   },
@@ -285,13 +297,20 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
-    width: 120,
+    width: 100,
     justifyContent: "space-between",
   },
 
   iconRight: {
-    width: 30,
-    height: 30,
+    width: 27,
+    height: 27,
     marginBottom: 70,
+  },
+  gradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 });

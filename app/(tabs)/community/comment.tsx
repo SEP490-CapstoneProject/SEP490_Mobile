@@ -1,3 +1,4 @@
+import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 import { getToken } from "@/services/auth.api";
 import {
@@ -37,8 +38,10 @@ export default function Comment() {
   const [input, setInput] = useState("");
   const inputRef = useRef<TextInput>(null);
   const updateCommentCount = usePostStore((s) => s.updateCommentCount);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     const id = Number(postId);
     if (Number.isNaN(id)) return;
 
@@ -54,6 +57,7 @@ export default function Comment() {
         }
 
         setCommentsData(commentsRes);
+        setLoading(false);
       } catch (err) {
         console.error("Load post detail error:", err);
       }
@@ -203,246 +207,258 @@ export default function Comment() {
         <Text style={styles.title}>Bình luận</Text>
       </View>
       {/* content */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.contentContainer}>
-          {/** header content **/}
-          <View style={styles.headerContent}>
-            <View style={styles.headerContentLeft}>
-              <View style={styles.avataContainer}>
-                <Image
-                  source={{ uri: post?.author?.avatar }}
-                  style={styles.avata}
-                />
-                {post?.author?.role === "COMPANY" && (
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.contentContainer}>
+            {/** header content **/}
+            <View style={styles.headerContent}>
+              <View style={styles.headerContentLeft}>
+                <View style={styles.avataContainer}>
                   <Image
-                    source={require("../../../assets/myApp/checklist.png")}
-                    style={styles.avataIcon}
+                    source={{ uri: post?.author?.avatar }}
+                    style={styles.avata}
                   />
-                )}
-              </View>
-
-              <View>
-                <Text style={styles.name}>{post?.author?.name}</Text>
-                <Text style={styles.time}>
-                  {formatTimeAgo(post?.createdAt ?? "")}
-                </Text>
-              </View>
-            </View>
-            <Pressable>
-              <Image
-                source={require("../../../assets/myApp/option.png")}
-                style={styles.iconHeaderLeft}
-              />
-            </Pressable>
-          </View>
-          {/** body content */}
-          <View>
-            <Text style={styles.textContent}>{post?.description}</Text>
-            {(post as any)?.link && (
-              <Pressable style={styles.linkContainer}>
-                <Image
-                  source={require("../../../assets/myApp/link.png")}
-                  style={styles.iconLinkbody}
-                />
-                <Text style={styles.textLinkBody}>Xem chi tiết</Text>
-              </Pressable>
-            )}
-            {post?.media && post?.media.length > 0 && (
-              <MediaGrid media={post?.media} />
-            )}
-          </View>
-          {/** footer content */}
-          <View style={styles.footerContainer}>
-            <View style={styles.favoriteCount}>
-              <Image
-                source={require("../../../assets/myApp/heartA (1).png")}
-                style={[
-                  styles.footerIcon,
-                  post?.isFavorited ? { tintColor: "#FF4848" } : {},
-                ]}
-              />
-              <Text style={styles.textFavoriteCount}>
-                {post?.favoriteCount}
-              </Text>
-            </View>
-            <Pressable style={styles.favoriteCount}>
-              <Image
-                source={require("../../../assets/myApp/message.png")}
-                style={styles.footerIcon}
-              />
-              <Text style={styles.textFavoriteCount}>{post?.commentCount}</Text>
-            </Pressable>
-            <Image
-              source={require("../../../assets/myApp/bookmark.png")}
-              style={[
-                styles.footerIcon,
-                post?.isSaved ? { tintColor: "#FFD700" } : {},
-              ]}
-            />
-            <Image
-              source={require("../../../assets/myApp/share-.png")}
-              style={[styles.footerIcon]}
-            />
-          </View>
-        </View>
-        {/** Comments Section */}
-        <View style={{ flex: 1 }}>
-          {commentsData && commentsData.comments.length > 0 ? (
-            commentsData.comments.map((comment: any) => (
-              <View key={comment.id}>
-                {/* COMMENT CHA */}
-                <View style={styles.commentRow}>
-                  {/* Avatar cha */}
-                  <View style={styles.avatarWrapper}>
+                  {post?.author?.role === "COMPANY" && (
                     <Image
-                      source={{ uri: comment.author.avatar }}
-                      style={styles.avataComment}
+                      source={require("../../../assets/myApp/checklist.png")}
+                      style={styles.avataIcon}
                     />
-                    {comment.author.role === "COMPANY" && (
-                      <Image
-                        source={require("../../../assets/myApp/checklist.png")}
-                        style={styles.avatarBadge}
-                      />
-                    )}
-                  </View>
-
-                  {/* Nội dung cha */}
-                  <View style={styles.commentBody}>
-                    <View style={styles.backgroundComment}>
-                      <Text style={styles.nameComment}>
-                        {comment.author.name}
-                      </Text>
-                      <Text style={styles.textComment}>{comment.content}</Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        gap: 25,
-                        marginTop: 4,
-                        marginHorizontal: 10,
-                      }}
-                    >
-                      <Text style={styles.replyBtn}>
-                        {formatTimeAgo(comment.createdAt)}
-                      </Text>
-                      <Pressable
-                        onPress={() =>
-                          setReplyingTo({
-                            commentId: comment.id,
-                            userId: comment.author.id,
-                            name: comment.author.name,
-                          })
-                        }
-                      >
-                        <Text style={styles.replyBtn}>Trả lời</Text>
-                      </Pressable>
-                    </View>
-                  </View>
+                  )}
                 </View>
 
-                {/* REPLY LIST */}
-                {comment.replies.length > 0 && (
-                  <View style={styles.replyContainer}>
-                    {/* GẠCH DỌC */}
-                    <View style={styles.replyLine} />
-                    {openRep === false ? (
-                      <View>
-                        <Pressable onPress={() => setOpenRep(true)}>
-                          <Text style={{ color: "#3B82F6", marginBottom: 10 }}>
-                            Xem câu trả lời ({comment.replies.length})
-                          </Text>
+                <View>
+                  <Text style={styles.name}>{post?.author?.name}</Text>
+                  <Text style={styles.time}>
+                    {formatTimeAgo(post?.createdAt ?? "")}
+                  </Text>
+                </View>
+              </View>
+              <Pressable>
+                <Image
+                  source={require("../../../assets/myApp/option.png")}
+                  style={styles.iconHeaderLeft}
+                />
+              </Pressable>
+            </View>
+            {/** body content */}
+            <View>
+              <Text style={styles.textContent}>{post?.description}</Text>
+              {(post as any)?.link && (
+                <Pressable style={styles.linkContainer}>
+                  <Image
+                    source={require("../../../assets/myApp/link.png")}
+                    style={styles.iconLinkbody}
+                  />
+                  <Text style={styles.textLinkBody}>Xem chi tiết</Text>
+                </Pressable>
+              )}
+              {post?.media && post?.media.length > 0 && (
+                <MediaGrid media={post?.media} />
+              )}
+            </View>
+            {/** footer content */}
+            <View style={styles.footerContainer}>
+              <View style={styles.favoriteCount}>
+                <Image
+                  source={require("../../../assets/myApp/heartA (1).png")}
+                  style={[
+                    styles.footerIcon,
+                    post?.isFavorited ? { tintColor: "#FF4848" } : {},
+                  ]}
+                />
+                <Text style={styles.textFavoriteCount}>
+                  {post?.favoriteCount}
+                </Text>
+              </View>
+              <Pressable style={styles.favoriteCount}>
+                <Image
+                  source={require("../../../assets/myApp/message.png")}
+                  style={styles.footerIcon}
+                />
+                <Text style={styles.textFavoriteCount}>
+                  {post?.commentCount}
+                </Text>
+              </Pressable>
+              <Image
+                source={require("../../../assets/myApp/bookmark.png")}
+                style={[
+                  styles.footerIcon,
+                  post?.isSaved ? { tintColor: "#FFD700" } : {},
+                ]}
+              />
+              <Image
+                source={require("../../../assets/myApp/share-.png")}
+                style={[styles.footerIcon]}
+              />
+            </View>
+          </View>
+          {/** Comments Section */}
+          <View style={{ flex: 1 }}>
+            {commentsData && commentsData.comments.length > 0 ? (
+              commentsData.comments.map((comment: any) => (
+                <View key={comment.id}>
+                  {/* COMMENT CHA */}
+                  <View style={styles.commentRow}>
+                    {/* Avatar cha */}
+                    <View style={styles.avatarWrapper}>
+                      <Image
+                        source={{ uri: comment.author.avatar }}
+                        style={styles.avataComment}
+                      />
+                      {comment.author.role === "COMPANY" && (
+                        <Image
+                          source={require("../../../assets/myApp/checklist.png")}
+                          style={styles.avatarBadge}
+                        />
+                      )}
+                    </View>
+
+                    {/* Nội dung cha */}
+                    <View style={styles.commentBody}>
+                      <View style={styles.backgroundComment}>
+                        <Text style={styles.nameComment}>
+                          {comment.author.name}
+                        </Text>
+                        <Text style={styles.textComment}>
+                          {comment.content}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          gap: 25,
+                          marginTop: 4,
+                          marginHorizontal: 10,
+                        }}
+                      >
+                        <Text style={styles.replyBtn}>
+                          {formatTimeAgo(comment.createdAt)}
+                        </Text>
+                        <Pressable
+                          onPress={() =>
+                            setReplyingTo({
+                              commentId: comment.id,
+                              userId: comment.author.id,
+                              name: comment.author.name,
+                            })
+                          }
+                        >
+                          <Text style={styles.replyBtn}>Trả lời</Text>
                         </Pressable>
                       </View>
-                    ) : (
-                      <View>
-                        {comment.replies.map((reply: any) => (
-                          <View key={reply.id} style={styles.replyRow}>
-                            {/* Avatar cha */}
-                            <View style={styles.avatarWrapper}>
-                              <Image
-                                source={{ uri: reply.author.avatar }}
-                                style={styles.avataComment}
-                              />
-                              {comment.author.role === "COMPANY" && (
-                                <Image
-                                  source={require("../../../assets/myApp/checklist.png")}
-                                  style={styles.avatarBadge}
-                                />
-                              )}
-                            </View>
-                            {/* Nội dung cha */}
-                            <View style={styles.replyBody}>
-                              <View style={styles.backgroundReply}>
-                                <View style={{ flexDirection: "row", gap: 5 }}>
-                                  <Text style={styles.nameComment}>
-                                    {reply.author.name}
-                                  </Text>
-                                  <Text
-                                    style={{ fontSize: 15, color: "#475569" }}
-                                  >
-                                    trả lời
-                                  </Text>
-                                  <Text style={styles.nameComment}>
-                                    {reply.replyToUser.name}
-                                  </Text>
-                                </View>
+                    </View>
+                  </View>
 
-                                <Text style={styles.textComment}>
-                                  {reply.content}
-                                </Text>
-                              </View>
-
-                              <View
-                                style={{
-                                  flexDirection: "row",
-                                  marginTop: 4,
-                                  marginHorizontal: 10,
-                                  gap: 25,
-                                }}
-                              >
-                                <Text style={styles.replyBtn}>
-                                  {formatTimeAgo(comment.createdAt)}
-                                </Text>
-                                <Pressable
-                                  onPress={() =>
-                                    setReplyingTo({
-                                      commentId: comment.id,
-                                      userId: reply.author.id,
-                                      name: reply.author.name,
-                                    })
-                                  }
-                                >
-                                  <Text style={styles.replyBtn}>Trả lời</Text>
-                                </Pressable>
-                              </View>
-                            </View>
-                          </View>
-                        ))}
+                  {/* REPLY LIST */}
+                  {comment.replies.length > 0 && (
+                    <View style={styles.replyContainer}>
+                      {/* GẠCH DỌC */}
+                      <View style={styles.replyLine} />
+                      {openRep === false ? (
                         <View>
-                          <Pressable onPress={() => setOpenRep(false)}>
+                          <Pressable onPress={() => setOpenRep(true)}>
                             <Text
                               style={{ color: "#3B82F6", marginBottom: 10 }}
                             >
-                              Đóng câu trả lời
+                              Xem câu trả lời ({comment.replies.length})
                             </Text>
                           </Pressable>
                         </View>
-                      </View>
-                    )}
-                  </View>
-                )}
+                      ) : (
+                        <View>
+                          {comment.replies.map((reply: any) => (
+                            <View key={reply.id} style={styles.replyRow}>
+                              {/* Avatar cha */}
+                              <View style={styles.avatarWrapper}>
+                                <Image
+                                  source={{ uri: reply.author.avatar }}
+                                  style={styles.avataComment}
+                                />
+                                {comment.author.role === "COMPANY" && (
+                                  <Image
+                                    source={require("../../../assets/myApp/checklist.png")}
+                                    style={styles.avatarBadge}
+                                  />
+                                )}
+                              </View>
+                              {/* Nội dung cha */}
+                              <View style={styles.replyBody}>
+                                <View style={styles.backgroundReply}>
+                                  <View
+                                    style={{ flexDirection: "row", gap: 5 }}
+                                  >
+                                    <Text style={styles.nameComment}>
+                                      {reply.author.name}
+                                    </Text>
+                                    <Text
+                                      style={{ fontSize: 15, color: "#475569" }}
+                                    >
+                                      trả lời
+                                    </Text>
+                                    <Text style={styles.nameComment}>
+                                      {reply.replyToUser.name}
+                                    </Text>
+                                  </View>
+
+                                  <Text style={styles.textComment}>
+                                    {reply.content}
+                                  </Text>
+                                </View>
+
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                    marginTop: 4,
+                                    marginHorizontal: 10,
+                                    gap: 25,
+                                  }}
+                                >
+                                  <Text style={styles.replyBtn}>
+                                    {formatTimeAgo(comment.createdAt)}
+                                  </Text>
+                                  <Pressable
+                                    onPress={() =>
+                                      setReplyingTo({
+                                        commentId: comment.id,
+                                        userId: reply.author.id,
+                                        name: reply.author.name,
+                                      })
+                                    }
+                                  >
+                                    <Text style={styles.replyBtn}>Trả lời</Text>
+                                  </Pressable>
+                                </View>
+                              </View>
+                            </View>
+                          ))}
+                          <View>
+                            <Pressable onPress={() => setOpenRep(false)}>
+                              <Text
+                                style={{ color: "#3B82F6", marginBottom: 10 }}
+                              >
+                                Đóng câu trả lời
+                              </Text>
+                            </Pressable>
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </View>
+              ))
+            ) : (
+              <View style={styles.noCOmmentContainer}>
+                <Text style={styles.noCommentText}>Chưa có bình luận nào</Text>
+                <Text style={styles.noCommentSubText}>
+                  Hãy là người đầu tiên bình luận về bài viết này!
+                </Text>
               </View>
-            ))
-          ) : (
-            <View style={styles.noCOmmentContainer}>
-              <Text style={styles.noCommentText}>Chưa có bình luận nào</Text>
-              <Text style={styles.noCommentSubText}>
-                Hãy là người đầu tiên bình luận về bài viết này!
-              </Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
+            )}
+          </View>
+        </ScrollView>
+      )}
       {/** comment input */}
       <View style={styles.inputContainer}>
         {replyingTo && (

@@ -1,8 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode as atob } from "base-64";
-import {
-  removeProfile
-} from "./profile.api";
+import { removeProfile } from "./profile.api";
 const BASE_URL = process.env.EXPO_PUBLIC_AUTH_API;
 
 const TOKEN_KEY = "token";
@@ -111,7 +109,7 @@ export const login = async (email: string, password: string) => {
     const token = data.data.accessToken;
     const refreshToken = data.data.refreshToken;
     const user = data.data.user;
-
+    console.log(data.data.user);
     await saveToken(token);
     await saveRefreshToken(refreshToken);
     await saveAuth(user);

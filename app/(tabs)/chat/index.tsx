@@ -1,4 +1,6 @@
-import { MessageRoomItem, fetchMessageRooms } from "@/services/chat.api";
+import CustomLoading from "@/components/CustomLoading";
+import { getAuth } from "@/services/auth.api";
+import { fetchRoomSummary } from "@/services/chat.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -11,11 +13,24 @@ import {
 } from "react-native";
 
 export default function Chat() {
-  const [messRoom, setMessRoom] = useState<MessageRoomItem[]>([]);
+  const [messRoom, setMessRoom] = useState<any[]>([]);
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchMessageRooms(1).then(setMessRoom);
+    const load = async () => {
+      setLoading(true);
+      try {
+        const auth = await getAuth();
+        const data = await fetchRoomSummary(auth.id);
+        setMessRoom(data);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    load();
   }, []);
 
   return (
@@ -32,45 +47,49 @@ export default function Chat() {
         </Pressable>
       </View>
       {/** body */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/** room mess */}
-        {messRoom.map((room) => (
-          <Pressable
-            style={styles.chat}
-            key={room.roomId}
-            onPress={() => {
-              router.push({
-                pathname: `/(tabs)/chat/room`,
-                params: {
-                  roomId: room.roomId,
-                  name: room.name,
-                  avatar: room.avatar,
-                  coverImage: room.coverImage,
-                  role: room.role,
-                },
-              } as any);
-            }}
-          >
-            <Image source={{ uri: room.avatar }} style={styles.avata} />
-            {room.role === "COMPANY" && (
-              <Image
-                source={require("../../../assets/myApp/checklist.png")}
-                style={styles.checkList}
-              />
-            )}
-            <View style={styles.contentContainer}>
-              <Text style={styles.name}>{room.name}</Text>
-              <Text
-                style={styles.content}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {room.lastContent}
-              </Text>
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView>
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/** room mess */}
+          {messRoom.map((room) => (
+            <Pressable
+              style={styles.chat}
+              key={room.roomId}
+              onPress={() => {
+                router.push({
+                  pathname: `/(tabs)/chat/room`,
+                  params: {
+                    roomId: room.roomId,
+                    name: room.name,
+                    avatar: room.avatar,
+                    coverImage: room.coverImage,
+                    role: room.role,
+                  },
+                } as any);
+              }}
+            >
+              <Image source={{ uri: room.avatar }} style={styles.avata} />
+              {room.role === "COMPANY" && (
+                <Image
+                  source={require("../../../assets/myApp/checklist.png")}
+                  style={styles.checkList}
+                />
+              )}
+              <View style={styles.contentContainer}>
+                <Text style={styles.name}>{room.name}</Text>
+                <Text
+                  style={styles.content}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {room.lastContent}
+                </Text>
+              </View>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
