@@ -1,4 +1,5 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+import { getAuth } from "@/services/auth.api";
 import { fetchPortfolio } from "@/services/home.api";
 import { shareContent } from "@/services/share";
 import { useEffect, useRef, useState } from "react";
@@ -8,7 +9,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 const { width, height } = Dimensions.get("window");
@@ -20,9 +20,11 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [auth, setAuth] = useState<any>(null);
 
   useEffect(() => {
     const init = async () => {
+      getAuth().then(setAuth);
       try {
         const data = await fetchPortfolio(1, 10, false);
         setPortfolios(data);
@@ -40,13 +42,14 @@ export default function Home() {
     const offsetX = e.nativeEvent.contentOffset.x;
     const diff = Math.abs(offsetX - activeIndex * width);
 
-    if (diff > width * 0.1 && isExpanded) {
+    if (diff > width * 1 && isExpanded) {
       setIsExpanded(false);
     }
   };
 
   const handleScrollEnd = (e: any) => {
-    const index = Math.round(e.nativeEvent.contentOffset.x / width);
+    const offsetX = e.nativeEvent.contentOffset.x;
+    const index = Math.floor((offsetX + width * 0.3) / width);
     setActiveIndex(index);
     setIsExpanded(false);
     verticalRefs.current.forEach((ref) =>
@@ -77,15 +80,6 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Khám phá</Text>
-        <Pressable onPress={() => console.log("Search pressed")}>
-          <Image
-            source={require("../../../assets/myApp/search1.png")}
-            style={styles.searchIcon}
-          />
-        </Pressable>
-      </View>
       <View style={{ flex: 1 }}>
         <ScrollView
           horizontal
@@ -102,7 +96,7 @@ export default function Home() {
               loadMore();
             }
           }}
-          scrollEventThrottle={16}
+          scrollEventThrottle={32}
         >
           {portfolios.map((portfolio, index) => (
             <View key={portfolio.portfolioId} style={styles.page}>
@@ -117,22 +111,29 @@ export default function Home() {
               </ScrollView>
 
               <View style={[styles.actionBar, styles.expandButton]}>
-                <Pressable
-                  onPress={() => console.log("connect", portfolio.portfolioId)}
-                >
-                  <Image
-                    source={require("../../../assets/myApp/rating.png")}
-                    style={styles.iconRating}
-                  />
-                </Pressable>
-                <Pressable
-                  onPress={() => console.log("save", portfolio.portfolioId)}
-                >
-                  <Image
-                    source={require("../../../assets/myApp/save.png")}
-                    style={styles.icon}
-                  />
-                </Pressable>
+                {auth?.role === 2 && (
+                  <View>
+                    <Pressable
+                      onPress={() =>
+                        console.log("connect", portfolio.portfolioId)
+                      }
+                    >
+                      <Image
+                        source={require("../../../assets/myApp/rating.png")}
+                        style={styles.iconRating}
+                      />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => console.log("save", portfolio.portfolioId)}
+                    >
+                      <Image
+                        source={require("../../../assets/myApp/save.png")}
+                        style={styles.icon}
+                      />
+                    </Pressable>
+                  </View>
+                )}
+
                 <Pressable
                   onPress={() =>
                     shareContent(
@@ -158,25 +159,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 40,
-    borderBottomColor: "#E2E8F0",
-    borderBottomWidth: 1.5,
-    paddingHorizontal: 16,
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  searchIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 8,
   },
   page: {
     width,

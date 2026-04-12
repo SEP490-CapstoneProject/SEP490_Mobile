@@ -79,25 +79,27 @@ export default function ProjectOne({ data }: { data: ProjectItem[] }) {
           </View>
         ))}
       </ScrollView>
-      <View style={styles.navContainer}>
-        <Text style={styles.navButton} onPress={goLeft}>
-          <Image
-            source={require("../../../../assets/myApp/forward.png")}
-            style={{
-              width: 20,
-              height: 20,
-              tintColor: "white",
-              transform: [{ rotate: "180deg" }],
-            }}
-          />
-        </Text>
-        <Text style={styles.navButton} onPress={goRight}>
-          <Image
-            source={require("../../../../assets/myApp/forward.png")}
-            style={{ width: 20, height: 20, tintColor: "white" }}
-          />
-        </Text>
-      </View>
+      {data.length > 1 && (
+        <View style={styles.navContainer}>
+          <Text style={styles.navButton} onPress={goLeft}>
+            <Image
+              source={require("../../../../assets/myApp/forward.png")}
+              style={{
+                width: 20,
+                height: 20,
+                tintColor: "white",
+                transform: [{ rotate: "180deg" }],
+              }}
+            />
+          </Text>
+          <Text style={styles.navButton} onPress={goRight}>
+            <Image
+              source={require("../../../../assets/myApp/forward.png")}
+              style={{ width: 20, height: 20, tintColor: "white" }}
+            />
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
