@@ -55,7 +55,6 @@ export const fetchMessagesByRoom = async (
     });
 
     const text = await res.text();
-    console.log("RAW messages:", text);
 
     const data = text ? JSON.parse(text) : null;
 

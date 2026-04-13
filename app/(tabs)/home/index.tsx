@@ -16,7 +16,6 @@ export default function HomeIndex() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* HEADER TAB */}
       <View style={styles.header}>
         <View style={{ flexDirection: "row", gap: 40 }}>
           <Pressable onPress={() => setTab("explore")}>
@@ -67,10 +66,10 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
   active: {
-    color: "#000",
+    color: "#3B82F6",
     fontWeight: "bold",
     borderBottomWidth: 2,
-    borderColor: "#000",
+    borderColor: "#3B82F6",
     paddingBottom: 4,
   },
   searchIcon: {

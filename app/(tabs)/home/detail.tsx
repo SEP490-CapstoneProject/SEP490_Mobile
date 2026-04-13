@@ -293,8 +293,8 @@ const styles = StyleSheet.create({
   YeuCauChuyenMon: {
     backgroundColor: "#EFF6FF",
     borderRadius: 8,
-    width: 90,
-    height: 28,
+    width: 80,
+    height: 24,
     borderColor: "#FF4848",
     borderWidth: 1,
     justifyContent: "center",
@@ -305,12 +305,13 @@ const styles = StyleSheet.create({
   YeuCauChuyenMonText: {
     color: "#FF4848",
     fontWeight: "bold",
+    fontSize: 12,
   },
   YeuTienChuyenMon: {
     backgroundColor: "#EFF6FF",
     borderRadius: 8,
-    width: 90,
-    height: 28,
+    width: 80,
+    height: 24,
     borderColor: "#3B82F6",
     borderWidth: 1,
     justifyContent: "center",
@@ -321,6 +322,7 @@ const styles = StyleSheet.create({
   YeuTienChuyenMonText: {
     color: "#3B82F6",
     fontWeight: "bold",
+    fontSize: 12,
   },
 
   footerContent: {

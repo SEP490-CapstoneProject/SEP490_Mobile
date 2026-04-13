@@ -1,6 +1,6 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import { getAuth } from "@/services/auth.api";
-import { fetchMainPortfoliosManagerByUser } from "@/services/portfolio.api";
+import { fetchPortfolioMe } from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -35,7 +35,7 @@ export default function PortfolioManager() {
   const router = useRouter();
 
   const [user, setUser] = useState<any>(null);
-  const [portfolios, setPortfolios] = useState<PortfolioMainBlockItem[]>([]);
+  const [portfolios, setPortfolios] = useState<any[]>([]);
 
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -47,9 +47,13 @@ export default function PortfolioManager() {
   }, []);
 
   useEffect(() => {
-    if (!user?.userId) return;
-    fetchMainPortfoliosManagerByUser(user.userId).then(setPortfolios);
-  }, [user]);
+    const loadPortfolio = async () => {
+      const data = await fetchPortfolioMe();
+      setPortfolios(data);
+    };
+
+    loadPortfolio();
+  }, []);
 
   const openMenu = (event: any, portfolio: PortfolioMainBlockItem) => {
     event.target.measureInWindow(
@@ -77,12 +81,12 @@ export default function PortfolioManager() {
         <Text style={styles.title}>Quản lý hồ sơ</Text>
       </View>
 
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {portfolios.map((p) => (
           <View key={p.portfolioId} style={styles.content}>
             <View style={{ marginBottom: 18 }} />
 
-            <View style={styles.contentUp}>
+            {/* <View style={styles.contentUp}>
               {p.portfolio.status === 1 && (
                 <View style={styles.statusBackground}>
                   <Text style={styles.status}>Bản chính</Text>
@@ -95,13 +99,13 @@ export default function PortfolioManager() {
                   style={{ width: 25, height: 25 }}
                 />
               </Pressable>
-            </View>
+            </View> */}
 
-            <PortfolioRenderer blocks={[p.blocks]} />
+            <PortfolioRenderer blocks={[p.blocks[0]]} />
 
             <View style={styles.contentDown}>
               <View style={styles.line} />
-              <Text style={styles.name}>{p.portfolio.name}</Text>
+              <Text style={styles.name}>{p.portfolioName}</Text>
             </View>
           </View>
         ))}
