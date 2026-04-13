@@ -3,13 +3,12 @@ const BASE_URL_REALTIME = process.env.EXPO_PUBLIC_REALTIME_API;
 
 class RealtimeService {
   private connection: signalR.HubConnection | null = null;
+  private processedEvents = new Set<string>();
 
   private commentListeners: Function[] = [];
   private replyListeners: Function[] = [];
   private favoriteListeners: Function[] = [];
   private notificationListeners: Function[] = [];
-  private messageListeners: Function[] = [];
-  private readListeners: Function[] = [];
 
   public initConnection(accessToken: string) {
     if (this.connection) return;
@@ -39,18 +38,12 @@ class RealtimeService {
     });
 
     this.connection.on("ReceivePostFavoriteChanged", (data) => {
+      if (this.processedEvents.has(data.eventId)) return;
+      this.processedEvents.add(data.eventId);
       this.favoriteListeners.forEach((cb) => cb(data));
     });
     this.connection.on("ReceiveNotification", (event) => {
       this.notificationListeners.forEach((cb) => cb(event));
-    });
-
-    this.connection.on("ReceiveMessage", (event) => {
-      this.messageListeners.forEach((cb) => cb(event));
-    });
-
-    this.connection.on("MessagesRead", (data) => {
-      this.readListeners.forEach((cb) => cb(data));
     });
   }
 
@@ -70,14 +63,6 @@ class RealtimeService {
     this.notificationListeners.push(cb);
   }
 
-  onMessage(cb: Function) {
-    this.messageListeners.push(cb);
-  }
-
-  onRead(cb: Function) {
-    this.readListeners.push(cb);
-  }
-
   offComment(cb: Function) {
     this.commentListeners = this.commentListeners.filter((c) => c !== cb);
   }
@@ -94,14 +79,6 @@ class RealtimeService {
     this.notificationListeners = this.notificationListeners.filter(
       (c) => c !== cb,
     );
-  }
-
-  offMessage(cb: Function) {
-    this.messageListeners = this.messageListeners.filter((c) => c !== cb);
-  }
-
-  offRead(cb: Function) {
-    this.readListeners = this.readListeners.filter((c) => c !== cb);
   }
 
   async start() {
@@ -128,23 +105,6 @@ class RealtimeService {
     if (this.connection?.state === signalR.HubConnectionState.Connected) {
       await this.connection.invoke("LeavePost", postId);
     }
-  }
-
-  async joinRoom(roomId: number) {
-    if (this.connection?.state !== signalR.HubConnectionState.Connected) {
-      setTimeout(() => this.joinRoom(roomId), 2000);
-      return;
-    }
-
-    await this.connection.invoke("JoinRoom", roomId);
-  }
-
-  async sendMessage(roomId: number, content: string) {
-    if (this.connection?.state !== signalR.HubConnectionState.Connected) {
-      throw new Error("Not connected");
-    }
-
-    await this.connection.invoke("SendMessage", roomId, content);
   }
 
   stop() {

@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode as atob } from "base-64";
+import { chatRealtimeService } from "./chatRealtimeService";
 import { removeProfile } from "./profile.api";
+import { realtimeService } from "./realtimeService";
 const BASE_URL = process.env.EXPO_PUBLIC_AUTH_API;
 
 const TOKEN_KEY = "token";
@@ -150,4 +152,6 @@ export const logout = async () => {
   await AsyncStorage.removeItem(STORAGE_KEY);
   await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
   await removeProfile();
+  chatRealtimeService.stop();
+  realtimeService.stop();
 };

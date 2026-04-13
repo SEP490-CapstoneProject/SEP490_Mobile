@@ -1,6 +1,7 @@
 import CustomLoading from "@/components/CustomLoading";
-import { getAuth } from "@/services/auth.api";
+import { getAuth, getToken } from "@/services/auth.api";
 import { fetchRoomSummary } from "@/services/chat.api";
+import { chatRealtimeService } from "@/services/chatRealtimeService";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -33,6 +34,47 @@ export default function Chat() {
     load();
   }, []);
 
+  useEffect(() => {
+    const init = async () => {
+      const token = await getToken();
+
+      chatRealtimeService.initConnection(token as string);
+      await chatRealtimeService.start();
+    };
+
+    init();
+  }, []);
+
+  useEffect(() => {
+    const handleRoomUpdated = (data: any) => {
+      setMessRoom((prevRooms) => {
+        const targetIndex = prevRooms.findIndex(
+          (r) => r.roomId === data.roomId,
+        );
+
+        if (targetIndex === -1) return prevRooms;
+
+        const updatedRoom = {
+          ...prevRooms[targetIndex],
+          lastContent: data.lastContent,
+          lastAt: data.lastAt,
+          unreadCount: data.unreadCount,
+        };
+
+        const newRooms = prevRooms.filter((r) => r.roomId !== data.roomId);
+
+        newRooms.unshift(updatedRoom);
+
+        return newRooms;
+      });
+    };
+
+    chatRealtimeService.onRoomUpdated(handleRoomUpdated);
+
+    return () => {
+      chatRealtimeService.offRoomUpdated(handleRoomUpdated);
+    };
+  }, []);
   return (
     <View style={styles.container}>
       {/** header */}

@@ -4,10 +4,9 @@ import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "@/services/notification.api";
-import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
 import { useNotificationStore } from "@/utils/notificationStore";
-import { Notification, showError } from "@/utils/toast";
+import { showError } from "@/utils/toast";
 import { router } from "expo-router";
 
 import { useEffect, useState } from "react";
@@ -41,32 +40,6 @@ export default function CommunityNotification() {
     };
 
     load();
-  }, []);
-
-  useEffect(() => {
-    const handler = (data: any) => {
-      addNotification({
-        id: data.notificationId,
-        userId: data.userId,
-        title: data.title,
-        content: data.content,
-        type: data.type,
-        objectId: data.objectId,
-        actor: {
-          id: data.actorId,
-          name: data.actorName,
-          avatar: data.actorAvatar,
-        },
-        createdAt: data.createdAt,
-        isRead: false,
-      });
-
-      Notification("Bạn có thông báo mới", data.content);
-    };
-
-    realtimeService.onNotification(handler);
-
-    return () => realtimeService.offNotification(handler);
   }, []);
 
   const handlePress = async (item: any) => {

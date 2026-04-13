@@ -1,6 +1,6 @@
-import { getToken } from "@/services/auth.api";
+import { getAuth, getToken } from "@/services/auth.api";
 import { fetchMessagesByRoom } from "@/services/chat.api";
-import { realtimeService } from "@/services/realtimeService";
+import { chatRealtimeService } from "@/services/chatRealtimeService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,7 +17,7 @@ import {
 import { formatTimeAgo } from "../../../services/setTime";
 
 export default function ChatRoom() {
-  const USER_ID = 1;
+  const [userId, setUserId] = useState<number | null>(null);
   const router = useRouter();
   const { roomId, name, avatar, coverImage, role } = useLocalSearchParams<{
     roomId: string;
@@ -27,20 +27,43 @@ export default function ChatRoom() {
     role?: "COMPANY" | "USER";
   }>();
   const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState("");
+  const lastMyMessage = messages.find((m) => m.userId === userId);
 
   useEffect(() => {
     const init = async () => {
       const token = await getToken();
 
-      realtimeService.initConnection(token as string);
-      await realtimeService.start();
-      await realtimeService.joinRoom(Number(roomId));
+      chatRealtimeService.initConnection(token as string);
+      await chatRealtimeService.start();
+
+      await chatRealtimeService.joinRoom(Number(roomId));
     };
 
     init();
+
+    return () => {
+      chatRealtimeService.leaveRoom(Number(roomId));
+    };
   }, [roomId]);
 
   useEffect(() => {
+    const handleReceiveMessage = (msg: any) => {
+      setMessages((prev) => [msg, ...prev]);
+    };
+
+    chatRealtimeService.onReceiveMessage(handleReceiveMessage);
+
+    return () => {
+      chatRealtimeService.offReceiveMessage(handleReceiveMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    const loadAuth = async () => {
+      const data = await getAuth();
+      setUserId(data?.id);
+    };
     const loadMessages = async () => {
       const roomIdNumber = Number(roomId);
       if (!roomIdNumber) return;
@@ -50,8 +73,26 @@ export default function ChatRoom() {
       setMessages(Array.isArray(data) ? data : []);
     };
 
+    loadAuth();
     loadMessages();
   }, [roomId]);
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    try {
+      await chatRealtimeService.sendMessage(Number(roomId), input);
+
+      setInput("");
+    } catch (err) {
+      console.log("Send error:", err);
+    }
+  };
+
+  const handleOut = async () => {
+    await chatRealtimeService.leaveRoom(Number(roomId));
+    router.back();
+  };
 
   return (
     <KeyboardAvoidingView
@@ -63,7 +104,7 @@ export default function ChatRoom() {
         {/** header */}
         <View style={styles.headerContainer}>
           <View style={styles.headerLeft}>
-            <Pressable onPress={() => router.back()}>
+            <Pressable onPress={handleOut}>
               <Image
                 source={require("../../../assets/myApp/arrow.png")}
                 style={styles.headerIcon}
@@ -96,58 +137,74 @@ export default function ChatRoom() {
           data={messages}
           keyExtractor={(item) => item.id.toString()}
           inverted
-          contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "flex-end",
+          }}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <View
-              style={[
-                styles.messageRow,
-                item.userId === USER_ID
-                  ? styles.contentContainerRight
-                  : styles.contentContainerLeft,
-              ]}
-            >
-              <View
-                style={[
-                  styles.bubble,
-                  item.userId === USER_ID
-                    ? styles.bubbleRight
-                    : styles.bubbleLeft,
-                ]}
-              >
-                <Text
+          renderItem={({ item }) => {
+            const isMyMessage = item.userId === userId;
+            const isLastMyMessage = item.id === lastMyMessage?.id;
+            return (
+              <View>
+                <View
                   style={[
-                    item.userId === USER_ID
-                      ? styles.contentRight
-                      : styles.contentLeft,
+                    styles.messageRow,
+                    item.userId === userId
+                      ? styles.contentContainerRight
+                      : styles.contentContainerLeft,
                   ]}
                 >
-                  {item.content}
-                </Text>
-                <Text
-                  style={[
-                    item.userId === USER_ID
-                      ? styles.timeRight
-                      : styles.timeLeft,
-                  ]}
-                >
-                  {formatTimeAgo(item.createdAt)}
-                </Text>
+                  <View
+                    style={[
+                      styles.bubble,
+                      item.userId === userId
+                        ? styles.bubbleRight
+                        : styles.bubbleLeft,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        item.userId === userId
+                          ? styles.contentRight
+                          : styles.contentLeft,
+                      ]}
+                    >
+                      {item.content}
+                    </Text>
+                    <Text
+                      style={[
+                        item.userId === userId
+                          ? styles.timeRight
+                          : styles.timeLeft,
+                      ]}
+                    >
+                      {formatTimeAgo(item.createdAt)}
+                    </Text>
+                  </View>
+                </View>
+                {isMyMessage && isLastMyMessage && (
+                  <Text style={styles.statusText}>
+                    {item.status === "READ" ? " Đã xem" : "Đã gửi"}
+                  </Text>
+                )}
               </View>
-            </View>
-          )}
+            );
+          }}
         />
 
         {/** footer */}
         <View style={styles.footerContainer}>
           <TextInput
+            value={input}
+            onChangeText={setInput}
             placeholder="Tin nhắn ..."
             multiline
             numberOfLines={3}
             textAlignVertical="top"
             style={styles.textInput}
           />
-          <Pressable style={styles.sendContainer}>
+          <Pressable style={styles.sendContainer} onPress={handleSend}>
             <Image
               source={require("../../../assets/myApp/send.png")}
               style={styles.send}
@@ -188,7 +245,7 @@ const styles = StyleSheet.create({
   },
   messageRow: {
     flexDirection: "row",
-    marginVertical: 8,
+    marginVertical: 5,
     width: "100%",
   },
   contentContainerLeft: {
@@ -226,12 +283,12 @@ const styles = StyleSheet.create({
   },
   timeLeft: {
     alignSelf: "flex-end",
-    fontSize: 12,
+    fontSize: 11,
     color: "#6B7280",
   },
   timeRight: {
     alignSelf: "flex-end",
-    fontSize: 12,
+    fontSize: 11,
     color: "#FFFFFF",
   },
   footerContainer: {
@@ -245,6 +302,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingHorizontal: 20,
     alignItems: "center",
+    marginTop: 20,
   },
   textInput: {
     backgroundColor: "#FFFFFF",
@@ -267,5 +325,12 @@ const styles = StyleSheet.create({
   send: {
     width: 23,
     height: 23,
+  },
+  statusText: {
+    fontSize: 10,
+    color: "#6B7280",
+    alignSelf: "flex-end",
+    marginRight: 12,
+    marginTop: -5,
   },
 });

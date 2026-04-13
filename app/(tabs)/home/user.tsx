@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
 
   content: {
     position: "absolute",
-    bottom: -45,
+    bottom: -40,
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",

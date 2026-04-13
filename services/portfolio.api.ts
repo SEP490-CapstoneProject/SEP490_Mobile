@@ -901,10 +901,38 @@ export const PORTFOLIO_LIST_MOCK: PortfolioMainBlockItem[] = [
   },
 ];
 
-export const fetchPortfolio = async (userId: number, portfolioId: number) => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(PORTFOLIO_MOCK), 1);
-  });
+import { getToken, isTokenExpired, refreshToken } from "./auth.api";
+
+const BASE_URL_PORTFOLIO = process.env.EXPO_PUBLIC_PORTFOLIO_API;
+
+export const fetchPortfolioMe = async () => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(`${BASE_URL_PORTFOLIO}/api/portfolio/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "*/*",
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy portfolio thất bại");
+    }
+
+    return data;
+  } catch (error) {
+    console.log("fetchPortfolioMe error:", error);
+    return null;
+  }
 };
 
 export const fetchPortfolioById = async (portfolioId: number) => {
