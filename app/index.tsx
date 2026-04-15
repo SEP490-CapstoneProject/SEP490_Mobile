@@ -5,6 +5,7 @@ import {
   refreshToken,
 } from "@/services/auth.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
+import { fetchNotifications } from "@/services/notification.api";
 import {
   fetchCompanyProfile,
   fetchEmployeeProfile,
@@ -77,7 +78,8 @@ export default function Index() {
         }
         return;
       }
-
+      const res = await fetchNotifications();
+      useNotificationStore.getState().setNotifications(res?.items || []);
       router.replace("/(tabs)/home");
     };
 

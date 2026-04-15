@@ -1,4 +1,5 @@
 import { useConfirm } from "@/components/ConfirmContext";
+import { useLoading } from "@/components/LoadingContext";
 import { login } from "@/services/auth.api";
 import { showError } from "@/utils/toast";
 import { router } from "expo-router";
@@ -17,14 +18,16 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { showLoading, hideLoading } = useLoading();
 
   const handleLogin = async () => {
     if (!email || !password) {
       showError("Đăng nhập thất bại", "Vui lòng nhập đầy đủ thông tin");
       return;
     }
-
+    showLoading();
     const res = await login(email, password);
+    hideLoading();
     if (!res) {
       showError("Đăng nhập thất bại!", "Email hoặc mật khẩu không đúng");
       return;

@@ -1,9 +1,13 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import { getAuth } from "@/services/auth.api";
-import { fetchPortfolioMe } from "@/services/portfolio.api";
+import {
+  fetchPortfolioMe,
+  toggleMainPortfolio,
+} from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
+import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Image,
   Pressable,
@@ -24,6 +28,8 @@ type PortfolioBlock = {
 type PortfolioMainBlockItem = {
   portfolioId: number;
   userId: number;
+  isMain: boolean;
+  isPublic: boolean;
   portfolio: {
     name: string;
     status: number;
@@ -41,6 +47,7 @@ export default function PortfolioManager() {
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [selectedPortfolio, setSelectedPortfolio] =
     useState<PortfolioMainBlockItem | null>(null);
+  const menuRefs = useRef<{ [key: number]: any }>({});
 
   useEffect(() => {
     getAuth().then(setUser);
@@ -55,24 +62,47 @@ export default function PortfolioManager() {
     loadPortfolio();
   }, []);
 
-  const openMenu = (event: any, portfolio: PortfolioMainBlockItem) => {
-    event.target.measureInWindow(
+  const openMenu = (portfolio: PortfolioMainBlockItem) => {
+    const ref = menuRefs.current[portfolio.portfolioId];
+
+    if (!ref) return;
+
+    ref.measureInWindow(
       (x: number, y: number, width: number, height: number) => {
         setMenuPosition({
-          x: x - 152,
+          x: x - 150,
           y: y + height,
         });
+
         setSelectedPortfolio(portfolio);
         setMenuVisible(true);
       },
     );
   };
 
+  const handleToggleMain = async () => {
+    if (!selectedPortfolio) return;
+
+    try {
+      await toggleMainPortfolio(selectedPortfolio.portfolioId);
+      setPortfolios((prev) =>
+        prev.map((p) => ({
+          ...p,
+          isMain: p.portfolioId === selectedPortfolio.portfolioId,
+        })),
+      );
+
+      setMenuVisible(false);
+    } catch (err) {
+      showError("Lỗi", err as string);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.headerContainer}>
-        <Pressable onPress={() => router.back()}>
+        <Pressable onPress={() => router.push("/(tabs)/profile/user")}>
           <Image
             source={require("../../../../assets/myApp/arrow.png")}
             style={styles.headerIcon}
@@ -86,20 +116,29 @@ export default function PortfolioManager() {
           <View key={p.portfolioId} style={styles.content}>
             <View style={{ marginBottom: 18 }} />
 
-            {/* <View style={styles.contentUp}>
-              {p.portfolio.status === 1 && (
+            <View style={styles.contentUp}>
+              {p.isMain ? (
                 <View style={styles.statusBackground}>
                   <Text style={styles.status}>Bản chính</Text>
                 </View>
+              ) : (
+                <View style={styles.statusBackgroundFalse}>
+                  <Text style={styles.statusFalse}>Bản phụ</Text>
+                </View>
               )}
 
-              <Pressable onPress={(e) => openMenu(e, p)}>
+              <Pressable
+                ref={(ref) => {
+                  menuRefs.current[p.portfolioId] = ref;
+                }}
+                onPress={() => openMenu(p)}
+              >
                 <Image
                   source={require("../../../../assets/myApp/dots.png")}
                   style={{ width: 25, height: 25 }}
                 />
               </Pressable>
-            </View> */}
+            </View>
 
             <PortfolioRenderer blocks={[p.blocks[0]]} />
 
@@ -137,9 +176,10 @@ export default function PortfolioManager() {
                   borderTopRightRadius: 14,
                 },
               ]}
+              onPress={handleToggleMain}
             >
               <Text style={{ color: "#1B8442", fontWeight: "600" }}>
-                {selectedPortfolio.portfolio.status
+                {selectedPortfolio.isMain
                   ? "Hủy bản chính"
                   : "Đặt làm bản chính"}
               </Text>
@@ -248,8 +288,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
 
+  statusBackgroundFalse: {
+    backgroundColor: "#E2E8F0",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+
   status: {
     color: "#1B8442",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+
+  statusFalse: {
+    color: "#6B7280",
     fontSize: 12,
     fontWeight: "bold",
   },

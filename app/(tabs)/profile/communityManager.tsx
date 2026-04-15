@@ -1,3 +1,4 @@
+import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 import { getAuth } from "@/services/auth.api";
 import { fetchCommunityPostsByUser } from "@/services/Comunity.api";
@@ -16,20 +17,20 @@ import {
 export default function CommunityManager() {
   const router = useRouter();
   const [posts, setPosts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState<"NEWEST" | "OLDEST">("NEWEST");
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
-      setIsLoading(true);
+      setLoading(true);
       const auth = await getAuth();
       if (auth?.id) {
         const posts = await fetchCommunityPostsByUser(auth.id);
         setPosts(posts);
       }
 
-      setIsLoading(false);
+      setLoading(false);
     };
 
     loadData();
@@ -55,180 +56,185 @@ export default function CommunityManager() {
         <Text style={styles.title}>Quản lý bài đăng cộng đồng</Text>
       </View>
       {/** body */}
-      <View>
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 100,
-            paddingHorizontal: 20,
-            paddingVertical: 15,
-          }}
-        >
-          <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-            Bạn có {posts.length} bài đăng
-          </Text>
-          <View style={{ position: "relative" }}>
-            <View style={styles.sortWrapper}>
-              <Image
-                source={require("../../../assets/myApp/sort.png")}
-                style={styles.sortIcon}
-              />
-              <Pressable
-                style={styles.selectBox}
-                onPress={() => setIsOpen(!isOpen)}
-              >
-                <Text style={styles.selectText}>
-                  {sortOrder === "NEWEST" ? "Mới nhất" : "Cũ nhất"}
-                </Text>
-              </Pressable>
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 100,
+              paddingHorizontal: 20,
+              paddingVertical: 15,
+            }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+              Bạn có {posts.length} bài đăng
+            </Text>
+            <View style={{ position: "relative" }}>
+              <View style={styles.sortWrapper}>
+                <Image
+                  source={require("../../../assets/myApp/sort.png")}
+                  style={styles.sortIcon}
+                />
+                <Pressable
+                  style={styles.selectBox}
+                  onPress={() => setIsOpen(!isOpen)}
+                >
+                  <Text style={styles.selectText}>
+                    {sortOrder === "NEWEST" ? "Mới nhất" : "Cũ nhất"}
+                  </Text>
+                </Pressable>
 
-              {/* DROPDOWN */}
-              {isOpen && (
-                <View style={styles.dropdown}>
-                  <Pressable
-                    style={styles.option}
-                    onPress={() => {
-                      setSortOrder("NEWEST");
-                      setIsOpen(false);
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.optionText,
-                        sortOrder === "NEWEST" && styles.activeText,
-                      ]}
+                {/* DROPDOWN */}
+                {isOpen && (
+                  <View style={styles.dropdown}>
+                    <Pressable
+                      style={styles.option}
+                      onPress={() => {
+                        setSortOrder("NEWEST");
+                        setIsOpen(false);
+                      }}
                     >
-                      Mới nhất
-                    </Text>
-                  </Pressable>
+                      <Text
+                        style={[
+                          styles.optionText,
+                          sortOrder === "NEWEST" && styles.activeText,
+                        ]}
+                      >
+                        Mới nhất
+                      </Text>
+                    </Pressable>
 
-                  <Pressable
-                    style={styles.option}
-                    onPress={() => {
-                      setSortOrder("OLDEST");
-                      setIsOpen(false);
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.optionText,
-                        sortOrder === "OLDEST" && styles.activeText,
-                      ]}
+                    <Pressable
+                      style={styles.option}
+                      onPress={() => {
+                        setSortOrder("OLDEST");
+                        setIsOpen(false);
+                      }}
                     >
-                      Cũ nhất
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
-            </View>
-          </View>
-        </View>
-
-        {/** view post content */}
-        <View style={{ marginBottom: 192 }}>
-          <FlatList
-            data={displayPosts}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.contentContainer}>
-                {/** header content **/}
-                {item.author && (
-                  <View style={styles.headerContent}>
-                    <View style={styles.headerContentLeft}>
-                      <View style={styles.avataContainer}>
-                        <Image
-                          source={{ uri: item.author.avatar }}
-                          style={styles.avata}
-                        />
-                        {item.author.role === "COMPANY" && (
-                          <Image
-                            source={require("../../../assets/myApp/checklist.png")}
-                            style={styles.avataIcon}
-                          />
-                        )}
-                      </View>
-
-                      <View>
-                        <Text style={styles.name}>{item.author.name}</Text>
-                        <Text style={styles.time}>
-                          {formatTimeAgo(item.createdAt)}
-                        </Text>
-                      </View>
-                    </View>
-                    <Pressable>
-                      <Image
-                        source={require("../../../assets/myApp/option.png")}
-                        style={styles.iconHeaderLeft}
-                      />
+                      <Text
+                        style={[
+                          styles.optionText,
+                          sortOrder === "OLDEST" && styles.activeText,
+                        ]}
+                      >
+                        Cũ nhất
+                      </Text>
                     </Pressable>
                   </View>
                 )}
-                {/** body content */}
-                <View>
-                  <Text style={styles.textContent}>{item.description}</Text>
-                  {item.portfolioId && (
-                    <Pressable style={styles.linkContainer}>
+              </View>
+            </View>
+          </View>
+
+          {/** view post content */}
+          <View style={{ marginBottom: 192 }}>
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={displayPosts}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.contentContainer}>
+                  {/** header content **/}
+                  {item.author && (
+                    <View style={styles.headerContent}>
+                      <View style={styles.headerContentLeft}>
+                        <View style={styles.avataContainer}>
+                          <Image
+                            source={{ uri: item.author.avatar }}
+                            style={styles.avata}
+                          />
+                          {item.author.role === "COMPANY" && (
+                            <Image
+                              source={require("../../../assets/myApp/checklist.png")}
+                              style={styles.avataIcon}
+                            />
+                          )}
+                        </View>
+
+                        <View>
+                          <Text style={styles.name}>{item.author.name}</Text>
+                          <Text style={styles.time}>
+                            {formatTimeAgo(item.createdAt)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Pressable>
+                        <Image
+                          source={require("../../../assets/myApp/option.png")}
+                          style={styles.iconHeaderLeft}
+                        />
+                      </Pressable>
+                    </View>
+                  )}
+                  {/** body content */}
+                  <View>
+                    <Text style={styles.textContent}>{item.description}</Text>
+                    {item.portfolioId && (
+                      <Pressable style={styles.linkContainer}>
+                        <Image
+                          source={require("../../../assets/myApp/link.png")}
+                          style={styles.iconLinkbody}
+                        />
+                        <Text style={styles.textLinkBody}>Xem chi tiết</Text>
+                      </Pressable>
+                    )}
+                    {item.media && item.media.length > 0 && (
+                      <MediaGrid media={item.media} />
+                    )}
+                  </View>
+                  {/** footer content */}
+                  <View style={styles.footerContainer}>
+                    <View style={styles.favoriteCount}>
                       <Image
-                        source={require("../../../assets/myApp/link.png")}
-                        style={styles.iconLinkbody}
+                        source={require("../../../assets/myApp/heartA (1).png")}
+                        style={[
+                          styles.footerIcon,
+                          item.isFavorited ? { tintColor: "#FF4848" } : {},
+                        ]}
                       />
-                      <Text style={styles.textLinkBody}>Xem chi tiết</Text>
+                      <Text style={styles.textFavoriteCount}>
+                        {item.favoriteCount}
+                      </Text>
+                    </View>
+                    <Pressable
+                      style={styles.favoriteCount}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/community/comment",
+                          params: {
+                            postId: item.id,
+                          },
+                        })
+                      }
+                    >
+                      <Image
+                        source={require("../../../assets/myApp/message.png")}
+                        style={styles.footerIcon}
+                      />
+                      <Text style={styles.textFavoriteCount}>
+                        {item.commentCount}
+                      </Text>
                     </Pressable>
-                  )}
-                  {item.media && item.media.length > 0 && (
-                    <MediaGrid media={item.media} />
-                  )}
-                </View>
-                {/** footer content */}
-                <View style={styles.footerContainer}>
-                  <View style={styles.favoriteCount}>
                     <Image
-                      source={require("../../../assets/myApp/heartA (1).png")}
+                      source={require("../../../assets/myApp/bookmark.png")}
                       style={[
                         styles.footerIcon,
-                        item.isFavorited ? { tintColor: "#FF4848" } : {},
+                        item.isSaved ? { tintColor: "#FFD700" } : {},
                       ]}
                     />
-                    <Text style={styles.textFavoriteCount}>
-                      {item.favoriteCount}
-                    </Text>
-                  </View>
-                  <Pressable
-                    style={styles.favoriteCount}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/community/comment",
-                        params: {
-                          postId: item.id,
-                        },
-                      })
-                    }
-                  >
                     <Image
-                      source={require("../../../assets/myApp/message.png")}
-                      style={styles.footerIcon}
+                      source={require("../../../assets/myApp/share-.png")}
+                      style={[styles.footerIcon]}
                     />
-                    <Text style={styles.textFavoriteCount}>
-                      {item.commentCount}
-                    </Text>
-                  </Pressable>
-                  <Image
-                    source={require("../../../assets/myApp/bookmark.png")}
-                    style={[
-                      styles.footerIcon,
-                      item.isSaved ? { tintColor: "#FFD700" } : {},
-                    ]}
-                  />
-                  <Image
-                    source={require("../../../assets/myApp/share-.png")}
-                    style={[styles.footerIcon]}
-                  />
+                  </View>
                 </View>
-              </View>
-            )}
-          />
+              )}
+            />
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }

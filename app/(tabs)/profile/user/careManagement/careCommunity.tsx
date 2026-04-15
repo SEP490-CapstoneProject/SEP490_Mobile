@@ -1,3 +1,4 @@
+import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 
 import { formatTimeAgo } from "@/services/setTime";
@@ -37,11 +38,11 @@ export default function CareCommunityScreen() {
   return (
     <View style={styles.container}>
       {/* content */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {isLoading ? (
-          <Text>Loading...</Text>
-        ) : (
-          posts.map((post) => (
+      {isLoading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {posts.map((post) => (
             <View key={post.id} style={styles.contentContainer}>
               {/** header content **/}
               {post.author && (
@@ -141,16 +142,16 @@ export default function CareCommunityScreen() {
                 </Pressable>
               </View>
             </View>
-          ))
-        )}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 200,
+    flex: 1,
   },
 
   card: {

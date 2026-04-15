@@ -1,3 +1,4 @@
+import { useLoading } from "@/components/LoadingContext";
 import { updateCompanyProfile } from "@/services/profile.api";
 import { showError, showSuccess } from "@/utils/toast";
 import * as ImagePicker from "expo-image-picker";
@@ -26,6 +27,7 @@ export default function EditCompanyProfile() {
   const [activityField, setActivityField] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const { showLoading, hideLoading } = useLoading();
 
   // 🔥 GIỐNG USER → set state ban đầu
   useEffect(() => {
@@ -55,6 +57,7 @@ export default function EditCompanyProfile() {
 
   const handleSave = async () => {
     try {
+      showLoading();
       await updateCompanyProfile({
         id: user.id,
         companyName: name,
@@ -65,10 +68,11 @@ export default function EditCompanyProfile() {
         avatar,
         coverImage,
       });
-
+      hideLoading();
       showSuccess("Thành công", "Cập nhật thông tin cá nhân thành công");
       router.replace("/(tabs)/profile/company");
     } catch (err: any) {
+      hideLoading();
       showError("Lỗi", err.message || "Cập nhật thất bại");
     }
   };

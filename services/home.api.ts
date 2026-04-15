@@ -73,58 +73,6 @@ export const fetchJobById = async (postId: number) => {
   }
 };
 
-export const fetchPortfolio = async (
-  page: number,
-  pageSize: number,
-  includeCompliments: boolean,
-) => {
-  let token = await getToken();
-
-  if (token && isTokenExpired(token)) {
-    token = await refreshToken();
-  }
-
-  const url = `${BASE_URL_PORTFOLIO}/api/portfolio?page=${page}&pageSize=${pageSize}&includeCompliments=${includeCompliments}`;
-
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      Accept: "*/*",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
-
-  if (res.status === 401) {
-    const newToken = await refreshToken();
-
-    const retryRes = await fetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "*/*",
-        Authorization: `Bearer ${newToken}`,
-      },
-    });
-
-    const retryText = await retryRes.text();
-    const retryData = retryText ? JSON.parse(retryText) : null;
-
-    if (!retryRes.ok) {
-      throw new Error(retryData?.message || "Lấy portfolio thất bại");
-    }
-
-    return retryData.items || retryData;
-  }
-
-  if (!res.ok) {
-    throw new Error(data?.message || "Lấy portfolio thất bại");
-  }
-
-  return data.items || data;
-};
-
 export const saveJob = async (postId: number) => {
   let token = await getToken();
   if (!token || isTokenExpired(token)) {

@@ -29,18 +29,39 @@ export default function CommunityNotification() {
   } = useNotificationStore();
   const [loading, setLoading] = useState(false);
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const [cursor, setCursor] = useState<number | null>(null);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       const res = await fetchNotifications();
 
-      setNotifications(res?.items);
+      setNotifications(res?.items || []);
+      setCursor(res?.nextCursor || null);
       setLoading(false);
     };
 
     load();
   }, []);
+
+  const loadMore = async () => {
+    if (!cursor) return;
+
+    try {
+      const res = await fetchNotifications(cursor);
+
+      const map = new Map();
+
+      [...notifications, ...(res?.items || [])].forEach((item) => {
+        map.set(item.id, item);
+      });
+
+      setNotifications(Array.from(map.values()));
+      setCursor(res?.nextCursor || null);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handlePress = async (item: any) => {
     try {
@@ -91,7 +112,11 @@ export default function CommunityNotification() {
           </View>
 
           {/* LIST */}
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            onMomentumScrollEnd={loadMore}
+            style={{ marginBottom: 80 }}
+          >
             {notifications.map((item) => (
               <Pressable
                 key={item.id}

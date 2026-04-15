@@ -170,7 +170,19 @@ export default function Detail() {
         </View>
         {/* Footer Content */}
         <View style={styles.footerContent}>
-          <Pressable style={styles.bntFooterContent}>
+          <Pressable
+            style={styles.bntFooterContent}
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/home/choosePortfolio",
+                params: {
+                  postId: jobDetail?.postId,
+                  position: jobDetail?.position,
+                  companyName: jobDetail?.companyName,
+                },
+              })
+            }
+          >
             <Text style={{ color: "white" }}>Tham gia ứng tuyển</Text>
           </Pressable>
           <Pressable style={styles.bntDotFooter}>

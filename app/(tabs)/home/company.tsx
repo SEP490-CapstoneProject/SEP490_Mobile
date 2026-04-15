@@ -1,8 +1,17 @@
 import CustomLoading from "@/components/CustomLoading";
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+import RatingModal from "@/components/RatingModal";
 import { getAuth } from "@/services/auth.api";
-import { fetchPortfolio } from "@/services/home.api";
+
+import {
+  createCompliment,
+  fetchPortfolio,
+  getMyCompliment,
+  updateCompliment,
+} from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -10,9 +19,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 const { width, height } = Dimensions.get("window");
+
 export default function Home() {
   const [portfolios, setPortfolios] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -23,6 +34,18 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [auth, setAuth] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [ratingVisible, setRatingVisible] = useState(false);
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | null>(
+    null,
+  );
+
+  const [ratingData, setRatingData] = useState({
+    id: null as number | null,
+    score: 0,
+    content: "",
+  });
+  const [ratingLoading, setRatingLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const init = async () => {
@@ -46,14 +69,14 @@ export default function Home() {
     const offsetX = e.nativeEvent.contentOffset.x;
     const diff = Math.abs(offsetX - activeIndex * width);
 
-    if (diff > width * 1 && isExpanded) {
+    if (diff > width * 0.1 && isExpanded) {
       setIsExpanded(false);
     }
   };
 
   const handleScrollEnd = (e: any) => {
     const offsetX = e.nativeEvent.contentOffset.x;
-    const index = Math.floor((offsetX + width * 0.3) / width);
+    const index = Math.floor((offsetX + width * 0.1) / width);
     setActiveIndex(index);
     setIsExpanded(false);
     verticalRefs.current.forEach((ref) =>
@@ -82,12 +105,97 @@ export default function Home() {
     setIsLoadingMore(false);
   };
 
+  const handleOpenRating = async (portfolioId: number) => {
+    try {
+      setSelectedPortfolioId(portfolioId);
+
+      setRatingData({
+        id: null,
+        score: 0,
+        content: "",
+      });
+
+      setRatingVisible(true);
+      setRatingLoading(true);
+
+      const data = await getMyCompliment(portfolioId);
+
+      let item = null;
+
+      if (Array.isArray(data)) {
+        item = data.find((x: any) => x.portfolioId === portfolioId);
+      } else {
+        item = data;
+      }
+
+      if (item) {
+        setRatingData({
+          id: item.id,
+          score: Number(item.score),
+          content: item.content || "",
+        });
+      }
+
+      setRatingLoading(false);
+    } catch (err) {
+      console.log(err);
+      setRatingLoading(false);
+    }
+  };
+
+  const handleSubmitRating = async () => {
+    try {
+      if (!selectedPortfolioId) return;
+
+      if (ratingData.id) {
+        await updateCompliment(ratingData.id, {
+          content: ratingData.content,
+          score: ratingData.score,
+        });
+      } else {
+        await createCompliment({
+          portfolioId: selectedPortfolioId,
+          content: ratingData.content,
+          score: ratingData.score,
+        });
+      }
+
+      setRatingVisible(false);
+    } catch (err) {
+      console.log("Submit rating error:", err);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
         <CustomLoading />
       ) : (
         <View style={{ flex: 1 }}>
+          <View style={styles.rankBannerWrapper}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.pressableWrap,
+                pressed && { transform: [{ scale: 0.97 }] },
+              ]}
+            >
+              <LinearGradient
+                colors={["#FF7A00", "#FF2D2D"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.rankBanner}
+              >
+                <View>
+                  <Text style={styles.bannerTitle}>🔥 Bảng xếp hạng</Text>
+                  <Text style={styles.bannerSub}>
+                    Khám phá TOP hồ sơ nổi bật
+                  </Text>
+                </View>
+
+                <Text style={styles.bannerBtn}>Xem ngay</Text>
+              </LinearGradient>
+            </Pressable>
+          </View>
           <ScrollView
             horizontal
             pagingEnabled
@@ -114,50 +222,71 @@ export default function Home() {
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={{ paddingBottom: 100 }}
                 >
-                  <PortfolioRenderer blocks={portfolio.blocks} />
+                  <PortfolioRenderer
+                    blocks={portfolio.blocks}
+                    rank={Number(portfolio.ranking?.rankPosition)}
+                  />
                 </ScrollView>
-
-                <View style={[styles.actionBar, styles.expandButton]}>
-                  {auth?.role === 2 && (
+                <LinearGradient
+                  colors={[
+                    "rgba(0,0,0,0.3)",
+                    "rgba(0,0,0,0.3)",
+                    "rgba(0,0,0,0.3)",
+                    "rgba(0,0,0,0.3)",
+                  ]}
+                  style={styles.actionBar}
+                >
+                  <View>
+                    {auth?.role === 2 && (
+                      <Pressable
+                        onPress={() => handleOpenRating(portfolio.portfolioId)}
+                      >
+                        <Image
+                          source={require("../../../assets/myApp/rating.png")}
+                          style={styles.iconRating}
+                        />
+                      </Pressable>
+                    )}
+                    {auth?.role === 2 && (
+                      <Pressable
+                        onPress={() =>
+                          console.log("save", portfolio.portfolioId)
+                        }
+                      >
+                        <Image
+                          source={require("../../../assets/myApp/save.png")}
+                          style={styles.icon}
+                        />
+                      </Pressable>
+                    )}
                     <Pressable
                       onPress={() =>
-                        console.log("connect", portfolio.portfolioId)
+                        shareContent(
+                          `https://skillsnap.io/portfolio/${portfolio.portfolioId}`,
+                        )
                       }
                     >
                       <Image
-                        source={require("../../../assets/myApp/rating.png")}
-                        style={styles.iconRating}
-                      />
-                    </Pressable>
-                  )}
-                  {auth?.role === 2 && (
-                    <Pressable
-                      onPress={() => console.log("save", portfolio.portfolioId)}
-                    >
-                      <Image
-                        source={require("../../../assets/myApp/save.png")}
+                        source={require("../../../assets/myApp/share_black.png")}
                         style={styles.icon}
                       />
                     </Pressable>
-                  )}
-                  <Pressable
-                    onPress={() =>
-                      shareContent(
-                        `https://skillsnap.io/portfolio/${portfolio.portfolioId}`,
-                      )
-                    }
-                  >
-                    <Image
-                      source={require("../../../assets/myApp/share_black.png")}
-                      style={styles.icon}
-                    />
-                  </Pressable>
-                </View>
+                  </View>
+                </LinearGradient>
               </View>
             ))}
           </ScrollView>
         </View>
       )}
+      <RatingModal
+        key={selectedPortfolioId + "_" + ratingData.id + "_" + ratingData.score}
+        visible={ratingVisible}
+        ratingData={ratingData}
+        setRatingData={setRatingData}
+        loading={ratingLoading}
+        onClose={() => setRatingVisible(false)}
+        onSubmit={handleSubmitRating}
+      />
     </View>
   );
 }
@@ -179,6 +308,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     flexDirection: "row",
     justifyContent: "space-around",
+    paddingVertical: 18,
   },
   icon: {
     width: 27,
@@ -202,5 +332,42 @@ const styles = StyleSheet.create({
   expandText: {
     color: "#6B7280",
     fontWeight: "600",
+  },
+
+  rankBannerWrapper: {},
+
+  pressableWrap: {
+    borderRadius: 20,
+  },
+
+  rankBanner: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 7,
+
+    shadowColor: "#FF5F00",
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+
+  bannerTitle: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+
+  bannerSub: {
+    color: "#fff",
+    fontSize: 12,
+    opacity: 0.9,
+  },
+
+  bannerBtn: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 13,
   },
 });
