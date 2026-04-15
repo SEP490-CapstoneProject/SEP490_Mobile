@@ -2,9 +2,13 @@ import CardButton from "@/components/CardButton";
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import ProfilePage from "@/components/profile/ProfilePage";
 import { logout } from "@/services/auth.api";
+import {
+  fetchMainPortfolio,
+  togglePublicPortfolio,
+} from "@/services/portfolio.api";
 
-import { fetchMainBlockPortfolioByUserId } from "@/services/portfolio.api";
 import { getProfile } from "@/services/profile.api";
+import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -21,13 +25,17 @@ export default function UserProfile() {
   const [user, setUser] = useState<any>(null);
   const [portfolio, setPortfolio] = useState<any>(null);
 
+  const loadMainPortfolio = async () => {
+    const data = await fetchMainPortfolio(2);
+    setPortfolio(data);
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
         const user = await getProfile();
 
         if (!user) {
-          console.log("Không có user → logout");
           await logout();
           router.replace("/(auth)/login");
           return;
@@ -39,13 +47,23 @@ export default function UserProfile() {
       }
     };
 
+    loadMainPortfolio();
+
     loadData();
   }, []);
 
-  useEffect(() => {
-    if (!user?.userId) return;
-    fetchMainBlockPortfolioByUserId(user.userId).then(setPortfolio);
-  }, [user]);
+  const handleTogglePublic = async () => {
+    try {
+      await togglePublicPortfolio(portfolio.portfolioId);
+
+      setPortfolio((prev: any) => ({
+        ...prev,
+        isPublic: !prev.isPublic,
+      }));
+    } catch (err) {
+      showError("lỗi", "");
+    }
+  };
 
   if (!user) return null;
 
@@ -83,32 +101,48 @@ export default function UserProfile() {
           </View>
         </View>
         {/* portfolio here */}
-        <View style={{ marginTop: 30 }}>
-          <View style={styles.pressableBnt}>
-            <Pressable style={styles.pressableShare}>
-              <Text style={styles.textShare}>chia sẻ hồ sơ</Text>
-            </Pressable>
-            <Pressable style={styles.pressableOption}>
-              <Image
-                source={require("../../../assets/myApp/option.png")}
-                style={{ width: 25, height: 25 }}
+        {portfolio !== null && (
+          <View style={{ marginTop: 30 }}>
+            <View style={styles.pressableBnt}>
+              <Pressable
+                style={[
+                  styles.pressableShare,
+                  {
+                    backgroundColor: portfolio?.isPublic
+                      ? "#3B82F6"
+                      : "#3B82F6",
+                  },
+                ]}
+                onPress={handleTogglePublic}
+              >
+                <Text style={styles.textShare}>
+                  {portfolio?.isPublic ? "Đang công khai" : "Đăng công khai"}
+                </Text>
+              </Pressable>
+              <Pressable style={styles.pressableOption}>
+                <Image
+                  source={require("../../../assets/myApp/option.png")}
+                  style={{ width: 25, height: 25 }}
+                />
+              </Pressable>
+            </View>
+            <View
+              style={{
+                borderColor: "#E2E8F0",
+                borderWidth: 1.5,
+                marginHorizontal: 15,
+                borderRadius: 10,
+                marginTop: 10,
+              }}
+            >
+              <PortfolioRenderer
+                blocks={[portfolio.blocks[0]]}
+                rank={portfolio.ranking.rankPosition}
               />
-            </Pressable>
+            </View>
           </View>
-          <View
-            style={{
-              borderColor: "#E2E8F0",
-              borderWidth: 1.5,
-              marginHorizontal: 15,
-              borderRadius: 10,
-              marginTop: 10,
-            }}
-          >
-            {portfolio?.blocks && (
-              <PortfolioRenderer blocks={[portfolio.blocks]} />
-            )}
-          </View>
-        </View>
+        )}
+
         {/* button */}
         <View>
           <View
@@ -214,7 +248,7 @@ const styles = StyleSheet.create({
   },
   pressableShare: {
     backgroundColor: "#3B82F6",
-    paddingHorizontal: 70,
+    paddingHorizontal: 60,
     paddingVertical: 6,
     borderRadius: 10,
   },

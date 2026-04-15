@@ -1,3 +1,4 @@
+import { useLoading } from "@/components/LoadingContext";
 import { fetchCreatePost } from "@/services/Comunity.api";
 import { showError, showSuccess } from "@/utils/toast";
 import * as ImagePicker from "expo-image-picker";
@@ -21,6 +22,7 @@ export default function createPost() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [description, setDescription] = useState<string>("");
   const [portfolioId, setPortfolioId] = useState<number | null>(null);
+  const { showLoading, hideLoading } = useLoading();
 
   const mediaUris = media.map((item) => item.uri);
   const removeMedia = (index: number) => {
@@ -46,12 +48,14 @@ export default function createPost() {
 
   const handleCreatePost = async () => {
     try {
+      showLoading();
       const res = await fetchCreatePost(description, media);
-
+      hideLoading();
       showSuccess("Thành công", "Bài đăng của bạn đã được tạo");
 
       router.replace("/(tabs)/community");
     } catch (err: any) {
+      hideLoading();
       showError("Lỗi", err.message || "Tạo bài đăng thất bại");
     }
   };

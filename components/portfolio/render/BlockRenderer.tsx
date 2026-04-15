@@ -12,11 +12,17 @@ import SkillBlock from "../blocks/skill/skillBlock";
 import TeachingBlock from "../blocks/teaching/teachingBlock";
 import TypicalCaseBlock from "../blocks/typicalCase/typicalCaseBlock";
 
-export default function BlockRenderer({ block }: { block: any }) {
+export default function BlockRenderer({
+  block,
+  rank,
+}: {
+  block: any;
+  rank?: number;
+}) {
   const { type, variant, data } = block;
   switch (type) {
     case "INTRO":
-      return <IntroBlock data={data} variant={variant} />;
+      return <IntroBlock data={data} variant={variant} rank={rank} />;
     case "SKILL":
       return <SkillBlock data={data} variant={variant} />;
     case "EDUCATION":

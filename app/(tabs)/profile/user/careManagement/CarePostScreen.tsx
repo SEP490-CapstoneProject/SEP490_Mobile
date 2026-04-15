@@ -1,8 +1,10 @@
+import CustomLoading from "@/components/CustomLoading";
 import { shareContent } from "@/services/share";
 import { fetchSavedJobs } from "@/services/user/careManagement.api";
 import { ResizeMode, Video } from "expo-av";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Image,
   Pressable,
@@ -15,107 +17,174 @@ import {
 export default function CarePostScreen() {
   const router = useRouter();
   const [jobs, setJobs] = useState<any[]>([]);
+
+  const [loading, setLoading] = useState(false);
+  const videoRefs = useRef<(Video | null)[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   useEffect(() => {
+    setLoading(true);
     const loadSaved = async () => {
       const data = await fetchSavedJobs();
       setJobs(data);
+      setLoading(false);
     };
 
     loadSaved();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      const playVideo = async () => {
+        const video = videoRefs.current[activeIndex];
+        if (!video) return;
+
+        setTimeout(async () => {
+          try {
+            const status = await video.getStatusAsync();
+
+            if (!status?.isLoaded) return;
+
+            await video.setIsMutedAsync(false);
+            await video.playAsync();
+          } catch {}
+        }, 300);
+      };
+
+      playVideo();
+
+      return () => {
+        videoRefs.current.forEach(async (v) => {
+          if (!v) return;
+
+          try {
+            const status = await v.getStatusAsync();
+
+            if (!status?.isLoaded) return;
+
+            await v.pauseAsync();
+            await v.setIsMutedAsync(true);
+          } catch {}
+        });
+      };
+    }, [activeIndex]),
+  );
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {jobs.map((job) => (
-          <View key={job.postId} style={styles.card}>
-            {/* BACKGROUND IMAGE */}
-            {job.mediaType === "image" && (
-              <Image source={{ uri: job.mediaUrl }} style={styles.background} />
-            )}
-
-            {job.mediaType === "video" && (
-              <Video
-                source={{ uri: job.mediaUrl }}
-                style={styles.background}
-                resizeMode={ResizeMode.COVER}
-                shouldPlay
-                isLooping
-                isMuted
-              />
-            )}
-
-            <View style={styles.content}>
-              <View style={{ flexDirection: "row", gap: 10 }}>
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {jobs.map((job, index) => (
+            <View key={job.postId} style={styles.contentcontainer}>
+              {job.mediaType === "image" ? (
                 <Image
-                  source={{ uri: job.companyAvatar }}
-                  style={styles.avata}
+                  source={{ uri: job.mediaUrl }}
+                  style={styles.media}
+                  resizeMode="cover"
                 />
-                <View>
-                  <Text style={styles.position}>{job.position}</Text>
-                  <Text style={styles.name}>{job.companyName}</Text>
+              ) : (
+                <Video
+                  ref={(ref) => {
+                    videoRefs.current[index] = ref;
+                  }}
+                  source={{ uri: job.mediaUrl }}
+                  style={styles.media}
+                  resizeMode={ResizeMode.COVER}
+                  isLooping
+                  isMuted={index !== activeIndex}
+                />
+              )}
+              <LinearGradient
+                colors={[
+                  "rgba(0,0,0,0)",
+                  "rgba(0,0,0,0.3)",
+                  "rgba(0,0,0,0.4)",
+                  "rgba(0,0,0,0.5)",
+                ]}
+                style={styles.gradient}
+              />
+              <View style={styles.content}>
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  <Image
+                    source={{ uri: job.companyAvatar }}
+                    style={styles.avata}
+                  />
+                  <View>
+                    <Text style={styles.position}>{job.position}</Text>
+                    <Text style={styles.name}>{job.companyName}</Text>
 
-                  <View style={{ marginTop: 17 }}>
-                    <Image
-                      source={require("../../../../../assets/myApp/maps-and-flags1.png")}
-                      style={styles.iconLefft}
-                    />
-                    <Text style={styles.contentLeft}>{job.address}</Text>
+                    <View style={{ marginTop: 17 }}>
+                      <Image
+                        source={require("../../../../../assets/myApp/maps-and-flags1.png")}
+                        style={styles.iconLefft}
+                      />
+                      <Text style={styles.contentLeft}>{job.address}</Text>
+                    </View>
+                    <View>
+                      <Image
+                        source={require("../../../../../assets/myApp/money1.png")}
+                        style={styles.iconLefft}
+                      />
+                      <Text style={styles.contentLeft}>{job.salary}</Text>
+                    </View>
+                    <View>
+                      <Image
+                        source={require("../../../../../assets/myApp/clock.png")}
+                        style={styles.iconLefft}
+                      />
+                      <Text style={styles.contentLeft}>
+                        {job.employmentType}
+                      </Text>
+                    </View>
+                    <Pressable
+                      style={styles.letDetail}
+                      onPress={() =>
+                        router.push({
+                          pathname: "../home/detail",
+                          params: { postId: job.postId },
+                        })
+                      }
+                    >
+                      <Text style={{ color: "#FFFFFF", fontSize: 11 }}>
+                        Xem chi tiết
+                      </Text>
+                      <Image
+                        source={require("../../../../../assets/myApp/upper-right-arrow.png")}
+                        style={{ width: 15, height: 15 }}
+                      />
+                    </Pressable>
                   </View>
-                  <View>
+                </View>
+                <View
+                  style={{
+                    marginRight: 9,
+                  }}
+                >
+                  <Pressable>
                     <Image
-                      source={require("../../../../../assets/myApp/money1.png")}
-                      style={styles.iconLefft}
+                      source={require("../../../../../assets/myApp/bookmark.png")}
+                      style={[
+                        styles.iconRight,
+                        job.isSaved ? { tintColor: "#FFD700" } : {},
+                      ]}
                     />
-                    <Text style={styles.contentLeft}>{job.salary}</Text>
-                  </View>
-                  <View>
-                    <Image
-                      source={require("../../../../../assets/myApp/clock.png")}
-                      style={styles.iconLefft}
-                    />
-                    <Text style={styles.contentLeft}>{job.employmentType}</Text>
-                  </View>
+                  </Pressable>
                   <Pressable
-                    style={styles.letDetail}
                     onPress={() =>
-                      router.push({
-                        pathname: "/home/detail",
-                        params: { postId: job.postId },
-                      })
+                      shareContent(`https://skillsnap.io/job/${job.postId}`)
                     }
                   >
-                    <Text style={{ color: "#FFFFFF" }}>Xem chi tiết</Text>
                     <Image
-                      source={require("../../../../../assets/myApp/upper-right-arrow.png")}
-                      style={{ width: 20, height: 20 }}
+                      source={require("../../../../../assets/myApp/share-.png")}
+                      style={styles.iconRight}
                     />
                   </Pressable>
                 </View>
               </View>
-              <View style={{ marginTop: -5 }}>
-                <Image
-                  source={require("../../../../../assets/myApp/bookmark.png")}
-                  style={[
-                    styles.iconRight,
-                    job.isSaved ? { tintColor: "#FFD700" } : {},
-                  ]}
-                />
-                <Pressable
-                  onPress={() =>
-                    shareContent(`https://skillsnap.io/job/${job.postId}`)
-                  }
-                >
-                  <Image
-                    source={require("../../../../../assets/myApp/share-.png")}
-                    style={styles.iconRight}
-                  />
-                </Pressable>
-              </View>
             </View>
-          </View>
-        ))}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -123,38 +192,39 @@ export default function CarePostScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
-
-  card: {
-    height: 400,
-    borderRadius: 16,
+  contentcontainer: {
+    width: "94%",
+    height: 300,
+    backgroundColor: "#EFF6FF",
+    marginVertical: 10,
+    borderRadius: 15,
     overflow: "hidden",
-    margin: 12,
-  },
-
-  background: {
-    width: "100%",
-    height: "100%",
+    alignSelf: "center",
   },
 
   content: {
     position: "absolute",
-    bottom: 20,
-    left: 10,
+    bottom: -40,
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "93%",
+    width: "100%",
+  },
+
+  media: {
+    width: "100%",
+    height: "100%",
   },
 
   avata: {
-    width: 50,
-    height: 50,
+    width: 55,
+    height: 55,
     borderRadius: 32.5,
+    marginLeft: 5,
   },
   position: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
   },
   name: {
@@ -163,8 +233,8 @@ const styles = StyleSheet.create({
   },
 
   iconLefft: {
-    width: 16,
-    height: 16,
+    width: 14,
+    height: 14,
     marginTop: 5,
   },
 
@@ -183,13 +253,20 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
-    width: 120,
+    width: 100,
     justifyContent: "space-between",
   },
 
   iconRight: {
-    width: 30,
-    height: 30,
+    width: 27,
+    height: 27,
     marginBottom: 70,
+  },
+  gradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 });

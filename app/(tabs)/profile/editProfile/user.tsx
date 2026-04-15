@@ -1,3 +1,4 @@
+import { useLoading } from "@/components/LoadingContext";
 import { getAuth } from "@/services/auth.api";
 import { updateEmployeeProfile } from "@/services/profile.api";
 import { showError, showSuccess } from "@/utils/toast";
@@ -21,6 +22,7 @@ export default function EditUserProfile() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const { showLoading, hideLoading } = useLoading();
 
   const parsedUser = user ? JSON.parse(user as string) : null;
   useEffect(() => {
@@ -48,6 +50,7 @@ export default function EditUserProfile() {
 
   const handleSave = async () => {
     try {
+      showLoading();
       await updateEmployeeProfile(
         parsedUser?.id,
         name,
@@ -55,13 +58,12 @@ export default function EditUserProfile() {
         avatar,
         coverImage,
       );
-
-      console.log("Update thành công");
+      hideLoading();
       showSuccess("Thành công", "Cập nhật thông tin cá nhân thành công");
       router.replace("/(tabs)/profile/user");
     } catch (err: any) {
+      hideLoading();
       showError("Lỗi", err.message || "Cập nhật thất bại");
-      console.log("Update lỗi:", err);
     }
   };
 

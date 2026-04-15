@@ -1,3 +1,4 @@
+import { useLoading } from "@/components/LoadingContext";
 import { register } from "@/services/auth.api";
 import { showError, showSuccess } from "@/utils/toast";
 import { router } from "expo-router";
@@ -18,6 +19,7 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState(1);
+  const { showLoading, hideLoading } = useLoading();
 
   const handleRegister = async () => {
     try {
@@ -36,9 +38,9 @@ export default function RegisterScreen() {
         showError("Đăng kí thất bại!", "Mật khẩu không khớp");
         return;
       }
-
+      showLoading();
       await register(email, password, role);
-
+      hideLoading();
       showSuccess("", "Đăng ký thành công");
 
       router.replace("/(auth)/login");

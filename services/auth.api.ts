@@ -1,3 +1,4 @@
+import { useNotificationStore } from "@/utils/notificationStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode as atob } from "base-64";
 import { chatRealtimeService } from "./chatRealtimeService";
@@ -148,6 +149,7 @@ export const register = async (
 };
 
 export const logout = async () => {
+  useNotificationStore.getState().setNotifications([]);
   await AsyncStorage.removeItem(TOKEN_KEY);
   await AsyncStorage.removeItem(STORAGE_KEY);
   await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);

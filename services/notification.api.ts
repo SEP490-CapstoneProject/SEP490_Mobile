@@ -141,17 +141,19 @@ export const fetchNotifications = async (cursor?: number) => {
     token = await refreshToken();
   }
 
-  const res = await fetch(
-    `${BASE_URL_NOTIFICATION}/api/notifications?limit=20`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  let url = `${BASE_URL_NOTIFICATION}/api/notifications?limit=20`;
+
+  if (cursor) {
+    url += `&cursor=${cursor}`;
+  }
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 
   const data = await res.json();
-
   return data;
 };
 

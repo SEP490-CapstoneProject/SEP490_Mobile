@@ -26,7 +26,6 @@ export default function Home() {
   const setJobs = useJobStore((s) => s.setJobs);
   const toggleSave = useJobStore((s) => s.toggleSave);
 
-  // refs cho video
   const videoRefs = useRef<(Video | null)[]>([]);
 
   // FETCH DATA
@@ -101,7 +100,7 @@ export default function Home() {
         await saveJob(postId);
       }
     } catch (error) {
-      console.log("❌ Save lỗi → rollback");
+      console.log("Save lỗi → rollback");
       toggleSave(postId);
     }
   };

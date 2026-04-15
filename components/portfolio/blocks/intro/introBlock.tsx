@@ -4,15 +4,10 @@ import IntroOne from "./introOne";
 import IntroThree from "./introThree";
 import IntroTwo from "./introTwo";
 
-type Props = {
-  data: any;
-  variant: string;
-};
-
-export default function IntroBlock({ data, variant }: Props) {
+export default function IntroBlock({ data, variant, rank }: any) {
   switch (variant) {
     case "INTROONE":
-      return <IntroOne data={data} />;
+      return <IntroOne data={data} rank={rank} />;
     case "INTROTWO":
       return <IntroTwo data={data} />;
     case "INTROTHREE":
