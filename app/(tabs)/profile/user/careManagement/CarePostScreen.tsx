@@ -1,6 +1,6 @@
 import CustomLoading from "@/components/CustomLoading";
+import { fetchSavedJobs } from "@/services/careManagement.api";
 import { shareContent } from "@/services/share";
-import { fetchSavedJobs } from "@/services/user/careManagement.api";
 import { ResizeMode, Video } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";

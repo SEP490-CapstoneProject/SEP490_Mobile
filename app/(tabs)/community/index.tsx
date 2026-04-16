@@ -101,7 +101,7 @@ export default function Community() {
       updateFavoriteRealtime(
         data.postId,
         Number(data.userId),
-        data.action, // boolean
+        data.action,
         data.newFavoriteCount,
       );
     };

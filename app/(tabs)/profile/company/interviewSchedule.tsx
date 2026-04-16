@@ -1,8 +1,5 @@
 import InterviewDetailModal from "@/components/InterviewDetailModal";
-import {
-  fetchInterviewSchedule,
-  InterviewItem,
-} from "@/services/company/InterviewSchedule.api";
+
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -17,12 +14,11 @@ import {
 
 export default function InterviewSchedule() {
   const router = useRouter();
-  const [interview, setInterview] = useState<InterviewItem[]>([]);
+  const [interview, setInterview] = useState<any[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string>("");
   const scrollRef = useRef<ScrollView>(null);
-  const [selectedInterview, setSelectedInterview] =
-    useState<InterviewItem | null>(null);
+  const [selectedInterview, setSelectedInterview] = useState<any | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -104,9 +100,9 @@ export default function InterviewSchedule() {
     setSelectedDate(todayString);
   };
 
-  useEffect(() => {
-    fetchInterviewSchedule().then(setInterview);
-  }, []);
+  // useEffect(() => {
+  //   fetchInterviewSchedule().then(setInterview);
+  // }, []);
 
   const displayInterview = interview
     .filter((item) => item.date === selectedDate)

@@ -1,5 +1,6 @@
 import CustomLoading from "@/components/CustomLoading";
-import { fetchJobs, saveJob, unSaveJob } from "@/services/home.api";
+import { fetchJobs, saveJob, unSaveJob } from "@/services/companyPost.api";
+
 import { shareContent } from "@/services/share";
 import { useJobStore } from "@/utils/jobPostStore";
 import { ResizeMode, Video } from "expo-av";

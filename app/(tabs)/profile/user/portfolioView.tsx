@@ -1,7 +1,6 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
-import { fetchPortfolioById } from "@/services/portfolio.api";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Image,
   Pressable,
@@ -16,9 +15,9 @@ export default function PortfolioView() {
   const [portfolio, setPortfolio] = useState<any>(null);
   const { portfolioId } = useLocalSearchParams<{ portfolioId: string }>();
 
-  useEffect(() => {
-    fetchPortfolioById(Number(portfolioId)).then(setPortfolio);
-  }, []);
+  // useEffect(() => {
+  //   fetchPortfolioById(Number(portfolioId)).then(setPortfolio);
+  // }, []);
 
   if (!portfolio) return null;
 

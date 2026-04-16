@@ -1,4 +1,5 @@
-import { getToken, isTokenExpired, refreshToken } from "../auth.api";
+import { getToken, isTokenExpired, refreshToken } from "./auth.api";
+
 const BASE_URL_COMPANY = process.env.EXPO_PUBLIC_COMPANY_API;
 const BASE_URL_COMMUNITY = process.env.EXPO_PUBLIC_COMMUNITY_API;
 
