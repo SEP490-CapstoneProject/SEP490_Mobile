@@ -234,9 +234,15 @@ export default function Home() {
                     "rgba(0,0,0,0.3)",
                     "rgba(0,0,0,0.3)",
                   ]}
-                  style={styles.actionBar}
+                  style={{
+                    position: "absolute",
+                    bottom: 5,
+                    left: 20,
+                    right: 20,
+                    borderRadius: 20,
+                  }}
                 >
-                  <View>
+                  <View style={styles.actionBar}>
                     {auth?.role === 2 && (
                       <Pressable
                         onPress={() => handleOpenRating(portfolio.portfolioId)}
@@ -301,11 +307,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionBar: {
-    position: "absolute",
-    bottom: 5,
-    left: 20,
-    right: 20,
-    borderRadius: 20,
     flexDirection: "row",
     justifyContent: "space-around",
     paddingVertical: 18,

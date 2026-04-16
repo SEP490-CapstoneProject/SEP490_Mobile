@@ -1,32 +1,53 @@
-import {
-    Application,
-    fetchApplications,
-} from "@/services/user/application.api";
+import CustomLoading from "@/components/CustomLoading";
+import { fetchMyApplications } from "@/services/aplication.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 export default function InterviewManager() {
   const router = useRouter();
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [filter, setFilter] = useState<
-    "ALL" | "REVIEWING" | "INTERVIEW" | "ACCEPTED"
+    "ALL" | "WAITING" | "INTERVIEW" | "ACCEPTED"
   >("ALL");
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const loadMore = async () => {
+    const nextPage = page + 1;
+
+    const res = await fetchMyApplications(nextPage, 10);
+
+    if (res) {
+      setApplications((prev) => [...prev, ...res.items]);
+      setPage(nextPage);
+    }
+  };
 
   useEffect(() => {
-    fetchApplications().then(setApplications);
+    const loadApplications = async () => {
+      setLoading(true);
+      const res = await fetchMyApplications(page, 10);
+
+      if (res) {
+        setApplications(res.items);
+        setLoading(false);
+      }
+      setLoading(false);
+    };
+    loadApplications();
   }, []);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case "REVIEWING":
+      case "WAITING":
         return { bg: "#E6F0FF", text: "#3B82F6", label: "Đang xem xét" };
       case "ACCEPTED":
         return { bg: "#D1FAE5", text: "#10B981", label: "Đã nhận" };
@@ -53,14 +74,14 @@ export default function InterviewManager() {
             style={styles.headerIcon}
           />
         </Pressable>
-        <Text style={styles.title}>Quản lý hồ sơ</Text>
+        <Text style={styles.title}>Lịch sử ứng tuyển</Text>
       </View>
 
       {/* FILTER */}
       <View style={styles.filterRow}>
         {[
           { key: "ALL", label: "Tất cả" },
-          { key: "REVIEWING", label: "Đang xem xét" },
+          { key: "WAITING", label: "Đang xem xét" },
           { key: "INTERVIEW", label: "Phỏng vấn" },
           { key: "ACCEPTED", label: "Đã nhận" },
         ].map((item) => (
@@ -76,57 +97,59 @@ export default function InterviewManager() {
           </Pressable>
         ))}
       </View>
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {filtered.map((item) => {
+            const status = getStatusStyle(item.status);
 
-      {/* LIST */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {filtered.map((item) => {
-          const status = getStatusStyle(item.status);
+            return (
+              <View key={item.applicationId} style={styles.card}>
+                <View style={styles.row}>
+                  <Image
+                    source={{ uri: item.company.logo }}
+                    style={styles.logo}
+                  />
 
-          return (
-            <View key={item.applicationId} style={styles.card}>
-              <View style={styles.row}>
-                <Image
-                  source={{ uri: item.company.logo }}
-                  style={styles.logo}
-                />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.position}>{item.post.position}</Text>
+                    <Text style={styles.company}>
+                      {item.company.companyName}
+                    </Text>
+                  </View>
 
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.position}>{item.post.position}</Text>
-                  <Text style={styles.company}>{item.company.companyName}</Text>
+                  <View
+                    style={[
+                      styles.status,
+                      { backgroundColor: status.bg, height: 25 },
+                    ]}
+                  >
+                    <Text style={{ color: status.text, fontSize: 12 }}>
+                      {status.label}
+                    </Text>
+                  </View>
                 </View>
 
                 <View
-                  style={[
-                    styles.status,
-                    { backgroundColor: status.bg, height: 25 },
-                  ]}
+                  style={{
+                    flexDirection: "row",
+                    marginTop: 10,
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
                 >
-                  <Text style={{ color: status.text, fontSize: 12 }}>
-                    {status.label}
-                  </Text>
+                  <Text style={styles.date}>{item.appliedAt}</Text>
+
+                  <Pressable>
+                    <Text style={styles.detail}>Chi tiết ›</Text>
+                  </Pressable>
                 </View>
               </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 10,
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={styles.date}>
-                  {new Date(item.appliedAt).toLocaleDateString("vi-VN")}
-                </Text>
-
-                <Pressable>
-                  <Text style={styles.detail}>Chi tiết ›</Text>
-                </Pressable>
-              </View>
-            </View>
-          );
-        })}
-      </ScrollView>
+            );
+          })}
+        </ScrollView>
+      )}
     </View>
   );
 }

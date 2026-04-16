@@ -1,4 +1,4 @@
-import { fetchJobById } from "@/services/home.api";
+import { fetchJobById } from "@/services/companyPost.api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {

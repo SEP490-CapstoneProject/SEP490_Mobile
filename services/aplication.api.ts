@@ -37,3 +37,35 @@ export const applyJob = async (companyPostId: number, portfolioId: number) => {
     throw error;
   }
 };
+
+export const fetchMyApplications = async (page: number, pageSize: number) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_APPLICATION}/api/applications/me?page=${page}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy danh sách application thất bại");
+    }
+
+    return data;
+  } catch (error) {
+    return error;
+  }
+};

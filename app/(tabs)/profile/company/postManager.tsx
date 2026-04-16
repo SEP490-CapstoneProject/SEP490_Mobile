@@ -1,8 +1,7 @@
+import CustomLoading from "@/components/CustomLoading";
 import { getAuth } from "@/services/auth.api";
-import {
-  CompanyJobPost,
-  fetchCompanyJobPostsByCompanyId,
-} from "@/services/post.api";
+import { fetchCompanyPostsByCompany } from "@/services/companyPost.api";
+
 import { ResizeMode, Video } from "expo-av";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -17,24 +16,54 @@ import {
 
 export default function PostManager() {
   const router = useRouter();
-  const [posts, setPosts] = useState<CompanyJobPost[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    getAuth().then(setUser);
+    const loadData = async () => {
+      setLoading(true);
+      const auth = await getAuth();
+      if (!auth?.companyId) return;
+
+      const res = await fetchCompanyPostsByCompany(
+        auth.companyId,
+        undefined,
+        10,
+      );
+
+      if (res) {
+        setPosts(res.items);
+        setLoading(false);
+      }
+    };
+
+    loadData();
+    setLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (!user?.companyId) return;
-    fetchCompanyJobPostsByCompanyId(user.companyId).then(setPosts);
-  }, [user]);
+  const loadMore = async () => {
+    const auth = await getAuth();
+
+    if (!auth?.companyId) return;
+    const res = await fetchCompanyPostsByCompany(
+      auth?.companyId,
+      nextCursor,
+      10,
+    );
+
+    if (res) {
+      setPosts((prev) => [...prev, ...res.items]);
+      setNextCursor(res.nextCursor);
+    }
+  };
 
   return (
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.headerContainer}>
         <View style={styles.left}>
-          <Pressable onPress={() => router.back()}>
+          <Pressable onPress={() => router.push("/(tabs)/profile/company")}>
             <Image
               source={require("../../../../assets/myApp/arrow.png")}
               style={styles.headerIcon}
@@ -52,43 +81,74 @@ export default function PostManager() {
         </Pressable>
       </View>
       {/* CONTENT */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-          paddingTop: 10,
-        }}
-      >
-        <View style={styles.bodyContainer}>
-          {posts.map((post) => (
-            <Pressable
-              key={post.postId}
-              style={styles.card}
-              onPress={() =>
-                router.push({
-                  pathname: "/(tabs)/profile/company/postView",
-                  params: { postId: String(post.postId) },
-                })
-              }
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: 15,
+            paddingTop: 10,
+          }}
+          onMomentumScrollEnd={loadMore}
+        >
+          {!posts || posts.length === 0 ? (
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 100,
+              }}
             >
-              {post.mediaType === "image" ? (
-                <Image source={{ uri: post.mediaUrl }} style={styles.media} />
-              ) : (
-                <Video
-                  source={{ uri: post.mediaUrl }}
-                  style={styles.media}
-                  resizeMode={ResizeMode.COVER}
-                  shouldPlay={false}
-                  isMuted
-                  useNativeControls={false}
-                />
-              )}
-              <View style={styles.overlay} />
-              <Text style={styles.titleCart}>{post.position}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </ScrollView>
+              <Text style={{ fontSize: 15, fontWeight: "bold" }}>
+                Bạn Chưa có bài đăng tuyển dụng nào!
+              </Text>
+              <Pressable
+                onPress={() =>
+                  router.push("/(tabs)/profile/company/postCreate")
+                }
+              >
+                <Text style={{ fontSize: 15, color: "#3B82F6" }}>
+                  Tạo bài đăng
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styles.bodyContainer}>
+              {posts.map((post) => (
+                <Pressable
+                  key={post.postId}
+                  style={styles.card}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(tabs)/profile/company/postView",
+                      params: { postId: String(post.postId) },
+                    })
+                  }
+                >
+                  {post.mediaType === "image" ? (
+                    <Image
+                      source={{ uri: post.mediaUrl }}
+                      style={styles.media}
+                    />
+                  ) : (
+                    <Video
+                      source={{ uri: post.mediaUrl }}
+                      style={styles.media}
+                      resizeMode={ResizeMode.COVER}
+                      shouldPlay={false}
+                      isMuted
+                      useNativeControls={false}
+                    />
+                  )}
+                  <View style={styles.overlay} />
+                  <Text style={styles.titleCart}>{post.position}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 }

@@ -1,22 +1,23 @@
 import { useLoading } from "@/components/LoadingContext";
-import { createCompanyPost } from "@/services/companyPost.api";
+import { updateCompanyPostFull } from "@/services/companyPost.api";
 import { showError, showSuccess } from "@/utils/toast";
 import { Picker } from "@react-native-picker/picker";
-import { ResizeMode, Video } from "expo-av";
+import { Video } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
-export default function PostCreate() {
+export default function postEdit() {
+  const { job } = useLocalSearchParams();
   const router = useRouter();
   const [media, setMedia] = useState<any>(null);
   const videoRef = useRef<Video>(null);
@@ -32,6 +33,37 @@ export default function PostCreate() {
   const [experienceYear, setExperienceYear] = useState("");
   const [quantity, setQuantity] = useState("");
   const { showLoading, hideLoading } = useLoading();
+  const parsedJob = job ? JSON.parse(job as string) : null;
+
+  useEffect(() => {
+    if (!parsedJob) return;
+
+    if (parsedJob.media && parsedJob.media.length > 0) {
+      const firstMedia = parsedJob.media[0];
+
+      setMedia({
+        uri: firstMedia.url,
+        type: firstMedia.type,
+      });
+    }
+    setPosition(parsedJob.position || "");
+    setAddress(parsedJob.address || "");
+    setSalary(parsedJob.salary || "");
+    setEmploymentType(parsedJob.employmentType || "");
+    setExperienceYear(String(parsedJob.experienceYear || ""));
+    setQuantity(String(parsedJob.quantity || ""));
+    setDescription(parsedJob.jobDescription || "");
+    setObligatory(parsedJob.requirementsMandatory || "");
+    setPreferred(parsedJob.requirementsPreferred || "");
+    setBenefits(parsedJob.benefits || "");
+
+    if (parsedJob.coverImageUrl) {
+      setMedia({
+        uri: parsedJob.coverImageUrl,
+        type: "image",
+      });
+    }
+  }, [job]);
 
   const pickMedia = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -47,10 +79,12 @@ export default function PostCreate() {
 
   const handleSubmit = async () => {
     if (!position) {
-      showError("Lỗi", "Vui lòng nhạp vị trí tuyển dụng.");
+      showError("Lỗi", "Vui lòng nhập vị trí tuyển dụng.");
       return;
     }
+
     showLoading();
+
     const postData = {
       position,
       address,
@@ -74,16 +108,15 @@ export default function PostCreate() {
         ]
       : [];
 
-    const res = await createCompanyPost(postData, files);
+    const res = await updateCompanyPostFull(parsedJob.postId, postData, files);
 
     if (res) {
-      hideLoading();
-      showSuccess("Thành công", "Tạo bài đăng thành công.");
+      showSuccess("Thành công", "Cập nhật thành công");
       router.push("/(tabs)/profile/company/postManager");
     } else {
-      hideLoading();
-      showError("Lỗi", res);
+      showError("Lỗi", "Cập nhật thất bại");
     }
+
     hideLoading();
   };
 
@@ -97,7 +130,7 @@ export default function PostCreate() {
           />
         </Pressable>
         <Pressable />
-        <Text style={styles.title}>Tạo thông tin tuyển dụng</Text>
+        <Text style={styles.title}>Cập nhật thông tin tuyển dụng</Text>
       </View>
       <ScrollView style={styles.bodyContainer}>
         <View>
@@ -120,23 +153,11 @@ export default function PostCreate() {
                   style={styles.cameraIcon}
                 />
               </Pressable>
-
-              {media.type === "image" && (
+              {media?.uri && (
                 <Image
                   source={{ uri: media.uri }}
                   style={styles.media}
-                  resizeMode={ResizeMode.CONTAIN}
-                />
-              )}
-
-              {media.type === "video" && (
-                <Video
-                  ref={videoRef}
-                  source={{ uri: media.uri }}
-                  style={styles.media}
-                  resizeMode={ResizeMode.CONTAIN}
-                  useNativeControls
-                  isLooping
+                  resizeMode="cover"
                 />
               )}
             </View>
@@ -292,7 +313,7 @@ export default function PostCreate() {
         <View>
           <Pressable style={styles.bnt} onPress={handleSubmit}>
             <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
-              Đăng tin
+              Chỉnh sửa bài đăng
             </Text>
             <Image
               source={require("../../../../assets/myApp/send.png")}

@@ -1,10 +1,10 @@
-import { Job } from "@/services/home.api";
-import { fetchCompanyJobPostByPostId } from "@/services/post.api";
-import { ResizeMode, Video } from "expo-av";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import CustomLoading from "@/components/CustomLoading";
+import { useLoading } from "@/components/LoadingContext";
+import { deleteCompanyPost, fetchJobById } from "@/services/companyPost.api";
+import { showError, showSuccess } from "@/utils/toast";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  Dimensions,
   Image,
   Pressable,
   ScrollView,
@@ -13,27 +13,20 @@ import {
   View,
 } from "react-native";
 
-const { width, height } = Dimensions.get("window");
-
-export default function PostView() {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+export default function Detail() {
   const router = useRouter();
   const { postId } = useLocalSearchParams();
-
-  // refs cho video
-  const videoRefs = useRef<(Video | null)[]>([]);
-
-  // FETCH DATA
+  const [loading, setLoading] = useState(false);
+  const [jobDetail, setJobDetail] = useState<any | null>(null);
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
-    const loadJobs = async () => {
+    const loadJobDetail = async () => {
       try {
         setLoading(true);
-        const fetchedJobs = await fetchCompanyJobPostByPostId(Number(postId));
-        if (fetchedJobs) {
-          setJobs([fetchedJobs]);
+        if (typeof postId === "string") {
+          const fetchedJobDetail = await fetchJobById(Number(postId));
+          setJobDetail(fetchedJobDetail);
         }
       } catch (e) {
         console.error(e);
@@ -41,142 +34,186 @@ export default function PostView() {
         setLoading(false);
       }
     };
-
-    if (postId) loadJobs();
+    loadJobDetail();
+    setLoading(false);
   }, [postId]);
 
-  const onScrollEnd = async (e: any) => {
-    const index = Math.round(e.nativeEvent.contentOffset.x / width);
-    setActiveIndex(index);
+  const handleDelete = async () => {
+    showLoading();
+    let success;
+    if (typeof postId === "string") {
+      success = await deleteCompanyPost(Number(postId));
+    }
+    if (success) {
+      showSuccess("Thành công", "Đã xóa bài đăng");
+      router.push("/(tabs)/profile/company/postManager");
+    } else {
+      showError("Lỗi", "Xóa thất bại");
+    }
 
-    videoRefs.current.forEach(async (video, i) => {
-      if (!video) return;
-
-      if (i === index) {
-        await video.playAsync();
-      } else {
-        await video.pauseAsync();
-      }
-    });
+    hideLoading();
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      const playCurrentVideo = async () => {
-        const video = videoRefs.current[activeIndex];
-        if (video) {
-          await video.playAsync();
-        }
-      };
-      playCurrentVideo();
-      return () => {
-        videoRefs.current.forEach(async (video) => {
-          if (video) await video.pauseAsync();
-        });
-      };
-    }, [activeIndex]),
-  );
-
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Pressable onPress={() => router.back()}>
-          <Image
-            source={require("../../../../assets/myApp/arrow.png")}
-            style={styles.iconBack}
-          />
-        </Pressable>
-        <Pressable>
-          <Image
-            source={require("../../../../assets/myApp/edit.png")}
-            style={styles.iconEdit}
-          />
-        </Pressable>
-      </View>
-
-      {loading ? (
-        <Text style={{ textAlign: "center" }}>Loading...</Text>
-      ) : (
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={onScrollEnd}
-        >
-          {jobs.map((job, index) => (
-            <View key={job.postId} style={styles.contentcontainer}>
-              {job.mediaType === "image" ? (
+      <View style={styles.iconContainer}>
+        <View style={styles.iconLeft}>
+          <Pressable
+            onPress={() => router.push("/(tabs)/profile/company/postManager")}
+            style={styles.backgroundIcon}
+          >
+            <Image
+              source={require("../../../../assets/myApp/arrow.png")}
+              style={styles.icon}
+            />
+          </Pressable>
+        </View>
+        <View style={{ flexDirection: "row", gap: 15 }}>
+          <View style={styles.iconRight}>
+            <View style={styles.backgroundIcon}>
+              <Pressable onPress={handleDelete}>
                 <Image
-                  source={{ uri: job.mediaUrl }}
-                  style={styles.media}
-                  resizeMode="contain"
+                  source={require("../../../../assets/myApp/trash.png")}
+                  style={styles.icon}
                 />
-              ) : (
-                <Video
-                  ref={(ref) => {
-                    videoRefs.current[index] = ref;
-                  }}
-                  source={{ uri: job.mediaUrl }}
-                  style={styles.media}
-                  resizeMode={ResizeMode.CONTAIN}
-                  shouldPlay={index === activeIndex}
-                  isLooping
-                  isMuted={false}
+              </Pressable>
+            </View>
+          </View>
+          <View style={styles.iconRight}>
+            <View style={styles.backgroundIcon}>
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/profile/company/postEdit",
+                    params: {
+                      job: JSON.stringify(jobDetail),
+                    },
+                  })
+                }
+              >
+                <Image
+                  source={require("../../../../assets/myApp/edit.png")}
+                  style={styles.icon}
                 />
-              )}
-              <View style={styles.content}>
-                <View style={{ flexDirection: "row", gap: 10 }}>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </View>
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Image
+            source={{
+              uri: jobDetail?.media?.[0]?.url || jobDetail?.coverImageUrl || "",
+            }}
+            style={{ width: "100%", height: 250 }}
+          />
+          {/* Header Content */}
+          <View style={styles.headerContent}>
+            <Image
+              source={{ uri: jobDetail?.companyAvatar }}
+              style={styles.avata}
+            />
+            <View style={styles.positionContainer}>
+              <Text style={styles.label}>{jobDetail?.position}</Text>
+              <View style={styles.contentContainer}>
+                <Image
+                  source={require("../../../../assets/myApp/checklist.png")}
+                  style={styles.checkList}
+                />
+                <Text style={styles.companyName}>{jobDetail?.companyName}</Text>
+              </View>
+            </View>
+            <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
+              <View style={styles.contentContainer}>
+                <Image
+                  source={require("../../../../assets/myApp/maps-and-flags1.png")}
+                  style={styles.locationIcon}
+                />
+                <Text style={styles.textContent}>{jobDetail?.address}</Text>
+              </View>
+              <View style={{ flexDirection: "row", gap: 20, marginTop: 10 }}>
+                <View style={styles.contentContainer}>
                   <Image
-                    source={{ uri: job.companyAvatar }}
-                    style={styles.avata}
+                    source={require("../../../../assets/myApp/money1.png")}
+                    style={styles.locationIcon}
                   />
-                  <View>
-                    <Text style={styles.position}>{job.position}</Text>
-                    <Text style={styles.name}>{job.companyName}</Text>
-
-                    <View style={{ marginTop: 17 }}>
-                      <Image
-                        source={require("../../../../assets/myApp/maps-and-flags1.png")}
-                        style={styles.iconLefft}
-                      />
-                      <Text style={styles.contentLeft}>{job.address}</Text>
-                    </View>
-                    <View>
-                      <Image
-                        source={require("../../../../assets/myApp/money1.png")}
-                        style={styles.iconLefft}
-                      />
-                      <Text style={styles.contentLeft}>{job.salary}</Text>
-                    </View>
-                    <View>
-                      <Image
-                        source={require("../../../../assets/myApp/clock.png")}
-                        style={styles.iconLefft}
-                      />
-                      <Text style={styles.contentLeft}>
-                        {job.employmentType}
-                      </Text>
-                    </View>
-                    <Pressable
-                      style={styles.letDetail}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/profile/company/postDetail",
-                          params: { postId: job.postId },
-                        })
-                      }
-                    >
-                      <Text style={{ color: "#FFFFFF" }}>Xem chi tiết</Text>
-                      <Image
-                        source={require("../../../../assets/myApp/upper-right-arrow.png")}
-                        style={{ width: 20, height: 20 }}
-                      />
-                    </Pressable>
-                  </View>
+                  <Text style={styles.textContent}>{jobDetail?.salary}</Text>
+                </View>
+                <View style={styles.contentContainer}>
+                  <Image
+                    source={require("../../../../assets/myApp/clock.png")}
+                    style={styles.locationIcon}
+                  />
+                  <Text style={styles.textContent}>
+                    {jobDetail?.employmentType}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: "row", gap: 20, marginTop: 10 }}>
+                <View style={styles.contentContainer}>
+                  <Image
+                    source={require("../../../../assets/myApp/star.png")}
+                    style={styles.locationIcon}
+                  />
+                  <Text style={styles.textContent}>
+                    +{jobDetail?.experienceYear} Năm kinh nghiệm
+                  </Text>
+                </View>
+                <View style={styles.contentContainer}>
+                  <Image
+                    source={require("../../../../assets/myApp/group1.png")}
+                    style={styles.locationIcon}
+                  />
+                  <Text style={styles.textContent}>
+                    {jobDetail?.quantity} Ứng viên
+                  </Text>
                 </View>
               </View>
             </View>
-          ))}
+          </View>
+          {/* Body Content */}
+          <View style={styles.bodyContent}>
+            <View style={{ marginBottom: 20 }}>
+              <View style={styles.flexLabel}>
+                <View style={styles.verticalScroll}></View>
+                <Text style={styles.label}>Mô tả công việc</Text>
+              </View>
+              <Text style={styles.text}>{jobDetail?.jobDescription}</Text>
+            </View>
+            <View style={{ marginBottom: 20 }}>
+              <View style={styles.flexLabel}>
+                <View style={styles.verticalScroll}></View>
+                <Text style={styles.label}>Yêu cầu chuyên môn</Text>
+              </View>
+              <View>
+                <View>
+                  <View style={styles.YeuCauChuyenMon}>
+                    <Text style={styles.YeuCauChuyenMonText}>Bắt buộc</Text>
+                  </View>
+                  <Text style={styles.text}>
+                    {jobDetail?.requirementsMandatory}
+                  </Text>
+                </View>
+                <View>
+                  <View style={styles.YeuTienChuyenMon}>
+                    <Text style={styles.YeuTienChuyenMonText}>Ưu tiên</Text>
+                  </View>
+                  <Text style={styles.text}>
+                    {jobDetail?.requirementsPreferred}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={{ marginBottom: 20 }}>
+              <View style={styles.flexLabel}>
+                <View style={styles.verticalScroll}></View>
+                <Text style={styles.label}>Quyền lợi & Đãi ngộ</Text>
+              </View>
+              <Text style={styles.text}>{jobDetail?.benefits}</Text>
+            </View>
+          </View>
         </ScrollView>
       )}
     </View>
@@ -187,88 +224,139 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 40,
-  },
-
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 15,
-    marginBottom: 10,
-    justifyContent: "space-between",
-  },
-  iconBack: {
-    width: 24,
-    height: 24,
-  },
-
-  iconEdit: {
-    width: 24,
-    height: 24,
-    marginLeft: 20,
-    tintColor: "#3B82F6",
-    marginRight: 10,
-  },
-
-  contentcontainer: {
-    width,
-    height: height - 180,
-    backgroundColor: "#9FAD91",
-    justifyContent: "center",
-    alignItems: "center",
     position: "relative",
   },
-
-  content: {
+  iconContainer: {
     position: "absolute",
-    bottom: 20,
-    left: 10,
     flexDirection: "row",
     justifyContent: "space-between",
-    width: width - 25,
+    width: "100%",
+    zIndex: 10,
   },
-
-  media: {
-    width,
-    height: height - 180,
+  backgroundIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
   },
-
+  icon: {
+    width: 20,
+    height: 20,
+  },
+  iconRight: {
+    right: 10,
+    top: 10,
+    flexDirection: "row",
+    gap: 25,
+  },
+  iconLeft: {
+    left: 10,
+    top: 10,
+  },
+  headerContent: {
+    position: "absolute",
+    backgroundColor: "#FFFFFF",
+    width: "85%",
+    paddingBottom: 40,
+    borderRadius: 16,
+    top: 150,
+    alignSelf: "center",
+  },
   avata: {
-    width: 55,
-    height: 55,
-    borderRadius: 32.5,
+    position: "absolute",
+    top: -35,
+    width: 70,
+    height: 70,
+    borderRadius: 38,
+    alignSelf: "center",
   },
-  position: {
-    color: "#FFFFFF",
-    fontSize: 17,
+  positionContainer: {
+    marginTop: 40,
+    alignItems: "center",
+  },
+  label: {
+    fontSize: 18,
     fontWeight: "bold",
   },
-  name: {
-    color: "#FFFFFF",
-    fontSize: 14,
-  },
-
-  iconLefft: {
-    width: 16,
-    height: 16,
-    marginTop: 5,
-  },
-
-  contentLeft: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    marginLeft: 20,
-    marginTop: -18,
-  },
-
-  letDetail: {
+  contentContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
-    backgroundColor: "rgba(226, 232, 240, 0.3)",
-    padding: 5,
+    gap: 8,
+    marginTop: 5,
+  },
+  checkList: {
+    width: 16,
+    height: 16,
+  },
+  companyName: {
+    fontSize: 14,
+    color: "#3B82F6",
+  },
+  locationIcon: {
+    width: 20,
+    height: 20,
+  },
+  textContent: {
+    color: "#6B7280",
+  },
+
+  bodyContent: {
+    marginTop: 160,
     paddingHorizontal: 10,
-    borderRadius: 5,
-    width: 120,
-    justifyContent: "space-between",
+  },
+
+  verticalScroll: {
+    backgroundColor: "#3B82F6",
+    width: 5,
+    height: 35,
+    borderRadius: 2.5,
+  },
+  flexLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  text: {
+    marginTop: 10,
+    color: "#6B7280",
+    lineHeight: 20,
+  },
+
+  YeuCauChuyenMon: {
+    backgroundColor: "#EFF6FF",
+    borderRadius: 8,
+    width: 80,
+    height: 24,
+    borderColor: "#FF4848",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+    marginHorizontal: 15,
+  },
+  YeuCauChuyenMonText: {
+    color: "#FF4848",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  YeuTienChuyenMon: {
+    backgroundColor: "#EFF6FF",
+    borderRadius: 8,
+    width: 80,
+    height: 24,
+    borderColor: "#3B82F6",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+    marginHorizontal: 15,
+  },
+  YeuTienChuyenMonText: {
+    color: "#3B82F6",
+    fontWeight: "bold",
+    fontSize: 12,
   },
 });

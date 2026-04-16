@@ -1,10 +1,6 @@
-import {
-  ApplicationManager,
-  fetchApplications,
-} from "@/services/company/applicationManager";
 import { formatTimeAgo } from "@/services/setTime";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Image,
   Pressable,
@@ -19,11 +15,11 @@ export default function ApplicationManagement() {
   const [filter, setFilter] = useState<"ALL" | "RECENT" | "SIX_MONTH" | "OLD">(
     "ALL",
   );
-  const [applications, setApplications] = useState<ApplicationManager[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
 
-  useEffect(() => {
-    fetchApplications().then(setApplications);
-  }, []);
+  // useEffect(() => {
+  //   fetchApplications().then(setApplications);
+  // }, []);
 
   const parseDate = (dateStr: string) => {
     const [day, month, year] = dateStr.split("/");

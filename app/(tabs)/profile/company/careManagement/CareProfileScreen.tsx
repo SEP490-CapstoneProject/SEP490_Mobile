@@ -1,9 +1,6 @@
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
-import {
-  fetchFollowedPortfolios,
-  FollowPortfolio,
-} from "@/services/company/careManagement.api";
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import {
   Image,
   Pressable,
@@ -14,12 +11,12 @@ import {
 } from "react-native";
 
 export default function CareProfileScreen() {
-  const [portfolios, setPortfolios] = useState<FollowPortfolio[]>([]);
+  const [portfolios, setPortfolios] = useState<any[]>([]);
   const [fillter, setFillter] = useState("ALL");
 
-  useEffect(() => {
-    fetchFollowedPortfolios().then(setPortfolios);
-  }, []);
+  // useEffect(() => {
+  //   fetchFollowedPortfolios().then(setPortfolios);
+  // }, []);
 
   const filteredPortfolios =
     fillter === "ALL"

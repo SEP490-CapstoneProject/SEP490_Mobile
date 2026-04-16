@@ -1,8 +1,9 @@
+import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
+import { fetchSavedPosts } from "@/services/careManagement.api";
 
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
-import { fetchSavedPosts } from "@/services/user/careManagement.api";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -38,7 +39,7 @@ export default function CarePostScreen() {
       {/* content */}
       <ScrollView showsVerticalScrollIndicator={false}>
         {isLoading ? (
-          <Text>Loading...</Text>
+          <CustomLoading />
         ) : (
           posts.map((post) => (
             <View key={post.id} style={styles.contentContainer}>
@@ -151,7 +152,7 @@ export default function CarePostScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 200,
+    flex: 1,
   },
 
   card: {
