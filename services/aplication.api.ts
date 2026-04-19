@@ -69,3 +69,76 @@ export const fetchMyApplications = async (page: number, pageSize: number) => {
     return error;
   }
 };
+
+export const fetchCompanyApplications = async (
+  page: number = 1,
+  pageSize: number = 10,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_APPLICATION}/api/applications/company?page=${page}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy applications thất bại");
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateApplicationStatus = async (
+  applicationId: number,
+  status: number,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_APPLICATION}/api/applications/${applicationId}/status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: status,
+        }),
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Cập nhật trạng thái thất bại");
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};

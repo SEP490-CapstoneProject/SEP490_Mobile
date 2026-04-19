@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import {
   Dimensions,
   Image,
@@ -18,6 +19,7 @@ type Props = {
 
 export default function MediaGrid({ media, onRemove }: Props) {
   const count = media.length;
+  const router = useRouter();
 
   if (count === 0) return null;
 
@@ -30,16 +32,26 @@ export default function MediaGrid({ media, onRemove }: Props) {
     index: number;
     style: any;
   }) => (
-    <View style={[style, styles.wrapper]}>
+    <Pressable
+      style={[style, styles.wrapper]}
+      onPress={() =>
+        router.push({
+          pathname: "/MediaPreview",
+          params: {
+            images: JSON.stringify(media),
+            index: String(index),
+          },
+        })
+      }
+    >
       <Image source={{ uri }} style={styles.image} />
 
-      {/* onRemove */}
       {onRemove && (
         <Pressable style={styles.removeBtn} onPress={() => onRemove(index)}>
           <Text style={styles.removeText}>✕</Text>
         </Pressable>
       )}
-    </View>
+    </Pressable>
   );
 
   // ===== 1 ẢNH =====

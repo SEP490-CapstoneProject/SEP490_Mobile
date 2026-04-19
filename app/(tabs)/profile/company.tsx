@@ -145,16 +145,11 @@ export default function CompanyProfile() {
                 router.push("/(tabs)/profile/company/careManagement")
               }
             />
-            <CardButton
-              icon={require("../../../assets/myApp/calenda1.png")}
-              title="Lịch phỏng vấn"
-              subtitle="Quản lý lịch phỏng vấn"
-              onPress={() =>
-                router.push("/(tabs)/profile/company/interviewSchedule")
-              }
-            />
           </View>
-          <Pressable style={styles.premiumBnt}>
+          <Pressable
+            style={styles.premiumBnt}
+            onPress={() => router.push("/profile/plans")}
+          >
             <View style={styles.iconPremiumLeft}>
               <Image
                 source={require("../../../assets/myApp/badge.png")}

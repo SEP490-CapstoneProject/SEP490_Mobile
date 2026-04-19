@@ -1,10 +1,9 @@
-import { InterviewItem } from "@/services/company/InterviewSchedule.api";
 import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  data: InterviewItem | null;
+  data: any | null;
 };
 
 export default function InterviewDetailModal({

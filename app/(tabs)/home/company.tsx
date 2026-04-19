@@ -1,4 +1,5 @@
 import CustomLoading from "@/components/CustomLoading";
+import FollowModal from "@/components/FollowModal";
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
 import RatingModal from "@/components/RatingModal";
 import { getAuth } from "@/services/auth.api";
@@ -6,10 +7,12 @@ import { getAuth } from "@/services/auth.api";
 import {
   createCompliment,
   fetchPortfolio,
+  followPortfolio,
   getMyCompliment,
   updateCompliment,
 } from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
+import { showError } from "@/utils/toast";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -19,8 +22,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  View,
+  View
 } from "react-native";
 const { width, height } = Dimensions.get("window");
 
@@ -36,6 +38,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [ratingVisible, setRatingVisible] = useState(false);
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | null>(
+    null,
+  );
+  const [followVisible, setFollowVisible] = useState(false);
+  const [selectedPortfolio, setSelectedPortfolio] = useState<number | null>(
     null,
   );
 
@@ -166,13 +172,41 @@ export default function Home() {
     }
   };
 
+  const handleFollow = async ({
+    categoryId,
+    level,
+  }: {
+    categoryId: number;
+    level: string;
+  }) => {
+    try {
+      if (!selectedPortfolio) return;
+
+      setPortfolios((prev) =>
+        prev.map((p) =>
+          p.portfolioId === selectedPortfolio
+            ? {
+                ...p,
+                isFollowed: true,
+                interestLevel: level,
+              }
+            : p,
+        ),
+      );
+
+      await followPortfolio(selectedPortfolio, level, categoryId);
+    } catch (err) {
+      showError("Follow error", err as string);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
         <CustomLoading />
       ) : (
         <View style={{ flex: 1 }}>
-          <View style={styles.rankBannerWrapper}>
+          {/* <View style={styles.rankBannerWrapper}>
             <Pressable
               style={({ pressed }) => [
                 styles.pressableWrap,
@@ -195,7 +229,7 @@ export default function Home() {
                 <Text style={styles.bannerBtn}>Xem ngay</Text>
               </LinearGradient>
             </Pressable>
-          </View>
+          </View> */}
           <ScrollView
             horizontal
             pagingEnabled
@@ -255,13 +289,17 @@ export default function Home() {
                     )}
                     {auth?.role === 2 && (
                       <Pressable
-                        onPress={() =>
-                          console.log("save", portfolio.portfolioId)
-                        }
+                        onPress={() => {
+                          setSelectedPortfolio(portfolio.portfolioId);
+                          setFollowVisible(true);
+                        }}
                       >
                         <Image
                           source={require("../../../assets/myApp/save.png")}
-                          style={styles.icon}
+                          style={[
+                            styles.icon,
+                            portfolio.isSaved ? { tintColor: "#FFD700" } : {},
+                          ]}
                         />
                       </Pressable>
                     )}
@@ -293,6 +331,11 @@ export default function Home() {
         onClose={() => setRatingVisible(false)}
         onSubmit={handleSubmitRating}
       />
+      <FollowModal
+        visible={followVisible}
+        onClose={() => setFollowVisible(false)}
+        onSubmit={handleFollow}
+      />
     </View>
   );
 }
@@ -309,7 +352,8 @@ const styles = StyleSheet.create({
   actionBar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingVertical: 18,
+    paddingVertical: 10,
+    alignItems: "center",
   },
   icon: {
     width: 27,

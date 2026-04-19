@@ -187,7 +187,10 @@ export default function UserProfile() {
               onPress={() => router.push("/(tabs)/profile/user/careManagement")}
             />
           </View>
-          <Pressable style={styles.premiumBnt}>
+          <Pressable
+            style={styles.premiumBnt}
+            onPress={() => router.push("/profile/plans")}
+          >
             <View style={styles.iconPremiumLeft}>
               <Image
                 source={require("../../../assets/myApp/badge.png")}

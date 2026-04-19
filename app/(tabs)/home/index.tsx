@@ -1,4 +1,5 @@
 import { getAuth } from "@/services/auth.api";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Company from "./company";
@@ -7,10 +8,19 @@ import User from "./user";
 export default function HomeIndex() {
   const [auth, setAuth] = useState<any>(null);
   const [tab, setTab] = useState<"explore" | "jobs">("explore");
+  const router = useRouter();
 
   useEffect(() => {
     getAuth().then(setAuth);
   }, []);
+
+  const handleSearch = () => {
+    if (tab === "explore") {
+      router.push("/(tabs)/home/searchPort");
+    } else if (tab === "jobs") {
+      router.push("/(tabs)/home/searchJob");
+    }
+  };
 
   if (!auth) return null;
 
@@ -32,7 +42,7 @@ export default function HomeIndex() {
             </Pressable>
           )}
         </View>
-        <Pressable onPress={() => console.log("Search pressed")}>
+        <Pressable onPress={handleSearch}>
           <Image
             source={require("../../../assets/myApp/search1.png")}
             style={styles.searchIcon}

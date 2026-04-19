@@ -1,6 +1,14 @@
+import CustomLoading from "@/components/CustomLoading";
+import FollowModal from "@/components/FollowModal";
 import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+import {
+  fetchMyFollows,
+  getFollowCategories,
+  updateFollow,
+} from "@/services/portfolio.api";
+import { showError, showSuccess } from "@/utils/toast";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -12,197 +20,220 @@ import {
 
 export default function CareProfileScreen() {
   const [portfolios, setPortfolios] = useState<any[]>([]);
-  const [fillter, setFillter] = useState("ALL");
+  const [categories, setCategories] = useState<any[]>([]);
 
-  // useEffect(() => {
-  //   fetchFollowedPortfolios().then(setPortfolios);
-  // }, []);
+  const [mode, setMode] = useState<"ALL" | "CATEGORY">("ALL");
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
-  const filteredPortfolios =
-    fillter === "ALL"
-      ? portfolios
-      : portfolios.filter((p) => p.priority === fillter);
+  const [loading, setLoading] = useState(false);
+  const [followVisible, setFollowVisible] = useState(false);
+  const [selectedPortfolio, setSelectedPortfolio] = useState<{
+    id: number;
+    categoryId: number;
+    level: string;
+  } | null>(null);
+
+  const loadAll = async () => {
+    try {
+      setLoading(true);
+
+      const [portData, cateData] = await Promise.all([
+        fetchMyFollows(),
+        getFollowCategories(),
+      ]);
+
+      setPortfolios(portData || []);
+      setCategories(cateData || []);
+      setSelectedCategory(null);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadByCategory = async (categoryId: number) => {
+    try {
+      setLoading(true);
+
+      const data = await fetchMyFollows(categoryId);
+
+      setPortfolios(data || []);
+      setSelectedCategory(categoryId);
+    } catch (err) {
+      showError("Update error", err as string);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAll();
+  }, []);
+
+  const handleFollow = async (data: { categoryId: number; level: string }) => {
+    try {
+      if (!selectedPortfolio) return;
+      setPortfolios((prev) =>
+        prev.map((p) =>
+          p.portfolioId === selectedPortfolio.id
+            ? {
+                ...p,
+                categoryId: data.categoryId,
+                interestLevel: data.level.toLowerCase(),
+              }
+            : p,
+        ),
+      );
+
+      await updateFollow(selectedPortfolio.id, data.categoryId, data.level);
+
+      showSuccess("Update success", "");
+    } catch (err) {
+      showError("Update error", err as string);
+    }
+  };
 
   return (
-    <View style={{ marginBottom: 240 }}>
+    <View style={{ flex: 1 }}>
       <View style={styles.tabContainer}>
         <Pressable
-          onPress={() => setFillter("ALL")}
-          style={[
-            fillter === "ALL"
-              ? {
-                  backgroundColor: "#3B82F6",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                }
-              : {
-                  backgroundColor: "#EFF6FF",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                },
-            ,
-          ]}
+          onPress={() => {
+            setMode("ALL");
+            loadAll();
+          }}
+          style={[styles.tabBtn, mode === "ALL" && styles.activeTab]}
         >
           <Text
-            style={[
-              styles.tabText,
-              fillter === "ALL" ? { color: "#FFFFFF" } : { color: "#6B7280" },
-            ]}
+            style={mode === "ALL" ? styles.activeText : styles.inactiveText}
           >
-            Tất cả hồ sơ
+            Tất cả
           </Text>
         </Pressable>
 
         <Pressable
-          onPress={() => setFillter("HIGH")}
-          style={[
-            fillter === "HIGH"
-              ? {
-                  backgroundColor: "#3B82F6",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                }
-              : {
-                  backgroundColor: "#EFF6FF",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                },
-            ,
-          ]}
+          onPress={() => setMode("CATEGORY")}
+          style={[styles.tabBtn, mode === "CATEGORY" && styles.activeTab]}
         >
           <Text
-            style={[
-              styles.tabText,
-              fillter === "HIGH" ? { color: "#FFFFFF" } : { color: "#6B7280" },
-            ]}
+            style={
+              mode === "CATEGORY" ? styles.activeText : styles.inactiveText
+            }
           >
-            Cao
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => setFillter("MEDIUM")}
-          style={[
-            fillter === "MEDIUM"
-              ? {
-                  backgroundColor: "#3B82F6",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                }
-              : {
-                  backgroundColor: "#EFF6FF",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                },
-          ]}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              fillter === "MEDIUM"
-                ? { color: "#FFFFFF" }
-                : { color: "#6B7280" },
-            ]}
-          >
-            Trung bình
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => setFillter("LOW")}
-          style={[
-            fillter === "LOW"
-              ? {
-                  backgroundColor: "#3B82F6",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                }
-              : {
-                  backgroundColor: "#EFF6FF",
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 10,
-                },
-          ]}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              fillter === "LOW" ? { color: "#FFFFFF" } : { color: "#6B7280" },
-            ]}
-          >
-            Thấp
+            Theo thư mục
           </Text>
         </Pressable>
       </View>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {filteredPortfolios.map((p, index) => (
-          <View
-            key={index}
-            style={[
-              styles.card,
-              p.priority == "HIGH"
-                ? { borderColor: "#DC2626" }
-                : p.priority == "MEDIUM"
-                  ? { borderColor: "#EAB308" }
-                  : p.priority == "LOW"
-                    ? { borderColor: "#22C55E" }
-                    : {},
-            ]}
-          >
-            <PortfolioRenderer blocks={[p.blocks]} />
-            <View style={styles.priority}>
-              <View
-                style={[
-                  styles.dot,
-                  p.priority == "HIGH"
-                    ? { backgroundColor: "#DC2626" }
-                    : p.priority == "MEDIUM"
-                      ? { backgroundColor: "#EAB308" }
-                      : p.priority == "LOW"
-                        ? { backgroundColor: "#22C55E" }
-                        : {},
-                ]}
-              />
-              {p.priority === "HIGH" && (
-                <Text style={{ color: "#DC2626" }}>Mức độ ưu tiên: Cao</Text>
-              )}
-              {p.priority === "LOW" && (
-                <Text style={{ color: "#22C55E" }}>Mức độ ưu tiên: Thấp</Text>
-              )}
-              {p.priority === "MEDIUM" && (
-                <Text style={{ color: "#EAB308" }}>
-                  Mức độ ưu tiên: Trung bình
-                </Text>
-              )}
-              <Pressable>
-                <Image
-                  source={require("../../../../../assets/myApp/pencil1.png")}
-                  style={styles.pencil1}
-                />
-              </Pressable>
-            </View>
 
-            {p.isUpdated == true && (
-              <View style={styles.isUpdated}>
-                <View style={styles.backgroundUpdate}>
-                  <Text style={{ color: "#306EE8" }}>Mới cập nhật</Text>
-                </View>
-                <Text style={{ color: "#306EE8", fontSize: 14.5 }}>
-                  Hồ sơ này mới được cập nhật
-                </Text>
+      {mode === "CATEGORY" && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{
+            marginHorizontal: 14,
+            marginBottom: 10,
+            maxHeight: 30,
+            minHeight: 30,
+          }}
+        >
+          {categories.map((cate) => (
+            <Pressable
+              key={cate.id}
+              onPress={() => loadByCategory(cate.id)}
+              style={[
+                styles.categoryItem,
+                selectedCategory === cate.id && styles.activeCategory,
+              ]}
+            >
+              <Text>{cate.name}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
+
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView
+          style={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          {portfolios.length === 0 && (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              Không có dữ liệu
+            </Text>
+          )}
+
+          {portfolios.map((p) => (
+            <View key={p.portfolioId} style={styles.card}>
+              <PortfolioRenderer blocks={[p.preview]} />
+
+              <View style={styles.priority}>
+                <View
+                  style={[
+                    styles.dot,
+                    p.interestLevel == "high"
+                      ? { backgroundColor: "#DC2626" }
+                      : p.interestLevel == "medium"
+                        ? { backgroundColor: "#EAB308" }
+                        : p.interestLevel == "low"
+                          ? { backgroundColor: "#22C55E" }
+                          : {},
+                  ]}
+                />
+
+                {p.interestLevel === "high" && (
+                  <Text style={{ color: "#DC2626" }}>Mức độ ưu tiên: Cao</Text>
+                )}
+                {p.interestLevel === "medium" && (
+                  <Text style={{ color: "#EAB308" }}>
+                    Mức độ ưu tiên: Trung bình
+                  </Text>
+                )}
+                {p.interestLevel === "low" && (
+                  <Text style={{ color: "#22C55E" }}>Mức độ ưu tiên: Thấp</Text>
+                )}
+
+                <Pressable
+                  onPress={() => {
+                    setSelectedPortfolio({
+                      id: p.portfolioId,
+                      categoryId: p.categoryId ?? null,
+                      level: (p.interestLevel || "").toUpperCase(),
+                    });
+
+                    setFollowVisible(true);
+                  }}
+                >
+                  <Image
+                    source={require("../../../../../assets/myApp/pencil1.png")}
+                    style={styles.pencil1}
+                  />
+                </Pressable>
               </View>
-            )}
-          </View>
-        ))}
-      </ScrollView>
+
+              {p.isUpdatedSinceFollow && (
+                <View style={styles.isUpdated}>
+                  <View style={styles.backgroundUpdate}>
+                    <Text style={{ color: "#306EE8" }}>Mới cập nhật</Text>
+                  </View>
+                  <Text style={{ color: "#306EE8" }}>
+                    Hồ sơ này mới được cập nhật
+                  </Text>
+                </View>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      )}
+
+      <FollowModal
+        visible={followVisible}
+        onClose={() => setFollowVisible(false)}
+        onSubmit={handleFollow}
+        defaultCategoryId={selectedPortfolio?.categoryId}
+        defaultLevel={selectedPortfolio?.level}
+      />
     </View>
   );
 }
@@ -218,11 +249,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
     borderRadius: 10,
   },
+
   dot: {
     width: 10,
     height: 10,
     borderRadius: 10,
   },
+
   priority: {
     flexDirection: "row",
     alignItems: "center",
@@ -230,14 +263,14 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginVertical: 10,
   },
+
   backgroundUpdate: {
     backgroundColor: "#EFF6FF",
-    width: 110,
     padding: 5,
     borderRadius: 10,
-    justifyContent: "center",
     alignItems: "center",
   },
+
   isUpdated: {
     flexDirection: "row",
     alignItems: "center",
@@ -245,19 +278,51 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginVertical: 10,
   },
+
   pencil1: {
     width: 13,
     height: 13,
     tintColor: "#6B7280",
   },
+
   tabContainer: {
     flexDirection: "row",
-    marginHorizontal: 24,
-    marginVertical: 7,
-    gap: 14,
-    alignItems: "center",
+    marginHorizontal: 20,
+    marginVertical: 10,
+    gap: 10,
   },
-  tabText: {
-    fontSize: 14.5,
+
+  tabBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: "#EFF6FF",
+  },
+
+  activeTab: {
+    backgroundColor: "#3B82F6",
+  },
+
+  activeText: {
+    color: "#fff",
+  },
+
+  inactiveText: {
+    color: "#6B7280",
+  },
+
+  categoryItem: {
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginRight: 10,
+    alignSelf: "center",
+    paddingVertical: 5,
+  },
+
+  activeCategory: {
+    backgroundColor: "#DBEAFE",
+    borderColor: "#2563EB",
   },
 });
