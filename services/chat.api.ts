@@ -68,3 +68,131 @@ export const fetchMessagesByRoom = async (
     return [];
   }
 };
+
+export const createConnection = async (body: {
+  userIdFrom: number;
+  userIdTo: number;
+  profileId: number;
+}) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(`${BASE_URL_CHAT}/api/Connection`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "*/*",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Tạo connection thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const getConnectionStatus = async (userId1: number, userId2: number) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_CHAT}/api/Connection/status/by-users?userId1=${userId1}&userId2=${userId2}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy trạng thái connection thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const updateConnectionStatus = async (id: number, status: string) => {
+  try {
+    let token = await getToken();
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(`${BASE_URL_CHAT}/api/Connection/${id}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "*/*",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Cập nhật trạng thái thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    console.log("updateConnectionStatus error:", err);
+    throw err;
+  }
+};
+
+export const getConnectionById = async (id: number) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(`${BASE_URL_CHAT}/api/Connection/${id}`, {
+      method: "GET",
+      headers: {
+        accept: "*/*",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy connection thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    console.log("getConnectionById error:", err);
+    throw err;
+  }
+};

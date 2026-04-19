@@ -18,7 +18,7 @@ export default function index() {
               style={styles.headerIcon}
             />
           </Pressable>
-          <Text style={styles.title}>Quản lý tuyển dụng</Text>
+          <Text style={styles.title}>Quản lý quan tâm</Text>
         </View>
       </View>
       {/* TAB */}

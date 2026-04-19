@@ -1,8 +1,21 @@
+import CustomLoading from "@/components/CustomLoading";
+import {
+  fetchCompanyApplications,
+  updateApplicationStatus,
+} from "@/services/aplication.api";
+import { getAuth } from "@/services/auth.api";
+import {
+  createConnection,
+  getConnectionStatus,
+  updateConnectionStatus,
+} from "@/services/chat.api";
 import { formatTimeAgo } from "@/services/setTime";
+import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,43 +25,124 @@ import {
 
 export default function ApplicationManagement() {
   const router = useRouter();
-  const [filter, setFilter] = useState<"ALL" | "RECENT" | "SIX_MONTH" | "OLD">(
-    "ALL",
-  );
+  const [filter, setFilter] = useState<
+    "ALL" | "WAITING" | "REVIEWING" | "ACCEPTED" | "REJECTED"
+  >("ALL");
   const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
+  const STATUS_MAP = {
+    WAITING: 0,
+    REVIEWING: 1,
+    ACCEPTED: 2,
+    REJECTED: 3,
+  };
 
-  // useEffect(() => {
-  //   fetchApplications().then(setApplications);
-  // }, []);
+  useEffect(() => {
+    loadApplications();
+  }, []);
 
-  const parseDate = (dateStr: string) => {
-    const [day, month, year] = dateStr.split("/");
-    return new Date(Number(year), Number(month) - 1, Number(day));
+  const loadApplications = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchCompanyApplications(page, 10);
+
+      const items = data.items ?? data;
+      setApplications(items);
+
+      setPage(1);
+    } catch (err) {
+      showError("Lỗi", err as string);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    try {
+      setLoading(true);
+
+      const nextPage = page + 1;
+
+      const data = await fetchCompanyApplications(nextPage, 10);
+      const items = data.items ?? data;
+
+      setApplications((prev) => [...prev, ...items]);
+      setPage(nextPage);
+      setLoading(false);
+    } catch (err) {
+      showError("Lỗi", err as string);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getFilteredApplications = () => {
-    const now = new Date();
+    if (filter === "ALL") return applications;
 
     return applications.filter((app) => {
-      const appliedDate = parseDate(app.appliedAt);
-
-      const diffTime = now.getTime() - appliedDate.getTime();
-      const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-      if (filter === "RECENT") {
-        return diffDays <= 7;
+      if (filter === "REVIEWING") {
+        return app.status === "REVIEWING";
       }
 
-      if (filter === "SIX_MONTH") {
-        return diffDays <= 180;
-      }
-
-      if (filter === "OLD") {
-        return diffDays > 180;
-      }
-
-      return true;
+      return app.status === filter;
     });
+  };
+
+  const openStatusModal = (app: any) => {
+    setSelectedApp(app);
+    setStatusModalVisible(true);
+  };
+
+  const updateStatus = async (status: string) => {
+    try {
+      const statusValue = STATUS_MAP[status as keyof typeof STATUS_MAP];
+      await updateApplicationStatus(selectedApp.applicationId, statusValue);
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.applicationId === selectedApp.applicationId
+            ? { ...app, status }
+            : app,
+        ),
+      );
+
+      setStatusModalVisible(false);
+    } catch (err) {
+      showError("Lỗi", err as string);
+      setStatusModalVisible(false);
+    }
+  };
+
+  const handleStartChat = async (targetUserId: number, profileId: number) => {
+    try {
+      const currentUser = await getAuth();
+      const currentUserId = Number(currentUser?.id);
+
+      const statusRes = await getConnectionStatus(currentUserId, targetUserId);
+
+      let finalConnectionId = statusRes?.connectionId;
+
+      if (!statusRes?.status || statusRes.status === "NONE") {
+        const createRes = await createConnection({
+          userIdFrom: currentUserId,
+          userIdTo: targetUserId,
+          profileId,
+        });
+
+        finalConnectionId = createRes?.id;
+
+        await updateConnectionStatus(finalConnectionId, "MATCHED");
+      } else if (statusRes.status === "PENDING") {
+        await updateConnectionStatus(statusRes.connectionId, "MATCHED");
+        finalConnectionId = statusRes.connectionId;
+      }
+
+      router.push("/(tabs)/chat");
+    } catch (err) {
+      showError("handleStartChat error", err as string);
+    }
   };
 
   return (
@@ -93,208 +187,267 @@ export default function ApplicationManagement() {
           <Text style={{ color: "#111827" }}>Đánh dấu tất cả</Text>
         </View>
       </View>
-      <View style={styles.sortContainer}>
-        <Pressable
-          style={[
-            styles.sortButton,
-            filter == "ALL" && { backgroundColor: "#3B82F6" },
-          ]}
-          onPress={() => setFilter("ALL")}
-        >
-          <Text
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.sortContainer}
+      >
+        {[
+          { key: "ALL", label: "Tất cả" },
+          { key: "WAITING", label: "Mới" },
+          { key: "REVIEWING", label: "Đang xem xét" },
+          { key: "ACCEPTED", label: "Đã nhận" },
+          { key: "REJECTED", label: "Từ chối" },
+        ].map((item) => (
+          <Pressable
+            key={item.key}
             style={[
-              styles.textButtonSort,
-              filter == "ALL" && { color: "#FFFFFF" },
+              styles.sortButton,
+              filter === item.key && { backgroundColor: "#3B82F6" },
             ]}
+            onPress={() => setFilter(item.key as any)}
           >
-            Tất cả
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.sortButton,
-            filter == "RECENT" && { backgroundColor: "#3B82F6" },
-          ]}
-          onPress={() => setFilter("RECENT")}
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.textButtonSort,
+                filter === item.key && { color: "#FFFFFF" },
+              ]}
+            >
+              {item.label}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollEnd={handleLoadMore}
         >
-          <Text
-            style={[
-              styles.textButtonSort,
-              filter == "RECENT" && { color: "#FFFFFF" },
-            ]}
-          >
-            Gần đây
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.sortButton,
-            filter == "SIX_MONTH" && { backgroundColor: "#3B82F6" },
-          ]}
-          onPress={() => setFilter("SIX_MONTH")}
-        >
-          <Text
-            style={[
-              styles.textButtonSort,
-              filter == "SIX_MONTH" && { color: "#FFFFFF" },
-            ]}
-          >
-            6 tháng qua
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.sortButton,
-            filter == "OLD" && { backgroundColor: "#3B82F6" },
-          ]}
-          onPress={() => setFilter("OLD")}
-        >
-          <Text
-            style={[
-              styles.textButtonSort,
-              filter == "OLD" && { color: "#FFFFFF" },
-            ]}
-          >
-            Cũ hơn
-          </Text>
-        </Pressable>
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {getFilteredApplications().map((item) => (
-          <View key={item.applicationId} style={styles.contentContainer}>
-            <View style={styles.headerContentContainer}>
-              <View style={{ flexDirection: "row" }}>
-                <Image
-                  source={{ uri: item.candidate.avatar }}
-                  style={styles.avatar}
-                />
-                <View style={{ marginLeft: 7 }}>
-                  <Text style={styles.name}>{item.candidate.name}</Text>
-                  <Text style={styles.position}>{item.post.position}</Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      gap: 5,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Image
-                      source={require("../../../../assets/myApp/calendar1.png")}
-                      style={styles.calendarIcon}
-                    />
-                    <Text style={{ color: "#6B7280", fontSize: 12 }}>
-                      {formatTimeAgo(item.appliedAt)}
-                    </Text>
+          {getFilteredApplications().map((item) => (
+            <View key={item.applicationId} style={styles.contentContainer}>
+              <View style={styles.headerContentContainer}>
+                <View style={{ flexDirection: "row" }}>
+                  <Image
+                    source={{ uri: item.candidate.avatar }}
+                    style={styles.avatar}
+                  />
+                  <View style={{ marginLeft: 7 }}>
+                    <Text style={styles.name}>{item.candidate.name}</Text>
+                    <Text style={styles.position}>{item.post.position}</Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 5,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Image
+                        source={require("../../../../assets/myApp/calendar1.png")}
+                        style={styles.calendarIcon}
+                      />
+                      <Text style={{ color: "#6B7280", fontSize: 12 }}>
+                        {formatTimeAgo(item.appliedAt)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
+                <View>
+                  {item.status == "WAITING" && (
+                    <Pressable
+                      style={{
+                        backgroundColor: "#EFF6FF",
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => openStatusModal(item)}
+                    >
+                      <Text
+                        style={{
+                          color: "#306EE8",
+                          fontSize: 10,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Mới
+                      </Text>
+                    </Pressable>
+                  )}
+                  {item.status == "ACCEPTED" && (
+                    <Pressable
+                      style={{
+                        backgroundColor: "#D1FAE5",
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => openStatusModal(item)}
+                    >
+                      <Text
+                        style={{
+                          color: "#059669",
+                          fontSize: 10,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Đã chấp nhận
+                      </Text>
+                    </Pressable>
+                  )}
+                  {item.status == "REVIEWING" && (
+                    <Pressable
+                      style={{
+                        backgroundColor: "#FFD6D6",
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => openStatusModal(item)}
+                    >
+                      <Text
+                        style={{
+                          color: "#306EE8",
+                          fontSize: 10,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Đang xem xét
+                      </Text>
+                    </Pressable>
+                  )}
+                  {item.status == "REJECTED" && (
+                    <Pressable
+                      style={{
+                        backgroundColor: "#E2E8F0",
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => openStatusModal(item)}
+                    >
+                      <Text
+                        style={{
+                          color: "#FF4848",
+                          fontSize: 10,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Từ chối
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
               </View>
-              <View>
-                {item.status == "NEW" && (
-                  <View
-                    style={{
-                      backgroundColor: "#EFF6FF",
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 10,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#306EE8",
-                        fontSize: 10,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Mới
-                    </Text>
-                  </View>
-                )}
-                {item.status == "REVIEWING" && (
-                  <View
-                    style={{
-                      backgroundColor: "#D1FAE5",
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 10,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#059669",
-                        fontSize: 10,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Đang xem xét
-                    </Text>
-                  </View>
-                )}
-                {item.status == "INTERVIEW" && (
-                  <View
-                    style={{
-                      backgroundColor: "#FFD6D6",
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 10,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#FF4848",
-                        fontSize: 10,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Phỏng vấn
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </View>
-            <View style={{ flexDirection: "row", gap: 10, marginBottom: 5 }}>
-              <Pressable
-                style={{
-                  backgroundColor: "#3B82F6",
-                  borderRadius: 10,
-                  paddingHorizontal: 7,
-                  paddingVertical: 4,
-                }}
-              >
-                <Text style={{ color: "#FFFFFF", fontSize: 13 }}>
-                  Xem hồ sơ
-                </Text>
-              </Pressable>
-              <Pressable
-                style={{
-                  backgroundColor: "#EFF6FF",
-                  borderRadius: 10,
-                  paddingHorizontal: 7,
-                  paddingVertical: 4,
-                }}
-              >
-                <Text style={{ color: "#3B82F6", fontSize: 13 }}>nhắn tin</Text>
-              </Pressable>
-              {item.status == "INTERVIEW" && (
+              <View style={{ flexDirection: "row", gap: 10, marginBottom: 5 }}>
                 <Pressable
                   style={{
-                    backgroundColor: "#E2E8F0",
+                    backgroundColor: "#3B82F6",
                     borderRadius: 10,
                     paddingHorizontal: 7,
                     paddingVertical: 4,
                   }}
+                  onPress={() => {
+                    router.push({
+                      pathname: `/(tabs)/profile/viewPortfolio`,
+                      params: { portId: item.portfolioId },
+                    });
+                  }}
                 >
-                  <Text style={{ color: "#475569", fontSize: 13 }}>
-                    Chi tiết
+                  <Text style={{ color: "#FFFFFF", fontSize: 13 }}>
+                    Xem hồ sơ
                   </Text>
                 </Pressable>
-              )}
+                <Pressable
+                  style={{
+                    backgroundColor: "#EFF6FF",
+                    borderRadius: 10,
+                    paddingHorizontal: 7,
+                    paddingVertical: 4,
+                  }}
+                  onPress={() => handleStartChat(item.candidate.userId, 0)}
+                >
+                  <Text style={{ color: "#3B82F6", fontSize: 13 }}>
+                    nhắn tin
+                  </Text>
+                </Pressable>
+                {item.status == "INTERVIEW" && (
+                  <Pressable
+                    style={{
+                      backgroundColor: "#E2E8F0",
+                      borderRadius: 10,
+                      paddingHorizontal: 7,
+                      paddingVertical: 4,
+                    }}
+                  >
+                    <Text style={{ color: "#475569", fontSize: 13 }}>
+                      Chi tiết
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
             </View>
+          ))}
+        </ScrollView>
+      )}
+
+      <Modal visible={statusModalVisible} transparent animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#fff",
+              width: "80%",
+              borderRadius: 15,
+              padding: 15,
+            }}
+          >
+            <Text
+              style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}
+            >
+              Cập nhật trạng thái
+            </Text>
+            {[
+              { key: "WAITING", label: "Mới" },
+              { key: "REVIEWING", label: "Đang xem xét" },
+              { key: "ACCEPTED", label: "Đã chấp nhận" },
+              { key: "REJECTED", label: "Từ chối" },
+            ].map((item) => {
+              const isDisabled = selectedApp?.status === item.key;
+
+              return (
+                <Pressable
+                  key={item.key}
+                  disabled={isDisabled}
+                  style={{
+                    paddingVertical: 10,
+                    opacity: isDisabled ? 0.4 : 1,
+                  }}
+                  onPress={() => updateStatus(item.key)}
+                >
+                  <Text>{item.label}</Text>
+                </Pressable>
+              );
+            })}
+            <Pressable
+              onPress={() => setStatusModalVisible(false)}
+              style={{ marginTop: 10 }}
+            >
+              <Text style={{ textAlign: "center", color: "#EF4444" }}>
+                Đóng
+              </Text>
+            </Pressable>
           </View>
-        ))}
-      </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -326,18 +479,20 @@ const styles = StyleSheet.create({
   },
   sortContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
     backgroundColor: "#F9FAFB",
     borderBottomColor: "#E2E8F0",
     borderBottomWidth: 1.4,
+    maxHeight: 40,
+    minHeight: 40,
   },
   sortButton: {
     backgroundColor: "#EFF6FF",
     paddingHorizontal: 14,
     paddingVertical: 5,
     borderRadius: 10,
+    marginRight: 8,
+    marginLeft: 4,
+    marginBottom: 9,
   },
   textButtonSort: {
     color: "#3B82F6",

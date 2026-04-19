@@ -232,3 +232,178 @@ export const togglePublicPortfolio = async (portfolioId: number) => {
     throw error;
   }
 };
+
+export const followPortfolio = async (
+  portfolioId: number,
+  interestLevel: string,
+  categoryId: number,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(`${BASE_URL_PORTFOLIO}/api/follows`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        portfolioId,
+        interestLevel,
+        categoryId,
+      }),
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Follow thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const fetchMyFollows = async (categoryId?: number) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    let url = `${BASE_URL_PORTFOLIO}/api/follows`;
+
+    if (categoryId) {
+      url += `?categoryId=${categoryId}`;
+    }
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        accept: "*/*",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy danh sách follow thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    console.log("fetchMyFollows error:", err);
+    throw err;
+  }
+};
+
+export const fetchPortfolioById = async (id: number) => {
+  try {
+    let token = await getToken();
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(`${BASE_URL_PORTFOLIO}/api/portfolio/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy portfolio thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const getFollowCategories = async () => {
+  let token = await getToken();
+  if (token && isTokenExpired(token)) {
+    token = await refreshToken();
+  }
+
+  const res = await fetch(`${BASE_URL_PORTFOLIO}/api/follow-categories`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.json();
+};
+
+export const createFollowCategory = async (name: string) => {
+  let token = await getToken();
+  if (token && isTokenExpired(token)) {
+    token = await refreshToken();
+  }
+
+  const res = await fetch(`${BASE_URL_PORTFOLIO}/api/follow-categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name }),
+  });
+
+  return res.json();
+};
+
+export const updateFollow = async (
+  portfolioId: number,
+  categoryId: number,
+  interestLevel: string,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_PORTFOLIO}/api/follows/${portfolioId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          categoryId,
+          interestLevel,
+        }),
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Update follow thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};

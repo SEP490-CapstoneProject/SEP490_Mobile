@@ -37,11 +37,11 @@ export default function CarePostScreen() {
   return (
     <View style={styles.container}>
       {/* content */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {isLoading ? (
-          <CustomLoading />
-        ) : (
-          posts.map((post) => (
+      {isLoading ? (
+        <CustomLoading />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {posts.map((post) => (
             <View key={post.id} style={styles.contentContainer}>
               {/** header content **/}
               {post.author && (
@@ -143,9 +143,9 @@ export default function CarePostScreen() {
                 </Pressable>
               </View>
             </View>
-          ))
-        )}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
