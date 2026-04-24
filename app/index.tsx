@@ -11,6 +11,7 @@ import {
   fetchEmployeeProfile,
 } from "@/services/profile.api";
 import { realtimeService } from "@/services/realtimeService";
+import { fetchMySubscription } from "@/services/subscription.api";
 import { useNotificationStore } from "@/utils/notificationStore";
 import { Notification } from "@/utils/toast";
 import { router } from "expo-router";
@@ -80,6 +81,8 @@ export default function Index() {
       }
       const res = await fetchNotifications();
       useNotificationStore.getState().setNotifications(res?.items || []);
+      await fetchMySubscription();
+
       router.replace("/(tabs)/home");
     };
 

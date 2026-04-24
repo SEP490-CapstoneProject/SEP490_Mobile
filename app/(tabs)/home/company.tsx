@@ -22,7 +22,8 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  View
+  Text,
+  View,
 } from "react-native";
 const { width, height } = Dimensions.get("window");
 
@@ -58,7 +59,7 @@ export default function Home() {
       getAuth().then(setAuth);
       try {
         setLoading(true);
-        const data = await fetchPortfolio(1, 10, false);
+        const data = await fetchPortfolio(1, 10, false, 2);
         setPortfolios(data);
         setLoading(false);
         setPage(1);
@@ -98,7 +99,7 @@ export default function Home() {
     try {
       const nextPage = page + 1;
 
-      const data = await fetchPortfolio(nextPage, 10, false);
+      const data = await fetchPortfolio(nextPage, 10, false, 2);
 
       setPortfolios((prev) => [...prev, ...data]);
       setPage(nextPage);
@@ -206,12 +207,13 @@ export default function Home() {
         <CustomLoading />
       ) : (
         <View style={{ flex: 1 }}>
-          {/* <View style={styles.rankBannerWrapper}>
+          <View style={styles.rankBannerWrapper}>
             <Pressable
               style={({ pressed }) => [
                 styles.pressableWrap,
                 pressed && { transform: [{ scale: 0.97 }] },
               ]}
+              onPress={() => router.push("/home/ranking")}
             >
               <LinearGradient
                 colors={["#FF7A00", "#FF2D2D"]}
@@ -229,7 +231,7 @@ export default function Home() {
                 <Text style={styles.bannerBtn}>Xem ngay</Text>
               </LinearGradient>
             </Pressable>
-          </View> */}
+          </View>
           <ScrollView
             horizontal
             pagingEnabled
@@ -323,7 +325,6 @@ export default function Home() {
         </View>
       )}
       <RatingModal
-        key={selectedPortfolioId + "_" + ratingData.id + "_" + ratingData.score}
         visible={ratingVisible}
         ratingData={ratingData}
         setRatingData={setRatingData}

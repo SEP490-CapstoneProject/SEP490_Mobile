@@ -6,6 +6,7 @@ export const fetchPortfolio = async (
   page: number,
   pageSize: number,
   includeCompliments: boolean,
+  sort: number,
 ) => {
   let token = await getToken();
 
@@ -13,7 +14,7 @@ export const fetchPortfolio = async (
     token = await refreshToken();
   }
 
-  const url = `${BASE_URL_PORTFOLIO}/api/portfolio?page=${page}&pageSize=${pageSize}&includeCompliments=${includeCompliments}&sort=2`;
+  const url = `${BASE_URL_PORTFOLIO}/api/portfolio?page=${page}&pageSize=${pageSize}&includeCompliments=${includeCompliments}&sort=${sort}`;
 
   const res = await fetch(url, {
     method: "GET",
@@ -400,6 +401,28 @@ export const updateFollow = async (
 
     if (!res.ok) {
       throw new Error(data?.message || "Update follow thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const fetchCriteria = async () => {
+  try {
+    const res = await fetch(`${BASE_URL_PORTFOLIO}/api/criteria`, {
+      method: "GET",
+      headers: {
+        accept: "*/*",
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : [];
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy criteria thất bại");
     }
 
     return data;

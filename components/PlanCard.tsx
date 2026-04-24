@@ -3,11 +3,11 @@ import { showError, showInfo } from "@/utils/toast";
 import * as Linking from "expo-linking";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 export default function PlanCard({ plan, isCurrent }: any) {
@@ -58,7 +58,7 @@ export default function PlanCard({ plan, isCurrent }: any) {
 
       {/* PRICE */}
       <Text style={styles.price}>
-        {plan.price} VND
+        {plan.price}.000 VND
         <Text style={{ fontSize: 14 }}> /tháng</Text>
       </Text>
 
@@ -72,10 +72,14 @@ export default function PlanCard({ plan, isCurrent }: any) {
               key={f.featureKey}
               style={[styles.feature, disabled && styles.featureDisabled]}
             >
-              • {f.featureName}{" "}
+              - {f.featureName}{" "}
               {!disabled && (
                 <Text style={styles.featureValue}>
-                  ({f.value === "-1" ? "Vô hạn" : f.value})
+                  {f.value === "-1"
+                    ? "Vô hạn"
+                    : f.value === "true" || f.value === true
+                      ? ""
+                      : f.value}
                 </Text>
               )}
             </Text>
@@ -92,9 +96,9 @@ export default function PlanCard({ plan, isCurrent }: any) {
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.btnText}>
+          <Text style={[styles.btnText, isCurrent && { color: "#1B8442" }]}>
             {isCurrent
-              ? "Đang sử dụng"
+              ? "Gói bạn sử dụng"
               : plan.price === 0
                 ? "Bắt đầu ngay"
                 : "Nâng cấp gói"}
@@ -169,7 +173,7 @@ const styles = StyleSheet.create({
   },
 
   featureValue: {
-    color: "#2563EB",
+    color: "#111827",
   },
 
   btn: {
@@ -180,7 +184,7 @@ const styles = StyleSheet.create({
   },
 
   btnActive: {
-    backgroundColor: "#22C55E",
+    backgroundColor: "#DCFCE7",
   },
 
   btnText: {

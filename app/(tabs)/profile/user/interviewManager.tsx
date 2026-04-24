@@ -48,11 +48,11 @@ export default function InterviewManager() {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "WAITING":
-        return { bg: "#E6F0FF", text: "#3B82F6", label: "Đang xem xét" };
+        return { bg: "#E6F0FF", text: "#3B82F6", label: "Mới gửi" };
       case "ACCEPTED":
         return { bg: "#D1FAE5", text: "#10B981", label: "Đã nhận" };
-      case "INTERVIEW":
-        return { bg: "#FEE2E2", text: "#EF4444", label: "Phỏng vấn" };
+      case "REVIEWING":
+        return { bg: "#FEE2E2", text: "#EF4444", label: "Đang xem xét" };
       case "REJECTED":
         return { bg: "#E5E7EB", text: "#6B7280", label: "Từ chối" };
       default:
@@ -81,9 +81,10 @@ export default function InterviewManager() {
       <View style={styles.filterRow}>
         {[
           { key: "ALL", label: "Tất cả" },
-          { key: "WAITING", label: "Đang xem xét" },
-          { key: "INTERVIEW", label: "Phỏng vấn" },
+          { key: "WAITING", label: "Mới gửi" },
+          { key: "REVIEWING", label: "Đang xem xét" },
           { key: "ACCEPTED", label: "Đã nhận" },
+          { key: "REJECTED", label: "Từ chối" },
         ].map((item) => (
           <Pressable key={item.key} onPress={() => setFilter(item.key as any)}>
             <Text
@@ -141,9 +142,9 @@ export default function InterviewManager() {
                 >
                   <Text style={styles.date}>{item.appliedAt}</Text>
 
-                  <Pressable>
+                  {/* <Pressable>
                     <Text style={styles.detail}>Chi tiết ›</Text>
-                  </Pressable>
+                  </Pressable> */}
                 </View>
               </View>
             );
@@ -191,9 +192,9 @@ const styles = StyleSheet.create({
   },
 
   activeFilter: {
-    color: "#FF6B00",
+    color: "#3B82F6",
     fontWeight: "600",
-    borderBottomColor: "#FF6B00",
+    borderBottomColor: "#3B82F6",
     borderBottomWidth: 1.2,
   },
 
