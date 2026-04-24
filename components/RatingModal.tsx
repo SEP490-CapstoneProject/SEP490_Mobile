@@ -1,5 +1,13 @@
-import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { fetchCriteria } from "@/services/portfolio.api";
+import { useEffect, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useLoading } from "./LoadingContext";
 
 export default function RatingModal({
@@ -10,71 +18,121 @@ export default function RatingModal({
   onClose,
   onSubmit,
 }: any) {
-  if (!visible) return null;
-
   const { showLoading, hideLoading } = useLoading();
 
-  useEffect(() => {
-    if (loading) {
-      showLoading();
-    } else {
-      hideLoading();
-    }
-  }, [loading]);
-  return (
-    <View style={styles.overlay}>
-      <View style={styles.modal}>
-        <Text style={styles.title}>Chấm điểm</Text>
+  const [criteria, setCriteria] = useState<any[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
 
-        {/* Stars */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginVertical: 10,
-          }}
-        >
-          <View style={{ flexDirection: "row" }}>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((s) => (
-              <Pressable
-                key={s}
-                onPress={() =>
-                  setRatingData((prev: any) => ({ ...prev, score: s }))
-                }
-              >
-                <Text
-                  style={{
-                    fontSize: 23,
-                    color: s <= ratingData.score ? "orange" : "#ccc",
-                  }}
-                >
-                  ★
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: "600",
-              color: "#333",
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchCriteria();
+        setCriteria(data.filter((c: any) => c.isActive));
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    load();
+  }, []);
+
+  useEffect(() => {
+    if (loading) showLoading();
+    else hideLoading();
+  }, [loading]);
+
+  const toggleCriteria = (item: any) => {
+    let newSelected: number[];
+    if (selected.includes(item.id)) {
+      newSelected = selected.filter((id) => id !== item.id);
+    } else {
+      newSelected = [...selected, item.id];
+    }
+    setSelected(newSelected);
+    const selectedItems = criteria.filter((c) => newSelected.includes(c.id));
+    const content = selectedItems.map((c) => `- ${c.name}`).join("\n");
+
+    setRatingData((prev: any) => ({
+      ...prev,
+      content,
+    }));
+  };
+
+  useEffect(() => {
+    if (!ratingData.content || criteria.length === 0) return;
+
+    const lines = ratingData.content
+      .split("\n")
+      .map((l: string) => l.replace("- ", "").trim());
+
+    const matched = criteria
+      .filter((c) => lines.includes(c.name))
+      .map((c) => c.id);
+
+    setSelected(matched);
+  }, [ratingData.content, criteria]);
+
+  return (
+    <View style={[styles.overlay, { display: visible ? "flex" : "none" }]}>
+      <View style={styles.modal}>
+        <Text style={styles.title}>Chấm điểm theo tiêu chí</Text>
+
+        <View style={styles.scoreBox}>
+          <Text style={{ marginRight: 10 }}>Điểm:</Text>
+          <TextInput
+            value={ratingData.score?.toString() ?? ""}
+            onChangeText={(text) => {
+              if (text === "") {
+                setRatingData((prev: any) => ({
+                  ...prev,
+                  score: "",
+                }));
+                return;
+              }
+              if (!/^\d+$/.test(text)) return;
+
+              const num = Number(text);
+
+              if (num >= 0 && num <= 100) {
+                setRatingData((prev: any) => ({
+                  ...prev,
+                  score: num,
+                }));
+              }
             }}
-          >
-            {ratingData.score}/10
-          </Text>
+            keyboardType="numeric"
+            style={styles.scoreInput}
+            placeholder="0 - 100"
+          />
         </View>
 
-        {/* Content */}
+        <ScrollView style={{ maxHeight: 400 }}>
+          {criteria.map((item) => {
+            const isSelected = selected.includes(item.id);
+
+            return (
+              <Pressable
+                key={item.id}
+                style={[
+                  styles.criteriaItem,
+                  isSelected && { backgroundColor: "#DCFCE7" },
+                ]}
+                onPress={() => toggleCriteria(item)}
+              >
+                <Text style={{ flex: 1 }}>{item.name}</Text>
+                {isSelected && <Text>✔</Text>}
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+
+        {/* Content preview
         <TextInput
-          placeholder="Nhận xét..."
           value={ratingData.content}
-          onChangeText={(text) =>
-            setRatingData((prev: any) => ({ ...prev, content: text }))
-          }
+          editable={false}
           style={styles.input}
           multiline
-        />
+        /> */}
 
         {/* Buttons */}
         <View style={styles.actions}>
@@ -122,5 +180,38 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  criteriaItem: {
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#eee",
+    marginBottom: 6,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  score: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "orange",
+    marginVertical: 10,
+    textAlign: "center",
+  },
+
+  scoreBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+
+  scoreInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    width: 80,
+    textAlign: "center",
   },
 });

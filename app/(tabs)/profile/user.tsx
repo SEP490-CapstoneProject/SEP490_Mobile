@@ -8,8 +8,10 @@ import {
 } from "@/services/portfolio.api";
 
 import { getProfile } from "@/services/profile.api";
+import { getPlan } from "@/services/subscription.api";
 import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
+import { Crown, Zap } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -24,6 +26,7 @@ export default function UserProfile() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [portfolio, setPortfolio] = useState<any>(null);
+  const [sub, setSub] = useState<any>(null);
 
   const loadMainPortfolio = async () => {
     const data = await fetchMainPortfolio(2);
@@ -31,6 +34,13 @@ export default function UserProfile() {
   };
 
   useEffect(() => {
+    const loadSub = async () => {
+      const sub = await getPlan();
+      setSub(sub);
+    };
+
+    loadSub();
+
     const loadData = async () => {
       try {
         const user = await getProfile();
@@ -67,12 +77,53 @@ export default function UserProfile() {
 
   if (!user) return null;
 
+  const renderBadge = () => {
+    let plan = sub?.planName?.toLowerCase() || "free";
+    if (plan === "premium") {
+      return (
+        <Crown
+          size={14}
+          color="#FFD700"
+          style={{ transform: [{ rotate: "50deg" }] }}
+        />
+      );
+    }
+    if (plan === "pro") {
+      return (
+        <Zap
+          size={14}
+          color="#3B82F6"
+          style={{ transform: [{ rotate: "20deg" }] }}
+        />
+      );
+    }
+    return null;
+  };
+
   return (
     <ProfilePage>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View>
           <Image source={{ uri: user.coverImage }} style={styles.coverImage} />
-          <Image source={{ uri: user.avatar }} style={styles.avata} />
+          <View style={{ position: "relative" }}>
+            <Image
+              source={{ uri: user.avatar }}
+              style={[
+                styles.avata,
+                {
+                  borderColor:
+                    sub?.planName === "Premium"
+                      ? "#FFD700"
+                      : sub?.planName === "Pro"
+                        ? "#3B82F6"
+                        : "#FFFFFF",
+                },
+              ]}
+            />
+            {sub?.planName !== "free" && (
+              <View style={styles.badge}>{renderBadge()}</View>
+            )}
+          </View>
           <View
             style={{
               marginLeft: 20,
@@ -221,7 +272,6 @@ const styles = StyleSheet.create({
     height: 90,
     borderRadius: 50,
     borderWidth: 3,
-    borderColor: "#FFFFFF",
     marginTop: -40,
     marginLeft: 20,
   },
@@ -296,5 +346,14 @@ const styles = StyleSheet.create({
   textPremiumSub: {
     fontSize: 13,
     color: "#6B7280",
+  },
+  badge: {
+    position: "absolute",
+    top: -40,
+    left: 90,
+    backgroundColor: "#fff",
+    borderRadius: 999,
+    padding: 3,
+    elevation: 4,
   },
 });

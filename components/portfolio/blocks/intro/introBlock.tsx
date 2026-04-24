@@ -9,13 +9,13 @@ export default function IntroBlock({ data, variant, rank }: any) {
     case "INTROONE":
       return <IntroOne data={data} rank={rank} />;
     case "INTROTWO":
-      return <IntroTwo data={data} />;
+      return <IntroTwo data={data} rank={rank} />;
     case "INTROTHREE":
-      return <IntroThree data={data} />;
+      return <IntroThree data={data} rank={rank} />;
     case "INTROFOUR":
-      return <IntroFour data={data} />;
+      return <IntroFour data={data} rank={rank} />;
     case "INTROFIVE":
-      return <IntroFive data={data} />;
+      return <IntroFive data={data} rank={rank} />;
     default:
       return null;
   }

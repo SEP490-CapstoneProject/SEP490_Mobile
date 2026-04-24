@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
 
   avatarBorder: {
     padding: 4,
-    borderRadius: 60,
+    borderRadius: 10,
     backgroundColor: "#FF5F00",
     shadowColor: "#FF5F00",
     shadowOpacity: 0.8,
