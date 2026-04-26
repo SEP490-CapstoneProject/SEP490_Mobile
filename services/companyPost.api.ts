@@ -310,3 +310,39 @@ export const deleteCompanyPost = async (postId: number) => {
     return false;
   }
 };
+
+export const fetchCompanyPostsByCompanyId = async (
+  companyId: number,
+  cursor?: string,
+  limit: number = 10,
+) => {
+  try {
+    let token = await getToken();
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const url = `${process.env.EXPO_PUBLIC_COMPANY_API}/api/company-posts/company/${companyId}?limit=${limit}${
+      cursor ? `&cursor=${cursor}` : ""
+    }`;
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        accept: "*/*",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy bài tuyển dụng thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};

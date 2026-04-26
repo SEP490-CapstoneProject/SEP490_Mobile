@@ -1,48 +1,44 @@
-import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
-import { fetchSavedPosts } from "@/services/careManagement.api";
 import {
+  fetchCommunityPostsByUser,
   likePost,
   savePost,
   unlikePost,
   unsavePost,
 } from "@/services/Comunity.api";
 import { realtimeService } from "@/services/realtimeService";
-
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
 import { usePostStore } from "@/utils/postStore";
-import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  FlatList,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 
-export default function CareCommunityScreen() {
-  const router = useRouter();
+export default function Community({ userId }: { userId: number }) {
   const { posts, setPosts, toggleSave } = usePostStore();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const { updateFavoriteRealtime } = usePostStore();
   const { toggleFavorite } = usePostStore();
 
   useEffect(() => {
-    const loadPosts = async () => {
-      setIsLoading(true);
-      try {
-        const fetchedPosts = await fetchSavedPosts();
-        setPosts(fetchedPosts);
-      } catch (error) {
-        console.error("Error fetching community posts:", error);
-      }
-      setIsLoading(false);
+    const loadData = async () => {
+      setLoading(true);
+
+      const posts = await fetchCommunityPostsByUser(userId);
+      setPosts(posts);
+
+      setLoading(false);
     };
-    loadPosts();
+
+    loadData();
   }, []);
 
   const handleSave = async (postId: number) => {
@@ -95,43 +91,42 @@ export default function CareCommunityScreen() {
       toggleFavorite(postId);
     }
   };
-
   return (
-    <View style={styles.container}>
-      {/* content */}
-      {isLoading ? (
-        <CustomLoading />
-      ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {posts.map((post) => (
-            <View key={post.id} style={styles.contentContainer}>
+    <View style={{ flex: 1 }}>
+      <View style={{ marginBottom: 50 }}>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={posts}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.contentContainer}>
               {/** header content **/}
-              {post.author && (
+              {item.author && (
                 <View style={styles.headerContent}>
                   <View style={styles.headerContentLeft}>
                     <View style={styles.avataContainer}>
                       <Image
-                        source={{ uri: post.author.avatar }}
+                        source={{ uri: item.author.avatar }}
                         style={styles.avata}
                       />
-                      {post.author.role === "COMPANY" && (
+                      {item.author.role === "COMPANY" && (
                         <Image
-                          source={require("../../../../../assets/myApp/checklist.png")}
+                          source={require("../../assets/myApp/checklist.png")}
                           style={styles.avataIcon}
                         />
                       )}
                     </View>
 
                     <View>
-                      <Text style={styles.name}>{post.author.name}</Text>
+                      <Text style={styles.name}>{item.author.name}</Text>
                       <Text style={styles.time}>
-                        {formatTimeAgo(post.createdAt)}
+                        {formatTimeAgo(item.createdAt)}
                       </Text>
                     </View>
                   </View>
                   <Pressable>
                     <Image
-                      source={require("../../../../../assets/myApp/option.png")}
+                      source={require("../../assets/myApp/option.png")}
                       style={styles.iconHeaderLeft}
                     />
                   </Pressable>
@@ -139,35 +134,35 @@ export default function CareCommunityScreen() {
               )}
               {/** body content */}
               <View>
-                <Text style={styles.textContent}>{post.description}</Text>
-                {post.portfolioId && (
+                <Text style={styles.textContent}>{item.description}</Text>
+                {item.portfolioId && (
                   <Pressable style={styles.linkContainer}>
                     <Image
-                      source={require("../../../../../assets/myApp/link.png")}
+                      source={require("../../assets/myApp/link.png")}
                       style={styles.iconLinkbody}
                     />
                     <Text style={styles.textLinkBody}>Xem chi tiết</Text>
                   </Pressable>
                 )}
-                {post.media && post.media.length > 0 && (
-                  <MediaGrid media={post.media} />
+                {item.media && item.media.length > 0 && (
+                  <MediaGrid media={item.media} />
                 )}
               </View>
               {/** footer content */}
               <View style={styles.footerContainer}>
                 <Pressable
                   style={styles.favoriteCount}
-                  onPress={() => handleLike(post.id)}
+                  onPress={() => handleLike(item.id)}
                 >
                   <Image
-                    source={require("../../../../../assets/myApp/heartA (1).png")}
+                    source={require("../../assets/myApp/heartA (1).png")}
                     style={[
                       styles.footerIcon,
-                      post.isFavorited ? { tintColor: "#FF4848" } : {},
+                      item.isFavorited ? { tintColor: "#FF4848" } : {},
                     ]}
                   />
                   <Text style={styles.textFavoriteCount}>
-                    {post.favoriteCount}
+                    {item.favoriteCount}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -176,41 +171,43 @@ export default function CareCommunityScreen() {
                     router.push({
                       pathname: "/community/comment",
                       params: {
-                        postId: post.id,
+                        postId: item.id,
                       },
                     })
                   }
                 >
                   <Image
-                    source={require("../../../../../assets/myApp/message.png")}
+                    source={require("../../assets/myApp/message.png")}
                     style={styles.footerIcon}
                   />
                   <Text style={styles.textFavoriteCount}>
-                    {post.commentCount}
+                    {item.commentCount}
                   </Text>
                 </Pressable>
-                <Pressable onPress={() => handleSave(post.id)}>
-                  {post.isSaved === true ? (
-                    <FontAwesome name="bookmark" size={24} color="#FFD700" />
-                  ) : (
-                    <FontAwesome name="bookmark" size={24} color="#cbd2dc" />
-                  )}
+                <Pressable onPress={() => handleSave(item.id)}>
+                  <Image
+                    source={require("../../assets/myApp/bookmark.png")}
+                    style={[
+                      styles.footerIcon,
+                      item.isSaved ? { tintColor: "#FFD700" } : {},
+                    ]}
+                  />
                 </Pressable>
                 <Pressable
                   onPress={() =>
-                    shareContent(`https://skillsnap.io/post/${post.id}`)
+                    shareContent(`https://skillsnap.io/post/${item.id}`)
                   }
                 >
                   <Image
-                    source={require("../../../../../assets/myApp/share-.png")}
+                    source={require("../../assets/myApp/share-.png")}
                     style={[styles.footerIcon]}
                   />
                 </Pressable>
               </View>
             </View>
-          ))}
-        </ScrollView>
-      )}
+          )}
+        />
+      </View>
     </View>
   );
 }
@@ -218,12 +215,7 @@ export default function CareCommunityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-
-  card: {
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
   },
 
   contentContainer: {

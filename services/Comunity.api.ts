@@ -382,3 +382,34 @@ export const unlikePost = async (postId: number) => {
 
   if (!res.ok) throw new Error("Unlike failed");
 };
+
+export const deletePost = async (postId: number) => {
+  try {
+    let token = await getToken();
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_COMMUNITY}/api/community/posts/${postId}`,
+      {
+        method: "DELETE",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Xóa bài viết thất bại");
+    }
+
+    return true;
+  } catch (err) {
+    throw err;
+  }
+};

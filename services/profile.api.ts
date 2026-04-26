@@ -401,3 +401,47 @@ export const createEmployeeProfile = async ({
 
   return data;
 };
+
+export const fetchEmployeeByUserId = async (userId: number) => {
+  try {
+    const res = await fetch(`${BASE_URL_USER}/api/Employee/by-user/${userId}`, {
+      method: "GET",
+      headers: {
+        accept: "*/*",
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy employee thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const fetchCompanyByUserId = async (userId: number) => {
+  try {
+    const res = await fetch(`${BASE_URL_USER}/api/Company/by-user/${userId}`, {
+      method: "GET",
+      headers: {
+        accept: "*/*",
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy company thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
