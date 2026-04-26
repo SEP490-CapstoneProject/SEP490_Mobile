@@ -183,14 +183,13 @@ export const fetchMainPortfolio = async (employeeId: number) => {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: "*/*",
+          Accept: "application/json",
         },
       },
     );
 
     const text = await res.text();
     const data = text ? JSON.parse(text) : null;
-
     if (!res.ok) {
       throw new Error(data?.message || "Lấy main portfolio thất bại");
     }

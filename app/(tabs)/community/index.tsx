@@ -1,9 +1,11 @@
 import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
+import { getAuth } from "@/services/auth.api";
 import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
 import { usePostStore } from "@/utils/postStore";
+import { showError, showSuccess } from "@/utils/toast";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -15,6 +17,7 @@ import {
   View,
 } from "react-native";
 import {
+  deletePost,
   fetchCommunityPosts,
   likePost,
   savePost,
@@ -29,6 +32,9 @@ export default function Community() {
   const [loading, setLoading] = useState(false);
   const { updateFavoriteRealtime } = usePostStore();
   const { toggleFavorite } = usePostStore();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   useEffect(() => {
     loadPosts();
@@ -37,7 +43,9 @@ export default function Community() {
   const loadPosts = async () => {
     try {
       setLoading(true);
-
+      const user = await getAuth();
+      const userId = user?.id || null;
+      setCurrentUserId(userId);
       const res = await fetchCommunityPosts(10);
 
       setPosts(res.items);
@@ -96,8 +104,6 @@ export default function Community() {
 
   useEffect(() => {
     const handler = (data: any) => {
-      console.log("🔥 FAVORITE REALTIME:", data);
-
       updateFavoriteRealtime(
         data.postId,
         Number(data.userId),
@@ -124,6 +130,21 @@ export default function Community() {
       }
     } catch (err) {
       toggleFavorite(postId);
+    }
+  };
+
+  const handleDelete = async (postId: number) => {
+    try {
+      const res = await deletePost(postId);
+      if (res) {
+        setPosts((prev) => prev.filter((p) => p.id !== postId));
+        showSuccess("Xóa bài viết", "Bài viết đã được xóa thành công.");
+      } else {
+        showError("Xóa bài viết", "Xóa bài viết thất bại. Vui lòng thử lại.");
+      }
+    } catch (err) {
+      console.log(err);
+      showError("Xóa bài viết", "Xóa bài viết thất bại. Vui lòng thử lại.");
     }
   };
 
@@ -155,7 +176,17 @@ export default function Community() {
               {/** header content **/}
               {post.author && (
                 <View style={styles.headerContent}>
-                  <View style={styles.headerContentLeft}>
+                  <Pressable
+                    style={styles.headerContentLeft}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/viewProfile",
+                        params: {
+                          auth: JSON.stringify(post.author),
+                        },
+                      })
+                    }
+                  >
                     <View style={styles.avataContainer}>
                       <Image
                         source={{ uri: post.author.avatar }}
@@ -175,8 +206,13 @@ export default function Community() {
                         {formatTimeAgo(post.createdAt)}
                       </Text>
                     </View>
-                  </View>
-                  <Pressable>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => {
+                      setSelectedPost(post);
+                      setMenuVisible(true);
+                    }}
+                  >
                     <Image
                       source={require("../../../assets/myApp/option.png")}
                       style={styles.iconHeaderLeft}
@@ -258,6 +294,56 @@ export default function Community() {
             </View>
           ))}
         </ScrollView>
+      )}
+
+      {menuVisible && (
+        <View style={styles.overlay}>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setMenuVisible(false)}
+          />
+
+          <View style={styles.bottomSheet}>
+            {selectedPost?.author?.id === currentUserId ? (
+              <Pressable
+                style={styles.menuItem}
+                onPress={() => {
+                  handleDelete(selectedPost.id);
+                  setMenuVisible(false);
+                }}
+              >
+                <Image
+                  source={require("../../../assets/myApp/trash.png")}
+                  style={styles.iconHeaderLeft}
+                />
+                <Text style={{ color: "red" }}>Xóa bài viết</Text>
+              </Pressable>
+            ) : (
+              <></>
+            )}
+
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                console.log("Report post", selectedPost.id);
+                setMenuVisible(false);
+              }}
+            >
+              <Image
+                source={require("../../../assets/myApp/warning1.png")}
+                style={styles.iconHeaderLeft}
+              />
+              <Text>Báo cáo bài viết</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => setMenuVisible(false)}
+            >
+              <Text>Hủy</Text>
+            </Pressable>
+          </View>
+        </View>
       )}
     </View>
   );
@@ -388,5 +474,31 @@ const styles = StyleSheet.create({
   textFavoriteCount: {
     color: "#6B7280",
     fontSize: 13,
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "flex-end",
+  },
+
+  bottomSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 15,
+  },
+
+  menuItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
   },
 });

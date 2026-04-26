@@ -1,8 +1,17 @@
 import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 import { getAuth } from "@/services/auth.api";
-import { fetchCommunityPostsByUser } from "@/services/Comunity.api";
+import {
+  fetchCommunityPostsByUser,
+  likePost,
+  savePost,
+  unlikePost,
+  unsavePost,
+} from "@/services/Comunity.api";
+import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
+import { shareContent } from "@/services/share";
+import { usePostStore } from "@/utils/postStore";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -16,10 +25,12 @@ import {
 
 export default function CommunityManager() {
   const router = useRouter();
-  const [posts, setPosts] = useState<any[]>([]);
+  const { posts, setPosts, toggleSave } = usePostStore();
   const [loading, setLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState<"NEWEST" | "OLDEST">("NEWEST");
   const [isOpen, setIsOpen] = useState(false);
+  const { updateFavoriteRealtime } = usePostStore();
+  const { toggleFavorite } = usePostStore();
 
   useEffect(() => {
     const loadData = async () => {
@@ -42,6 +53,57 @@ export default function CommunityManager() {
 
     return sortOrder === "NEWEST" ? timeB - timeA : timeA - timeB;
   });
+
+  useEffect(() => {
+    const handler = (data: any) => {
+      updateFavoriteRealtime(
+        data.postId,
+        Number(data.userId),
+        data.action,
+        data.newFavoriteCount,
+      );
+    };
+
+    realtimeService.onFavorite(handler);
+
+    return () => {
+      realtimeService.offFavorite(handler);
+    };
+  }, []);
+
+  const handleLike = async (postId: number) => {
+    toggleFavorite(postId);
+
+    try {
+      if (!posts.find((p) => p.id === postId)?.isFavorited) {
+        await likePost(postId);
+      } else {
+        await unlikePost(postId);
+      }
+    } catch (err) {
+      toggleFavorite(postId);
+    }
+  };
+
+  const handleSave = async (postId: number) => {
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return;
+
+    const wasSaved = post.isSaved;
+
+    toggleSave(postId);
+
+    try {
+      if (wasSaved) {
+        await unsavePost(postId);
+      } else {
+        await savePost(postId);
+      }
+    } catch (err) {
+      console.log(err);
+      toggleSave(postId);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -186,7 +248,10 @@ export default function CommunityManager() {
                   </View>
                   {/** footer content */}
                   <View style={styles.footerContainer}>
-                    <View style={styles.favoriteCount}>
+                    <Pressable
+                      style={styles.favoriteCount}
+                      onPress={() => handleLike(item.id)}
+                    >
                       <Image
                         source={require("../../../assets/myApp/heartA (1).png")}
                         style={[
@@ -197,7 +262,7 @@ export default function CommunityManager() {
                       <Text style={styles.textFavoriteCount}>
                         {item.favoriteCount}
                       </Text>
-                    </View>
+                    </Pressable>
                     <Pressable
                       style={styles.favoriteCount}
                       onPress={() =>
@@ -217,17 +282,25 @@ export default function CommunityManager() {
                         {item.commentCount}
                       </Text>
                     </Pressable>
-                    <Image
-                      source={require("../../../assets/myApp/bookmark.png")}
-                      style={[
-                        styles.footerIcon,
-                        item.isSaved ? { tintColor: "#FFD700" } : {},
-                      ]}
-                    />
-                    <Image
-                      source={require("../../../assets/myApp/share-.png")}
-                      style={[styles.footerIcon]}
-                    />
+                    <Pressable onPress={() => handleSave(item.id)}>
+                      <Image
+                        source={require("../../../assets/myApp/bookmark.png")}
+                        style={[
+                          styles.footerIcon,
+                          item.isSaved ? { tintColor: "#FFD700" } : {},
+                        ]}
+                      />
+                    </Pressable>
+                    <Pressable
+                      onPress={() =>
+                        shareContent(`https://skillsnap.io/post/${item.id}`)
+                      }
+                    >
+                      <Image
+                        source={require("../../../assets/myApp/share-.png")}
+                        style={[styles.footerIcon]}
+                      />
+                    </Pressable>
                   </View>
                 </View>
               )}
