@@ -38,9 +38,12 @@ const tabs = [
 export default function Footer() {
   const router = useRouter();
   const pathname = usePathname();
-  const notifications = useNotificationStore((s) => s.notifications);
+  const { systemNotifications, communityNotifications } =
+    useNotificationStore();
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount =
+    systemNotifications.filter((n) => !n.isRead).length +
+    communityNotifications.filter((n) => !n.isRead).length;
 
   return (
     <View

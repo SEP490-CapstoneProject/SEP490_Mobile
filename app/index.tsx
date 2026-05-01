@@ -5,7 +5,10 @@ import {
   refreshToken,
 } from "@/services/auth.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
-import { fetchNotifications } from "@/services/notification.api";
+import {
+  fetchCommunityNotifications,
+  fetchSystemNotifications,
+} from "@/services/notification.api";
 import {
   fetchCompanyProfile,
   fetchEmployeeProfile,
@@ -19,52 +22,116 @@ import { useEffect } from "react";
 
 export default function Index() {
   useEffect(() => {
+    let isMounted = true;
+
+    const processed = new Set<number>();
+    const handler = (data: any) => {
+      if (!isMounted) return;
+
+      if (processed.has(data.notificationId)) return;
+      processed.add(data.notificationId);
+
+      if (processed.size > 100) processed.clear();
+
+      const notification = {
+        id: data.notificationId,
+        userId: data.userId,
+        title: data.title,
+        content: data.content,
+        type: data.type,
+        objectId: data.objectId,
+        actor: data.actorId
+          ? {
+              id: data.actorId,
+              name: data.actorName,
+              avatar: data.actorAvatar,
+              Role: data.Role,
+            }
+          : undefined,
+        createdAt: data.createdAt,
+        isRead: false,
+      };
+
+      const isCommunity =
+        data.category === "community" ||
+        ["LIKE", "COMMENT", "REPLY"].includes(data.type);
+
+      if (isCommunity) {
+        useNotificationStore.getState().addCommunityNotification(notification);
+      } else {
+        useNotificationStore.getState().addSystemNotification(notification);
+      }
+
+      Notification(
+        isCommunity ? "Hoạt động mới" : "Thông báo hệ thống",
+        data.content,
+      );
+    };
+
     const init = async () => {
       let token = await getToken();
+
+      if (token && isTokenExpired(token)) {
+        token = await refreshToken();
+      }
 
       if (!token) {
         router.replace("/(auth)/login");
         return;
       }
 
-      if (isTokenExpired(token)) {
-        const newToken = await refreshToken();
-        if (!newToken) {
-          router.replace("/(auth)/login");
-          return;
-        }
-        token = newToken;
-      }
+      const [systemRes, communityRes] = await Promise.all([
+        fetchSystemNotifications(20),
+        fetchCommunityNotifications(20),
+      ]);
 
-      realtimeService.initConnection(token as string);
+      const currentSystem = useNotificationStore.getState().systemNotifications;
+
+      const systemMap = new Map<number, any>();
+
+      [...currentSystem, ...(systemRes?.items || [])].forEach((item) => {
+        systemMap.set(item.id, item);
+      });
+
+      useNotificationStore
+        .getState()
+        .setSystemNotifications(
+          Array.from(systemMap.values()).sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          ),
+        );
+
+      const currentCommunity =
+        useNotificationStore.getState().communityNotifications;
+
+      const communityMap = new Map<number, any>();
+
+      [...(communityRes?.items || []), ...currentCommunity].forEach((item) => {
+        communityMap.set(item.id, item);
+      });
+
+      useNotificationStore
+        .getState()
+        .setCommunityNotifications(
+          Array.from(communityMap.values()).sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          ),
+        );
+
+      realtimeService.initConnection(token);
       await realtimeService.start();
-      chatRealtimeService.initConnection(token as string);
+
+      chatRealtimeService.initConnection(token);
       await chatRealtimeService.start();
 
-      const handler = (data: any) => {
-        useNotificationStore.getState().addNotification({
-          id: data.notificationId,
-          userId: data.userId,
-          title: data.title,
-          content: data.content,
-          type: data.type,
-          objectId: data.objectId,
-          actor: {
-            id: data.actorId,
-            name: data.actorName,
-            avatar: data.actorAvatar,
-          },
-          createdAt: data.createdAt,
-          isRead: false,
-        });
-
-        Notification("Thông báo mới", data.content);
-      };
-
-      realtimeService.onNotification(handler);
+      realtimeService.onSystemNotification(handler);
+      realtimeService.onCommunityNotification(handler);
 
       const auth = await getAuth();
       let profile;
+
       if (auth?.role === 1) {
         profile = await fetchEmployeeProfile();
       } else {
@@ -72,15 +139,12 @@ export default function Index() {
       }
 
       if (profile?.needSetup) {
-        if (profile.role === 1) {
-          router.replace("/setupProfileUser");
-        } else if (profile.role === 2) {
-          router.replace("/setupProfileCompany");
-        }
+        router.replace(
+          profile.role === 1 ? "/setupProfileUser" : "/setupProfileCompany",
+        );
         return;
       }
-      const res = await fetchNotifications();
-      useNotificationStore.getState().setNotifications(res?.items || []);
+
       await fetchMySubscription();
 
       router.replace("/(tabs)/home");

@@ -1,3 +1,4 @@
+import { useLoading } from "@/components/LoadingContext";
 import { getAuth } from "@/services/auth.api";
 import {
   createCompanyProfile,
@@ -27,6 +28,7 @@ export default function SetupProfileCompany() {
   const [activityField, setActivityField] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     getAuth().then(setUser);
@@ -51,6 +53,7 @@ export default function SetupProfileCompany() {
         alert("Vui lòng nhập tên công ty");
         return;
       }
+      showLoading();
       await createCompanyProfile({
         companyName: name,
         activityField: activityField,
@@ -62,9 +65,12 @@ export default function SetupProfileCompany() {
       });
 
       await fetchCompanyProfile();
+      hideLoading();
       router.replace("/(tabs)/home");
     } catch (err: any) {
       showError("Lỗi", err.message || "Tạo hồ sơ thất bại");
+    } finally {
+      hideLoading();
     }
   };
 

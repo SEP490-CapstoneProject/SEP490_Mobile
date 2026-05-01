@@ -57,6 +57,7 @@ export default function createPost() {
     } catch (err: any) {
       hideLoading();
       showError("Lỗi", err.message || "Tạo bài đăng thất bại");
+      console.log("Create post error:", err);
     }
   };
 

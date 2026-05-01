@@ -413,3 +413,42 @@ export const deletePost = async (postId: number) => {
     throw err;
   }
 };
+
+export const reportPost = async (
+  postId: number,
+  reason: string,
+  description: string = "",
+) => {
+  try {
+    let token = await getToken();
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_COMMUNITY}/api/community/posts/${postId}/report`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reason,
+          description,
+        }),
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Báo cáo thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};

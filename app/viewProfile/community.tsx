@@ -2,6 +2,7 @@ import MediaGrid from "@/components/MediaGrid";
 import {
   fetchCommunityPostsByUser,
   likePost,
+  reportPost,
   savePost,
   unlikePost,
   unsavePost,
@@ -10,6 +11,7 @@ import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
 import { usePostStore } from "@/utils/postStore";
+import { showError, showSuccess } from "@/utils/toast";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -22,18 +24,23 @@ import {
 } from "react-native";
 
 export default function Community({ userId }: { userId: number }) {
-  const { posts, setPosts, toggleSave } = usePostStore();
+  const { profilePosts, setProfilePosts, toggleSave } = usePostStore();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { updateFavoriteRealtime } = usePostStore();
   const { toggleFavorite } = usePostStore();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [reportVisible, setReportVisible] = useState(false);
+  const [reportReason, setReportReason] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
 
       const posts = await fetchCommunityPostsByUser(userId);
-      setPosts(posts);
+      setProfilePosts(posts);
 
       setLoading(false);
     };
@@ -42,7 +49,7 @@ export default function Community({ userId }: { userId: number }) {
   }, []);
 
   const handleSave = async (postId: number) => {
-    const post = posts.find((p) => p.id === postId);
+    const post = profilePosts.find((p) => p.id === postId);
     if (!post) return;
 
     const wasSaved = post.isSaved;
@@ -82,7 +89,7 @@ export default function Community({ userId }: { userId: number }) {
     toggleFavorite(postId);
 
     try {
-      if (!posts.find((p) => p.id === postId)?.isFavorited) {
+      if (!profilePosts.find((p) => p.id === postId)?.isFavorited) {
         await likePost(postId);
       } else {
         await unlikePost(postId);
@@ -96,7 +103,7 @@ export default function Community({ userId }: { userId: number }) {
       <View style={{ marginBottom: 50 }}>
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={posts}
+          data={profilePosts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.contentContainer}>
@@ -124,7 +131,12 @@ export default function Community({ userId }: { userId: number }) {
                       </Text>
                     </View>
                   </View>
-                  <Pressable>
+                  <Pressable
+                    onPress={() => {
+                      setSelectedPost(item);
+                      setMenuVisible(true);
+                    }}
+                  >
                     <Image
                       source={require("../../assets/myApp/option.png")}
                       style={styles.iconHeaderLeft}
@@ -208,6 +220,119 @@ export default function Community({ userId }: { userId: number }) {
           )}
         />
       </View>
+      {menuVisible && (
+        <View style={styles.overlay}>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setMenuVisible(false)}
+          />
+
+          <View style={styles.bottomSheet}>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                setTimeout(() => {
+                  setReportVisible(true);
+                }, 200);
+              }}
+            >
+              <Image
+                source={require("../../assets/myApp/warning1.png")}
+                style={styles.iconHeaderLeft}
+              />
+              <Text>Báo cáo bài viết</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => setMenuVisible(false)}
+            >
+              <Text>Hủy</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
+      {reportVisible && (
+        <View style={styles.overlay}>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setReportVisible(false)}
+          />
+
+          <View style={styles.bottomSheet}>
+            <Text
+              style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}
+            >
+              Chọn lý do báo cáo
+            </Text>
+
+            {[
+              { label: "Spam / Nội dung rác", value: "spam" },
+              { label: "Quấy rối / Đả kích", value: "harassment" },
+              { label: "Ngôn từ thù ghét", value: "hate_speech" },
+              { label: "Nội dung không phù hợp", value: "inappropriate" },
+              { label: "Lý do khác", value: "other" },
+            ].map((item) => (
+              <Pressable
+                key={item.value}
+                style={styles.menuItem}
+                onPress={() => setReportReason(item.value)}
+              >
+                <Text
+                  style={{
+                    color: reportReason === item.value ? "#2563EB" : "#000",
+                    fontWeight: reportReason === item.value ? "bold" : "normal",
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </Pressable>
+            ))}
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+                marginHorizontal: 40,
+              }}
+            >
+              <Pressable
+                style={[styles.menuItem]}
+                onPress={async () => {
+                  try {
+                    await reportPost(selectedPost.id, reportReason);
+
+                    showSuccess(
+                      "Đã gửi báo cáo",
+                      "Cảm ơn bạn đã giúp chúng tôi giữ cho cộng đồng an toàn và lành mạnh.",
+                    );
+                    setReportVisible(false);
+                  } catch (err) {
+                    showError(
+                      "Báo cáo thất bại",
+                      "Đã có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại.",
+                    );
+                  }
+                }}
+              >
+                <Text style={{ color: "#2563EB", textAlign: "center" }}>
+                  Gửi báo cáo
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.menuItem}
+                onPress={() => setReportVisible(false)}
+              >
+                <Text>Hủy</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -308,5 +433,32 @@ const styles = StyleSheet.create({
   textFavoriteCount: {
     color: "#6B7280",
     fontSize: 13,
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "flex-end",
+  },
+
+  bottomSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 15,
+    paddingBottom: 100,
+  },
+
+  menuItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
   },
 });

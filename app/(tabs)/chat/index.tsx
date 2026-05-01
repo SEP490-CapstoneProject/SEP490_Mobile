@@ -91,6 +91,18 @@ export default function Chat() {
       {/** body */}
       {loading ? (
         <CustomLoading />
+      ) : messRoom.length === 0 ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontSize: 16, color: "#6B7280", marginTop: 10 }}>
+            Bạn chưa có kết nối nào!
+          </Text>
+        </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
           {/** room mess */}

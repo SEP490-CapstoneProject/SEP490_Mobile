@@ -177,20 +177,22 @@ export default function UserProfile() {
                 />
               </Pressable>
             </View>
-            <View
-              style={{
-                borderColor: "#E2E8F0",
-                borderWidth: 1.5,
-                marginHorizontal: 15,
-                borderRadius: 10,
-                marginTop: 10,
-              }}
-            >
-              <PortfolioRenderer
-                blocks={[portfolio.blocks[0]]}
-                rank={portfolio.ranking.rankPosition}
-              />
-            </View>
+            {portfolio?.blocks?.length > 0 && (
+              <View
+                style={{
+                  borderColor: "#E2E8F0",
+                  borderWidth: 1.5,
+                  marginHorizontal: 15,
+                  borderRadius: 10,
+                  marginTop: 10,
+                }}
+              >
+                <PortfolioRenderer
+                  blocks={[portfolio.blocks[0]]}
+                  rank={portfolio?.ranking?.rankPosition}
+                />
+              </View>
+            )}
           </View>
         )}
 

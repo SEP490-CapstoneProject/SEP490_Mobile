@@ -1,9 +1,18 @@
 import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 import { fetchSavedPosts } from "@/services/careManagement.api";
+import {
+  likePost,
+  savePost,
+  unlikePost,
+  unsavePost,
+} from "@/services/Comunity.api";
+import { realtimeService } from "@/services/realtimeService";
 
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
+import { usePostStore } from "@/utils/postStore";
+import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,15 +26,17 @@ import {
 
 export default function CarePostScreen() {
   const router = useRouter();
-  const [posts, setPosts] = useState<any[]>([]);
+  const { profilePosts, setProfilePosts, toggleSave } = usePostStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { updateFavoriteRealtime } = usePostStore();
+  const { toggleFavorite } = usePostStore();
 
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
       try {
         const fetchedPosts = await fetchSavedPosts();
-        setPosts(fetchedPosts);
+        setProfilePosts(fetchedPosts);
       } catch (error) {
         console.error("Error fetching community posts:", error);
       }
@@ -34,6 +45,57 @@ export default function CarePostScreen() {
     loadPosts();
   }, []);
 
+  const handleSave = async (postId: number) => {
+    const post = profilePosts.find((p) => p.id === postId);
+    if (!post) return;
+
+    const wasSaved = post.isSaved;
+
+    toggleSave(postId);
+
+    try {
+      if (wasSaved) {
+        await unsavePost(postId);
+      } else {
+        await savePost(postId);
+      }
+    } catch (err) {
+      console.log(err);
+      toggleSave(postId);
+    }
+  };
+
+  useEffect(() => {
+    const handler = (data: any) => {
+      updateFavoriteRealtime(
+        data.postId,
+        Number(data.userId),
+        data.action,
+        data.newFavoriteCount,
+      );
+    };
+
+    realtimeService.onFavorite(handler);
+
+    return () => {
+      realtimeService.offFavorite(handler);
+    };
+  }, []);
+
+  const handleLike = async (postId: number) => {
+    toggleFavorite(postId);
+
+    try {
+      if (!profilePosts.find((p) => p.id === postId)?.isFavorited) {
+        await likePost(postId);
+      } else {
+        await unlikePost(postId);
+      }
+    } catch (err) {
+      toggleFavorite(postId);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* content */}
@@ -41,7 +103,7 @@ export default function CarePostScreen() {
         <CustomLoading />
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          {posts.map((post) => (
+          {profilePosts.map((post) => (
             <View key={post.id} style={styles.contentContainer}>
               {/** header content **/}
               {post.author && (
@@ -93,7 +155,10 @@ export default function CarePostScreen() {
               </View>
               {/** footer content */}
               <View style={styles.footerContainer}>
-                <View style={styles.favoriteCount}>
+                <Pressable
+                  style={styles.favoriteCount}
+                  onPress={() => handleLike(post.id)}
+                >
                   <Image
                     source={require("../../../../../assets/myApp/heartA (1).png")}
                     style={[
@@ -104,7 +169,7 @@ export default function CarePostScreen() {
                   <Text style={styles.textFavoriteCount}>
                     {post.favoriteCount}
                   </Text>
-                </View>
+                </Pressable>
                 <Pressable
                   style={styles.favoriteCount}
                   onPress={() =>
@@ -124,13 +189,13 @@ export default function CarePostScreen() {
                     {post.commentCount}
                   </Text>
                 </Pressable>
-                <Image
-                  source={require("../../../../../assets/myApp/bookmark.png")}
-                  style={[
-                    styles.footerIcon,
-                    post.isSaved ? { tintColor: "#FFD700" } : {},
-                  ]}
-                />
+                <Pressable onPress={() => handleSave(post.id)}>
+                  {post.isSaved === true ? (
+                    <FontAwesome name="bookmark" size={24} color="#FFD700" />
+                  ) : (
+                    <FontAwesome name="bookmark" size={24} color="#cbd2dc" />
+                  )}
+                </Pressable>
                 <Pressable
                   onPress={() =>
                     shareContent(`https://skillsnap.io/post/${post.id}`)

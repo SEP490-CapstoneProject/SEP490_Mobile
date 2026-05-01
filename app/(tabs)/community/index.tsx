@@ -20,6 +20,7 @@ import {
   deletePost,
   fetchCommunityPosts,
   likePost,
+  reportPost,
   savePost,
   unlikePost,
   unsavePost,
@@ -27,7 +28,7 @@ import {
 
 export default function Community() {
   const router = useRouter();
-  const { posts, setPosts, toggleSave } = usePostStore();
+  const { communityPosts, setCommunityPosts, toggleSave } = usePostStore();
   const [cursor, setCursor] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const { updateFavoriteRealtime } = usePostStore();
@@ -35,6 +36,8 @@ export default function Community() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [reportVisible, setReportVisible] = useState(false);
+  const [reportReason, setReportReason] = useState("");
 
   useEffect(() => {
     loadPosts();
@@ -48,7 +51,7 @@ export default function Community() {
       setCurrentUserId(userId);
       const res = await fetchCommunityPosts(10);
 
-      setPosts(res.items);
+      setCommunityPosts(res.items);
       setCursor(res.nextCursor);
     } catch (err: any) {
       console.log(err);
@@ -67,7 +70,7 @@ export default function Community() {
     try {
       const res = await fetchCommunityPosts(10, cursor);
 
-      setPosts((prev) => {
+      setCommunityPosts((prev) => {
         const map = new Map();
 
         [...prev, ...res.items].forEach((item) => {
@@ -83,7 +86,7 @@ export default function Community() {
   };
 
   const handleSave = async (postId: number) => {
-    const post = posts.find((p) => p.id === postId);
+    const post = communityPosts.find((p) => p.id === postId);
     if (!post) return;
 
     const wasSaved = post.isSaved;
@@ -123,7 +126,7 @@ export default function Community() {
     toggleFavorite(postId);
 
     try {
-      if (!posts.find((p) => p.id === postId)?.isFavorited) {
+      if (!communityPosts.find((p) => p.id === postId)?.isFavorited) {
         await likePost(postId);
       } else {
         await unlikePost(postId);
@@ -137,7 +140,7 @@ export default function Community() {
     try {
       const res = await deletePost(postId);
       if (res) {
-        setPosts((prev) => prev.filter((p) => p.id !== postId));
+        setCommunityPosts((prev) => prev.filter((p) => p.id !== postId));
         showSuccess("Xóa bài viết", "Bài viết đã được xóa thành công.");
       } else {
         showError("Xóa bài viết", "Xóa bài viết thất bại. Vui lòng thử lại.");
@@ -171,7 +174,7 @@ export default function Community() {
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={loadMore}
         >
-          {posts.map((post) => (
+          {communityPosts.map((post) => (
             <View key={post.id} style={styles.contentContainer}>
               {/** header content **/}
               {post.author && (
@@ -325,8 +328,10 @@ export default function Community() {
             <Pressable
               style={styles.menuItem}
               onPress={() => {
-                console.log("Report post", selectedPost.id);
                 setMenuVisible(false);
+                setTimeout(() => {
+                  setReportVisible(true);
+                }, 200);
               }}
             >
               <Image
@@ -342,6 +347,86 @@ export default function Community() {
             >
               <Text>Hủy</Text>
             </Pressable>
+          </View>
+        </View>
+      )}
+
+      {reportVisible && (
+        <View style={styles.overlay}>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setReportVisible(false)}
+          />
+
+          <View style={styles.bottomSheet}>
+            <Text
+              style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}
+            >
+              Chọn lý do báo cáo
+            </Text>
+
+            {[
+              { label: "Spam / Nội dung rác", value: "spam" },
+              { label: "Quấy rối / Đả kích", value: "harassment" },
+              { label: "Ngôn từ thù ghét", value: "hate_speech" },
+              { label: "Nội dung không phù hợp", value: "inappropriate" },
+              { label: "Lý do khác", value: "other" },
+            ].map((item) => (
+              <Pressable
+                key={item.value}
+                style={styles.menuItem}
+                onPress={() => setReportReason(item.value)}
+              >
+                <Text
+                  style={{
+                    color: reportReason === item.value ? "#2563EB" : "#000",
+                    fontWeight: reportReason === item.value ? "bold" : "normal",
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </Pressable>
+            ))}
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+                marginHorizontal: 40,
+              }}
+            >
+              <Pressable
+                style={[styles.menuItem]}
+                onPress={async () => {
+                  try {
+                    await reportPost(selectedPost.id, reportReason);
+
+                    showSuccess(
+                      "Đã gửi báo cáo",
+                      "Cảm ơn bạn đã giúp chúng tôi giữ cho cộng đồng an toàn và lành mạnh.",
+                    );
+                    setReportVisible(false);
+                  } catch (err) {
+                    showError(
+                      "Báo cáo thất bại",
+                      "Đã có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại.",
+                    );
+                  }
+                }}
+              >
+                <Text style={{ color: "#2563EB", textAlign: "center" }}>
+                  Gửi báo cáo
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.menuItem}
+                onPress={() => setReportVisible(false)}
+              >
+                <Text>Hủy</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       )}

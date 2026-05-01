@@ -3,14 +3,19 @@ import { create } from "zustand";
 type Post = any;
 
 type PostStore = {
-  posts: Post[];
-  currentUserId: number | null;
+  communityPosts: Post[];
+  profilePosts: Post[];
 
-  setPosts: (posts: Post[] | ((prev: Post[]) => Post[])) => void;
+  currentUserId: number | null;
+  setCurrentUserId: (id: number) => void;
+
+  setCommunityPosts: (posts: Post[] | ((prev: Post[]) => Post[])) => void;
+  setProfilePosts: (posts: Post[] | ((prev: Post[]) => Post[])) => void;
 
   updateCommentCount: (postId: number) => void;
   toggleFavorite: (postId: number) => void;
   toggleSave: (postId: number) => void;
+
   updateFavoriteRealtime: (
     postId: number,
     userId: number,
@@ -20,24 +25,45 @@ type PostStore = {
 };
 
 export const usePostStore = create<PostStore>((set) => ({
-  posts: [],
-  currentUserId: null,
+  communityPosts: [],
+  profilePosts: [],
 
-  setPosts: (posts) =>
+  currentUserId: null,
+  setCurrentUserId: (id) => set({ currentUserId: id }),
+
+  setCommunityPosts: (posts) =>
     set((state) => ({
-      posts: typeof posts === "function" ? posts(state.posts) : posts,
+      communityPosts:
+        typeof posts === "function" ? posts(state.communityPosts) : posts,
     })),
 
-  updateCommentCount: (postId) =>
+  setProfilePosts: (posts) =>
     set((state) => ({
-      posts: state.posts.map((p) =>
+      profilePosts:
+        typeof posts === "function" ? posts(state.profilePosts) : posts,
+    })),
+
+  // ================== COMMON UPDATE ==================
+  updateBoth: (state: any, updater: (p: Post) => Post) => ({
+    communityPosts: state.communityPosts.map(updater),
+    profilePosts: state.profilePosts.map(updater),
+  }),
+
+  // ================== COMMENT ==================
+  updateCommentCount: (postId) =>
+    set((state: any) => ({
+      communityPosts: state.communityPosts.map((p: Post) =>
+        p.id === postId ? { ...p, commentCount: (p.commentCount || 0) + 1 } : p,
+      ),
+      profilePosts: state.profilePosts.map((p: Post) =>
         p.id === postId ? { ...p, commentCount: (p.commentCount || 0) + 1 } : p,
       ),
     })),
 
+  // ================== FAVORITE ==================
   toggleFavorite: (postId) =>
-    set((state) => ({
-      posts: state.posts.map((p) => {
+    set((state: any) => {
+      const update = (p: Post) => {
         if (p.id !== postId) return p;
 
         const isFavorited = !p.isFavorited;
@@ -49,12 +75,18 @@ export const usePostStore = create<PostStore>((set) => ({
             ? (p.favoriteCount || 0) + 1
             : Math.max((p.favoriteCount || 0) - 1, 0),
         };
-      }),
-    })),
+      };
 
+      return {
+        communityPosts: state.communityPosts.map(update),
+        profilePosts: state.profilePosts.map(update),
+      };
+    }),
+
+  // ================== REALTIME ==================
   updateFavoriteRealtime: (postId, userId, action, newCount) =>
-    set((state) => ({
-      posts: state.posts.map((p) => {
+    set((state: any) => {
+      const update = (p: Post) => {
         if (p.id !== postId) return p;
 
         return {
@@ -62,13 +94,23 @@ export const usePostStore = create<PostStore>((set) => ({
           favoriteCount: newCount,
           isFavorited: userId === state.currentUserId ? action : p.isFavorited,
         };
-      }),
-    })),
+      };
 
+      return {
+        communityPosts: state.communityPosts.map(update),
+        profilePosts: state.profilePosts.map(update),
+      };
+    }),
+
+  // ================== SAVE ==================
   toggleSave: (postId) =>
-    set((state) => ({
-      posts: state.posts.map((p) =>
-        p.id === postId ? { ...p, isSaved: !Boolean(p.isSaved) } : p,
-      ),
-    })),
+    set((state: any) => {
+      const update = (p: Post) =>
+        p.id === postId ? { ...p, isSaved: !Boolean(p.isSaved) } : p;
+
+      return {
+        communityPosts: state.communityPosts.map(update),
+        profilePosts: state.profilePosts.map(update),
+      };
+    }),
 }));

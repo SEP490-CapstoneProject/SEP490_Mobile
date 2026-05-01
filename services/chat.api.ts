@@ -196,3 +196,40 @@ export const getConnectionById = async (id: number) => {
     throw err;
   }
 };
+
+export const getRoomSummaryByConnection = async (
+  connectionId: number,
+  userId?: number,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    let url = `${BASE_URL_CHAT}/api/Connection/rooms/summary/by-connection/${connectionId}`;
+    if (userId) {
+      url += `?userId=${userId}`;
+    }
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        accept: "*/*",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy room summary thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
