@@ -9,6 +9,8 @@ class RealtimeService {
   private replyListeners: Function[] = [];
   private favoriteListeners: Function[] = [];
   private notificationListeners: Function[] = [];
+  private systemNotificationListeners: Function[] = [];
+  private communityNotificationListeners: Function[] = [];
 
   public initConnection(accessToken: string) {
     if (this.connection) return;
@@ -45,6 +47,14 @@ class RealtimeService {
     this.connection.on("ReceiveNotification", (event) => {
       this.notificationListeners.forEach((cb) => cb(event));
     });
+
+    this.connection.on("ReceiveSystemNotification", (event) => {
+      this.systemNotificationListeners.forEach((cb) => cb(event));
+    });
+
+    this.connection.on("ReceiveCommunityNotification", (event) => {
+      this.communityNotificationListeners.forEach((cb) => cb(event));
+    });
   }
 
   onComment(cb: Function) {
@@ -61,6 +71,14 @@ class RealtimeService {
 
   onNotification(cb: Function) {
     this.notificationListeners.push(cb);
+  }
+
+  onSystemNotification(cb: Function) {
+    this.systemNotificationListeners.push(cb);
+  }
+
+  onCommunityNotification(cb: Function) {
+    this.communityNotificationListeners.push(cb);
   }
 
   offComment(cb: Function) {
@@ -81,6 +99,16 @@ class RealtimeService {
     );
   }
 
+  offSystemNotification(cb: Function) {
+    this.systemNotificationListeners = this.systemNotificationListeners.filter(
+      (c) => c !== cb,
+    );
+  }
+
+  offCommunityNotification(cb: Function) {
+    this.communityNotificationListeners =
+      this.communityNotificationListeners.filter((c) => c !== cb);
+  }
   async start() {
     if (this.connection?.state === signalR.HubConnectionState.Disconnected) {
       try {

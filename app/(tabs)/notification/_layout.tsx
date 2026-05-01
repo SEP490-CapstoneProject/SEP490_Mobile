@@ -1,12 +1,32 @@
+import { markAllNotificationsAsRead } from "@/services/notification.api";
+import { useNotificationStore } from "@/utils/notificationStore";
+import { showError } from "@/utils/toast";
 import { Slot, usePathname, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function NotificationLayout() {
   const router = useRouter();
   const pathname = usePathname();
+  const {
+    communityNotifications,
+    markAllRead,
+    markOneRead,
+    systemNotifications,
+  } = useNotificationStore();
 
   const isSystem = pathname.includes("system");
   const isCommunity = pathname.includes("community");
+  const unreadCount = communityNotifications.filter((n) => !n.isRead).length;
+  const systemUnreadCount = systemNotifications.filter((n) => !n.isRead).length;
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsAsRead();
+      markAllRead();
+    } catch (err) {
+      showError("Lỗi", "Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -14,8 +34,10 @@ export default function NotificationLayout() {
       <View style={styles.headerContainer}>
         <Text style={styles.name}>Thông báo</Text>
 
-        <Pressable style={styles.bntHeader}>
-          <Text>Đánh dấu tất cả</Text>
+        <Pressable style={styles.bntHeader} onPress={() => handleMarkAllRead()}>
+          <Text style={{ color: "#fff", fontSize: 11 }}>
+            Đánh dấu đọc tất cả
+          </Text>
         </Pressable>
       </View>
 
@@ -28,6 +50,11 @@ export default function NotificationLayout() {
           <Text style={isSystem ? styles.activeText : styles.text}>
             Hệ thống
           </Text>
+          {systemUnreadCount > 0 && (
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadText}>{systemUnreadCount}</Text>
+            </View>
+          )}
         </Pressable>
 
         <Pressable
@@ -37,6 +64,11 @@ export default function NotificationLayout() {
           <Text style={isCommunity ? styles.activeText : styles.text}>
             Cộng đồng
           </Text>
+          {unreadCount > 0 && (
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadText}>{unreadCount}</Text>
+            </View>
+          )}
         </Pressable>
       </View>
 
@@ -68,8 +100,8 @@ const styles = StyleSheet.create({
   },
 
   bntHeader: {
-    backgroundColor: "#E2E8F0",
-    paddingHorizontal: 15,
+    backgroundColor: "#2563EB",
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
   },
@@ -87,6 +119,9 @@ const styles = StyleSheet.create({
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
   },
 
   activeTab: {
@@ -101,6 +136,20 @@ const styles = StyleSheet.create({
 
   activeText: {
     color: "#3B82F6",
+    fontWeight: "600",
+  },
+
+  unreadBadge: {
+    backgroundColor: "red",
+    borderRadius: 17,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+
+  unreadText: {
+    color: "#fff",
+    fontSize: 12,
     fontWeight: "600",
   },
 });

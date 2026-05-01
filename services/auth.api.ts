@@ -150,7 +150,8 @@ export const register = async (
 };
 
 export const logout = async () => {
-  useNotificationStore.getState().setNotifications([]);
+  useNotificationStore.getState().setSystemNotifications([]);
+  useNotificationStore.getState().setCommunityNotifications([]);
   await AsyncStorage.removeItem(TOKEN_KEY);
   await AsyncStorage.removeItem(STORAGE_KEY);
   await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);

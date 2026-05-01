@@ -1,6 +1,6 @@
 import CustomLoading from "@/components/CustomLoading";
 import {
-  fetchNotifications,
+  fetchCommunityNotifications,
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "@/services/notification.api";
@@ -20,23 +20,22 @@ import {
 } from "react-native";
 
 export default function CommunityNotification() {
-  const {
-    notifications,
-    setNotifications,
-    addNotification,
-    markAllRead,
-    markOneRead,
-  } = useNotificationStore();
+  const { communityNotifications, markAllRead, markOneRead } =
+    useNotificationStore();
   const [loading, setLoading] = useState(false);
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
   const [cursor, setCursor] = useState<number | null>(null);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const res = await fetchNotifications();
 
-      setNotifications(res?.items || []);
+      const res = await fetchCommunityNotifications(20);
+
+      useNotificationStore
+        .getState()
+        .setCommunityNotifications(res?.items || []);
+
       setCursor(res?.nextCursor || null);
       setLoading(false);
     };
@@ -47,22 +46,22 @@ export default function CommunityNotification() {
   const loadMore = async () => {
     if (!cursor) return;
 
-    try {
-      const res = await fetchNotifications(cursor);
+    const res = await fetchCommunityNotifications(20);
 
-      const map = new Map();
+    const current = useNotificationStore.getState().communityNotifications;
 
-      [...notifications, ...(res?.items || [])].forEach((item) => {
-        map.set(item.id, item);
-      });
+    const map = new Map();
 
-      setNotifications(Array.from(map.values()));
-      setCursor(res?.nextCursor || null);
-    } catch (err) {
-      console.log(err);
-    }
+    [...current, ...(res?.items || [])].forEach((item) => {
+      map.set(item.id, item);
+    });
+
+    useNotificationStore
+      .getState()
+      .setCommunityNotifications(Array.from(map.values()));
+
+    setCursor(res?.nextCursor || null);
   };
-
   const handlePress = async (item: any) => {
     try {
       await markNotificationAsRead(item.id);
@@ -98,26 +97,12 @@ export default function CommunityNotification() {
         <CustomLoading />
       ) : (
         <View>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>
-              Bạn có <Text style={{ color: "red" }}>{unreadCount}</Text> thông
-              báo chưa đọc
-            </Text>
-
-            <Pressable style={styles.btn} onPress={() => handleMarkAllRead()}>
-              <Text style={{ color: "#fff", fontSize: 11 }}>
-                Đánh dấu đọc tất cả
-              </Text>
-            </Pressable>
-          </View>
-
           {/* LIST */}
           <ScrollView
             showsVerticalScrollIndicator={false}
             onMomentumScrollEnd={loadMore}
-            style={{ marginBottom: 80 }}
           >
-            {notifications.map((item) => (
+            {communityNotifications.map((item) => (
               <Pressable
                 key={item.id}
                 onPress={() => {

@@ -1,111 +1,244 @@
-import {
-    fetchUserNotifications,
-    isOtherNotification,
-    UserNotification,
-} from "@/services/notification.api";
-
+import CustomLoading from "@/components/CustomLoading";
+import { updateConnectionStatus } from "@/services/chat.api";
+import { fetchSystemNotifications } from "@/services/notification.api";
 import { formatTimeAgo } from "@/services/setTime";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useNotificationStore } from "@/utils/notificationStore";
+import { showError, showSuccess } from "@/utils/toast";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    FlatList,
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 export default function SystemNotification() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [notifications, setNotifications] = useState<UserNotification[]>([]);
+  const { systemNotifications } = useNotificationStore();
+
+  const [cursor, setCursor] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchUserNotifications(1).then((data) => {
-      const systemNotifications = data.filter(isOtherNotification);
-      setNotifications(systemNotifications);
-    });
+    const load = async () => {
+      setLoading(true);
+
+      const res = await fetchSystemNotifications(20);
+
+      useNotificationStore.getState().setSystemNotifications(res?.items || []);
+
+      setCursor(res?.nextCursor || null);
+
+      setLoading(false);
+    };
+
+    load();
   }, []);
+
+  const loadMore = async () => {
+    if (!cursor) return;
+
+    const res = await fetchSystemNotifications(20);
+
+    const current = useNotificationStore.getState().systemNotifications;
+
+    const map = new Map<number, any>();
+
+    [...current, ...(res?.items || [])].forEach((item) => {
+      map.set(item.id, item);
+    });
+
+    useNotificationStore
+      .getState()
+      .setSystemNotifications(
+        Array.from(map.values()).sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        ),
+      );
+
+    setCursor(res?.nextCursor || null);
+  };
+
+  const handleAccept = async (item: any) => {
+    try {
+      const res = await updateConnectionStatus(item.objectId, "MATCHED");
+
+      if (res) {
+        showSuccess("Thành công", "Bạn đã chấp nhận lời mời kết nối");
+      } else {
+        showError("Thất bại", "Có lỗi xảy ra");
+      }
+    } catch (err) {
+      showError("Lỗi", "Không thể kết nối");
+    }
+  };
+
+  const handleReject = async (item: any) => {
+    try {
+      const res = await updateConnectionStatus(item.objectId, "STORED");
+
+      if (res) {
+        showSuccess("Thành công", "Bạn đã từ chối lời mời kết nối");
+      } else {
+        showError("Thất bại", "Có lỗi xảy ra");
+      }
+    } catch (err) {
+      showError("Lỗi", "Không thể kết nối");
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/** body */}
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id.toString()}
-        inverted
-        contentContainerStyle={{
-          padding: 16,
-          flexGrow: 1,
-          justifyContent: "flex-end",
-        }}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <View style={styles.notificationItem}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.content}>{item.content}</Text>
-            {item.company && (
-              <View style={styles.companyContainer}>
-                <Image
-                  source={{ uri: item.company.avatar }}
-                  style={styles.avatar}
-                />
-                <Image
-                  source={require("../../../assets/myApp/checklist.png")}
-                  style={styles.avataIcon}
-                />
-                <Text style={styles.nameCompany}>{item.company.name}</Text>
-              </View>
-            )}
-            {item.type === "CONNECTION_ACCEPTED" && (
-              <Pressable
-                style={styles.bntBody}
-                onPress={() => {
-                  router.push({
-                    pathname: `/(tabs)/chat/room`,
-                    params: {
-                      roomId: item.objectId,
-                      name: item.company?.name,
-                      avatar: item.company?.avatar,
-                      role: item.company?.role,
-                    },
-                  } as any);
+      {loading ? (
+        <CustomLoading />
+      ) : (
+        <FlatList
+          data={systemNotifications}
+          keyExtractor={(item) => item.id.toString()}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.2}
+          contentContainerStyle={{ padding: 16 }}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <View style={styles.notificationItem}>
+              <Text style={styles.title}>{item.title}</Text>
+
+              <Text style={styles.content}>{item.content}</Text>
+
+              {item.type === "CONNECTION_REQUEST_ACCEPTED" && (
+                <>
+                  {item.actor && (
+                    <View style={styles.companyContainer}>
+                      <Image
+                        source={{ uri: item.actor.avatar }}
+                        style={styles.avatar}
+                      />
+                      <>
+                        {item.actor.Role === "COMPANY" && (
+                          <Image
+                            source={require("../../../assets/myApp/checklist.png")}
+                            style={styles.avataIcon}
+                          />
+                        )}
+                      </>
+                      <Text style={styles.nameCompany}>{item.actor.name}</Text>
+                    </View>
+                  )}
+
+                  <Pressable
+                    style={styles.bntBody}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/(tabs)/chat/room",
+                        params: {
+                          roomId: item.objectId,
+                          name: item.actor?.name,
+                          avatar: item.actor?.avatar,
+                          role: item.actor?.Role,
+                        },
+                      } as any)
+                    }
+                  >
+                    <Text style={styles.bntText}>Bắt đầu trò chuyện</Text>
+                  </Pressable>
+                </>
+              )}
+
+              {item.type === "CONNECTION_REQUEST_SENT" && (
+                <>
+                  {item.actor && (
+                    <View style={styles.companyContainer}>
+                      <Image
+                        source={{ uri: item.actor.avatar }}
+                        style={styles.avatar}
+                      />
+                      <>
+                        {item.actor.Role === "COMPANY" && (
+                          <Image
+                            source={require("../../../assets/myApp/checklist.png")}
+                            style={styles.avataIcon}
+                          />
+                        )}
+                      </>
+
+                      <Text style={styles.nameCompany}>{item.actor.name}</Text>
+                    </View>
+                  )}
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 10,
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Pressable
+                      style={styles.bntBody}
+                      onPress={() => handleAccept(item)}
+                    >
+                      <Text style={[styles.bntText, { color: "#3B82F6" }]}>
+                        Đồng ý
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={styles.bntBody}
+                      onPress={() => handleReject(item)}
+                    >
+                      <Text style={[styles.bntText, { color: "#EF4444" }]}>
+                        Từ chối
+                      </Text>
+                    </Pressable>
+                  </View>
+                </>
+              )}
+
+              {item.type === "JOB_INVITATION" && (
+                <Pressable
+                  style={styles.bntBody}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(tabs)/home/detail",
+                      params: { postId: item.objectId },
+                    })
+                  }
+                >
+                  <Text style={styles.bntText}>Xem công việc</Text>
+                </Pressable>
+              )}
+
+              {item.type === "PORTFOLIO_APPROVED" && (
+                <Pressable
+                  style={styles.bntBody}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(tabs)/profile/viewPortfolio",
+                      params: { postId: item.objectId },
+                    })
+                  }
+                >
+                  <Text style={styles.bntText}>Xem hồ sơ</Text>
+                </Pressable>
+              )}
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  gap: 10,
                 }}
               >
-                <Text style={styles.bntText}>Bắt đầu trò chuyện</Text>
-              </Pressable>
-            )}
-            {item.type === "JOB_INVITATION" && (
-              <Pressable
-                style={styles.bntBody}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(tabs)/home/detail",
-                    params: { postId: item.objectId },
-                  })
-                }
-              >
-                <Text style={styles.bntText}>Xem công việc</Text>
-              </Pressable>
-            )}
-            {item.type === "PORTFOLIO_APPROVED" && (
-              <Pressable
-                style={styles.bntBody}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(tabs)/profile/viewPortfolio",
-                    params: { postId: item.objectId },
-                  })
-                }
-              >
-                <Text style={styles.bntText}>Xem hồ sơ</Text>
-              </Pressable>
-            )}
-            <Text style={styles.time}>{formatTimeAgo(item.createdAt)}</Text>
-          </View>
-        )}
-      />
+                <Text style={styles.time}>{formatTimeAgo(item.createdAt)}</Text>
+                {!item.isRead && <View style={styles.dot} />}
+              </View>
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -135,8 +268,6 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 12,
     color: "#94A3B8",
-    marginTop: 15,
-    textAlign: "right",
   },
   avatar: {
     width: 50,
@@ -172,6 +303,11 @@ const styles = StyleSheet.create({
   },
   bntText: {
     fontSize: 15,
-    color: "#3B82F6",
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#2563EB",
   },
 });

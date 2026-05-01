@@ -1,3 +1,4 @@
+import { useLoading } from "@/components/LoadingContext";
 import { getAuth } from "@/services/auth.api";
 import {
   createEmployeeProfile,
@@ -24,6 +25,7 @@ export default function SetupProfileUser() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const { showLoading, hideLoading } = useLoading();
 
   const parsedUser = user ? JSON.parse(user as string) : null;
   useEffect(() => {
@@ -51,6 +53,7 @@ export default function SetupProfileUser() {
 
   const handleSave = async () => {
     try {
+      showLoading();
       await createEmployeeProfile({
         name,
         phone,
@@ -59,9 +62,12 @@ export default function SetupProfileUser() {
       });
 
       await fetchEmployeeProfile();
+      hideLoading();
       router.replace("/(tabs)/home");
     } catch (err: any) {
       showError("Lỗi", err.message || "Tạo hồ sơ thất bại");
+    } finally {
+      hideLoading();
     }
   };
 

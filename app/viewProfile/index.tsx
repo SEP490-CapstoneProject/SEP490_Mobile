@@ -280,4 +280,34 @@ const styles = StyleSheet.create({
     bottom: 17,
     left: 80,
   },
+  iconContainer: {
+    position: "absolute",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    zIndex: 10,
+    top: 30,
+  },
+  backgroundIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  icon: {
+    width: 20,
+    height: 20,
+  },
+  iconRight: {
+    right: 10,
+    top: 10,
+    flexDirection: "row",
+    gap: 25,
+  },
+  iconLeft: {
+    left: 10,
+    top: 10,
+  },
 });

@@ -26,7 +26,7 @@ import {
 
 export default function CareCommunityScreen() {
   const router = useRouter();
-  const { posts, setPosts, toggleSave } = usePostStore();
+  const { profilePosts, setProfilePosts, toggleSave } = usePostStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { updateFavoriteRealtime } = usePostStore();
   const { toggleFavorite } = usePostStore();
@@ -36,7 +36,7 @@ export default function CareCommunityScreen() {
       setIsLoading(true);
       try {
         const fetchedPosts = await fetchSavedPosts();
-        setPosts(fetchedPosts);
+        setProfilePosts(fetchedPosts);
       } catch (error) {
         console.error("Error fetching community posts:", error);
       }
@@ -46,7 +46,7 @@ export default function CareCommunityScreen() {
   }, []);
 
   const handleSave = async (postId: number) => {
-    const post = posts.find((p) => p.id === postId);
+    const post = profilePosts.find((p) => p.id === postId);
     if (!post) return;
 
     const wasSaved = post.isSaved;
@@ -86,7 +86,7 @@ export default function CareCommunityScreen() {
     toggleFavorite(postId);
 
     try {
-      if (!posts.find((p) => p.id === postId)?.isFavorited) {
+      if (!profilePosts.find((p) => p.id === postId)?.isFavorited) {
         await likePost(postId);
       } else {
         await unlikePost(postId);
@@ -103,7 +103,7 @@ export default function CareCommunityScreen() {
         <CustomLoading />
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          {posts.map((post) => (
+          {profilePosts.map((post) => (
             <View key={post.id} style={styles.contentContainer}>
               {/** header content **/}
               {post.author && (

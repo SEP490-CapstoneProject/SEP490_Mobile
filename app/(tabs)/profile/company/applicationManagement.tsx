@@ -7,6 +7,7 @@ import { getAuth } from "@/services/auth.api";
 import {
   createConnection,
   getConnectionStatus,
+  getRoomSummaryByConnection,
   updateConnectionStatus,
 } from "@/services/chat.api";
 import { formatTimeAgo } from "@/services/setTime";
@@ -121,10 +122,11 @@ export default function ApplicationManagement() {
       const currentUserId = Number(currentUser?.id);
 
       const statusRes = await getConnectionStatus(currentUserId, targetUserId);
+      console.log("statusRes", statusRes);
 
-      let finalConnectionId = statusRes?.connectionId;
+      let finalConnectionId = 0;
 
-      if (!statusRes?.status || statusRes.status === "NONE") {
+      if (!statusRes?.status || statusRes.status === "null") {
         const createRes = await createConnection({
           userIdFrom: currentUserId,
           userIdTo: targetUserId,
@@ -134,12 +136,28 @@ export default function ApplicationManagement() {
         finalConnectionId = createRes?.id;
 
         await updateConnectionStatus(finalConnectionId, "MATCHED");
+        console.log("createRes", createRes);
       } else if (statusRes.status === "PENDING") {
         await updateConnectionStatus(statusRes.connectionId, "MATCHED");
         finalConnectionId = statusRes.connectionId;
+        console.log("update to MATCHED", statusRes);
       }
-
-      router.push("/(tabs)/chat");
+      console.log("finalConnectionId", finalConnectionId, currentUserId);
+      const roomSummary = await getRoomSummaryByConnection(
+        finalConnectionId,
+        currentUserId,
+      );
+      console.log("roomSummary", roomSummary);
+      router.push({
+        pathname: ` /(tabs)/chat/${roomSummary.roomId}`,
+        params: {
+          roomId: roomSummary.roomId,
+          name: roomSummary.name,
+          avatar: roomSummary.avatar,
+          coverImage: roomSummary.coverImage,
+          role: roomSummary.role,
+        },
+      } as any);
     } catch (err) {
       showError("handleStartChat error", err as string);
     }
