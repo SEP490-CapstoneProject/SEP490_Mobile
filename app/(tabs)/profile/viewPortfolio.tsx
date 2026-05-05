@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import CustomLoading from "../../../components/CustomLoading";
-import PortfolioRenderer from "../../../components/portfolio/render/portfolioRenderer";
+import PortfolioRenderer from "../../../components/portfolio/render/PortfolioRenderer";
 
 export default function ViewPortfolio() {
   const [loading, setLoading] = useState(false);

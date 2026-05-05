@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useLoading } from "@/components/LoadingContext";
-import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+
+import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import { applyJob } from "@/services/aplication.api";
 import { fetchPortfolioMe } from "@/services/portfolio.api";
 import { showError, showSuccess } from "@/utils/toast";

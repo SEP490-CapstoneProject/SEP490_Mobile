@@ -1,4 +1,4 @@
-import BlockRenderer from "./blockRenderer";
+import BlockRenderer from "./BlockRenderer";
 
 type Portfolio = {
   blocks: any[];

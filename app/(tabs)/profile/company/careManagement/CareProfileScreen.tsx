@@ -1,6 +1,6 @@
 import CustomLoading from "@/components/CustomLoading";
 import FollowModal from "@/components/FollowModal";
-import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import {
   fetchMyFollows,
   getFollowCategories,

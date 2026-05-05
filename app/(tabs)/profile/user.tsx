@@ -1,5 +1,5 @@
 import CardButton from "@/components/CardButton";
-import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import ProfilePage from "@/components/profile/ProfilePage";
 import { logout } from "@/services/auth.api";
 import {

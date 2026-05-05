@@ -1,4 +1,4 @@
-import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import { getAuth } from "@/services/auth.api";
 import {
   fetchPortfolioMe,

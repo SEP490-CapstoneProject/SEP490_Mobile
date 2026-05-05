@@ -1,4 +1,4 @@
-import PortfolioRenderer from "@/components/portfolio/render/portfolioRenderer";
+import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
