@@ -1,6 +1,7 @@
 import { useLoading } from "@/components/LoadingContext";
-import { getAuth } from "@/services/auth.api";
+
 import { updateEmployeeProfile } from "@/services/profile.api";
+import { getAuth } from "@/services/storage";
 import { showError, showSuccess } from "@/utils/toast";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";

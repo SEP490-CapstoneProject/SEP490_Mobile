@@ -2,7 +2,6 @@ import CustomLoading from "@/components/CustomLoading";
 import FollowModal from "@/components/FollowModal";
 import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import RatingModal from "@/components/RatingModal";
-import { getAuth } from "@/services/auth.api";
 
 import {
   createCompliment,
@@ -12,6 +11,7 @@ import {
   updateCompliment,
 } from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
+import { getAuth } from "@/services/storage";
 import { showError } from "@/utils/toast";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";

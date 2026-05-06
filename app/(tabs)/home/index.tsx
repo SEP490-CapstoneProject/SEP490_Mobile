@@ -1,4 +1,4 @@
-import { getAuth } from "@/services/auth.api";
+import { getAuth } from "@/services/storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";

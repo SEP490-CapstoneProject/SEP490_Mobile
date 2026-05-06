@@ -1,6 +1,7 @@
 import CustomLoading from "@/components/CustomLoading";
-import { getAuth } from "@/services/auth.api";
+
 import { fetchCompanyPostsByCompany } from "@/services/companyPost.api";
+import { getAuth } from "@/services/storage";
 
 import { ResizeMode, Video } from "expo-av";
 import { useRouter } from "expo-router";

@@ -1,4 +1,5 @@
-import { getToken, isTokenExpired, refreshToken } from "./auth.api";
+import { isTokenExpired, refreshToken } from "./auth.api";
+import { getToken } from "./storage";
 const BASE_URL_CHAT = process.env.EXPO_PUBLIC_CHAT_API;
 
 export const fetchRoomSummary = async (userId: number) => {

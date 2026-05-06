@@ -1,9 +1,4 @@
-import {
-  getAuth,
-  getToken,
-  isTokenExpired,
-  refreshToken,
-} from "@/services/auth.api";
+import { isTokenExpired, refreshToken } from "@/services/auth.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
 import {
   fetchCommunityNotifications,
@@ -14,6 +9,7 @@ import {
   fetchEmployeeProfile,
 } from "@/services/profile.api";
 import { realtimeService } from "@/services/realtimeService";
+import { getAuth, getToken } from "@/services/storage";
 import { fetchMySubscription } from "@/services/subscription.api";
 import { useNotificationStore } from "@/utils/notificationStore";
 import { Notification } from "@/utils/toast";

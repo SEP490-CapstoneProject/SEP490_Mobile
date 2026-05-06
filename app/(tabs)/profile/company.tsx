@@ -1,8 +1,7 @@
 import CardButton from "@/components/CardButton";
 import ProfilePage from "@/components/profile/ProfilePage";
 import { logout } from "@/services/auth.api";
-import { getProfile } from "@/services/profile.api";
-import { getPlan } from "@/services/subscription.api";
+import { getPlan, getProfile } from "@/services/storage";
 
 import { useRouter } from "expo-router";
 import { Crown, Zap } from "lucide-react-native";

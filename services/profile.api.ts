@@ -1,19 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getAuth, getToken, isTokenExpired, refreshToken } from "./auth.api";
+import { isTokenExpired, refreshToken } from "./auth.api";
+import { getAuth, getToken, saveProfile } from "./storage";
 const BASE_URL_USER = process.env.EXPO_PUBLIC_USER_API;
-
-export const saveProfile = async (profile: any) => {
-  await AsyncStorage.setItem("profile", JSON.stringify(profile));
-};
-
-export const getProfile = async () => {
-  const raw = await AsyncStorage.getItem("profile");
-  return raw ? JSON.parse(raw) : null;
-};
-
-export const removeProfile = async () => {
-  await AsyncStorage.removeItem("profile");
-};
 
 export const fetchEmployeeProfile = async () => {
   let token = await getToken();

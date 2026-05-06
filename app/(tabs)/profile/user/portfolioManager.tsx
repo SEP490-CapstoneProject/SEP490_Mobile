@@ -1,10 +1,11 @@
 import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
-import { getAuth } from "@/services/auth.api";
+
 import {
   fetchPortfolioMe,
   toggleMainPortfolio,
 } from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
+import { getAuth } from "@/services/storage";
 import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
