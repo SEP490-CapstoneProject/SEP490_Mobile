@@ -1,23 +1,8 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getToken, isTokenExpired, refreshToken } from "./auth.api";
+import { isTokenExpired, refreshToken } from "./auth.api";
+import { getToken, savePlan } from "./storage";
 
 const BASE_URL_SUBSCRIPTION = process.env.EXPO_PUBLIC_SUBSCRIPTION_API;
 const BASE_URL_PAYMENT = process.env.EXPO_PUBLIC_PAYMENT_API;
-
-const KEY = "user_plan";
-
-export const savePlan = async (plan: any) => {
-  await AsyncStorage.setItem(KEY, JSON.stringify(plan));
-};
-
-export const getPlan = async () => {
-  const data = await AsyncStorage.getItem(KEY);
-  return data ? JSON.parse(data) : null;
-};
-
-export const clearPlan = async () => {
-  await AsyncStorage.removeItem(KEY);
-};
 
 export const fetchPlans = async () => {
   try {

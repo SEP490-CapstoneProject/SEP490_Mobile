@@ -2,10 +2,9 @@ import { useLoading } from "@/components/LoadingContext";
 import { createCompanyPost } from "@/services/companyPost.api";
 import { showError, showSuccess } from "@/utils/toast";
 import { Picker } from "@react-native-picker/picker";
-import { ResizeMode, Video } from "expo-av";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   Image,
   Pressable,
@@ -19,7 +18,6 @@ import {
 export default function PostCreate() {
   const router = useRouter();
   const [media, setMedia] = useState<any>(null);
-  const videoRef = useRef<Video>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [description, setDescription] = useState("");
   const [obligatory, setObligatory] = useState("");
@@ -125,18 +123,7 @@ export default function PostCreate() {
                 <Image
                   source={{ uri: media.uri }}
                   style={styles.media}
-                  resizeMode={ResizeMode.CONTAIN}
-                />
-              )}
-
-              {media.type === "video" && (
-                <Video
-                  ref={videoRef}
-                  source={{ uri: media.uri }}
-                  style={styles.media}
-                  resizeMode={ResizeMode.CONTAIN}
-                  useNativeControls
-                  isLooping
+                  resizeMode="contain"
                 />
               )}
             </View>

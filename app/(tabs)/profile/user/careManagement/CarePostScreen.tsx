@@ -1,10 +1,9 @@
 import CustomLoading from "@/components/CustomLoading";
 import { fetchSavedJobs } from "@/services/careManagement.api";
 import { shareContent } from "@/services/share";
-import { ResizeMode, Video } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -19,7 +18,7 @@ export default function CarePostScreen() {
   const [jobs, setJobs] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(false);
-  const videoRefs = useRef<(Video | null)[]>([]);
+
   const [activeIndex, setActiveIndex] = useState(0);
   useEffect(() => {
     setLoading(true);
@@ -32,42 +31,6 @@ export default function CarePostScreen() {
     loadSaved();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      const playVideo = async () => {
-        const video = videoRefs.current[activeIndex];
-        if (!video) return;
-
-        setTimeout(async () => {
-          try {
-            const status = await video.getStatusAsync();
-
-            if (!status?.isLoaded) return;
-
-            await video.setIsMutedAsync(false);
-            await video.playAsync();
-          } catch {}
-        }, 300);
-      };
-
-      playVideo();
-
-      return () => {
-        videoRefs.current.forEach(async (v) => {
-          if (!v) return;
-
-          try {
-            const status = await v.getStatusAsync();
-
-            if (!status?.isLoaded) return;
-
-            await v.pauseAsync();
-            await v.setIsMutedAsync(true);
-          } catch {}
-        });
-      };
-    }, [activeIndex]),
-  );
   return (
     <View style={styles.container}>
       {loading ? (
@@ -83,16 +46,7 @@ export default function CarePostScreen() {
                   resizeMode="cover"
                 />
               ) : (
-                <Video
-                  ref={(ref) => {
-                    videoRefs.current[index] = ref;
-                  }}
-                  source={{ uri: job.mediaUrl }}
-                  style={styles.media}
-                  resizeMode={ResizeMode.COVER}
-                  isLooping
-                  isMuted={index !== activeIndex}
-                />
+                <></>
               )}
               <LinearGradient
                 colors={[

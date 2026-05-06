@@ -1,9 +1,10 @@
 import { useLoading } from "@/components/LoadingContext";
-import { getAuth } from "@/services/auth.api";
+
 import {
   createCompanyProfile,
   fetchCompanyProfile,
 } from "@/services/profile.api";
+import { getAuth } from "@/services/storage";
 import { showError } from "@/utils/toast";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";

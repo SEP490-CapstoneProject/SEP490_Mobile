@@ -1,4 +1,5 @@
-import { getToken, isTokenExpired, refreshToken } from "./auth.api";
+import { isTokenExpired, refreshToken } from "./auth.api";
+import { getToken } from "./storage";
 
 const BASE_URL_PORTFOLIO = process.env.EXPO_PUBLIC_PORTFOLIO_API;
 

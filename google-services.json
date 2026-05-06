@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "651997660040",
+    "project_id": "com-skillsnap-app",
+    "storage_bucket": "com-skillsnap-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651997660040:android:07a9838bc9c4554e77b03d",
+        "android_client_info": {
+          "package_name": "com.skillsnap.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBctjYg6dMjqO2Tz-Y5JOeObAnyBp8QKC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

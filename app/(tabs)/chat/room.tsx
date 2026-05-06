@@ -33,7 +33,6 @@ export default function ChatRoom() {
   useEffect(() => {
     const init = async () => {
       const token = await getToken();
-
       chatRealtimeService.initConnection(token as string);
       await chatRealtimeService.start();
 

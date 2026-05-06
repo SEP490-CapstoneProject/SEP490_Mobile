@@ -1,4 +1,5 @@
-import { getToken, isTokenExpired, refreshToken } from "@/services/auth.api";
+import { isTokenExpired, refreshToken } from "@/services/auth.api";
+import { getToken } from "./storage";
 
 const BASE_URL_COMMUNITY = process.env.EXPO_PUBLIC_COMMUNITY_API;
 

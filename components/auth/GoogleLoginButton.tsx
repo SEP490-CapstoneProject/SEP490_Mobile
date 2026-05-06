@@ -1,32 +1,38 @@
-import * as Google from "expo-auth-session/providers/google";
-import * as WebBrowser from "expo-web-browser";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useEffect } from "react";
 import { Image, Pressable, Text } from "react-native";
 
-WebBrowser.maybeCompleteAuthSession();
+GoogleSignin.configure({
+  webClientId:
+    "651997660040-n8d4fna1h6cj13cjemfhmjcr8h7uujfb.apps.googleusercontent.com",
+});
 
 export default function GoogleLoginButton() {
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId:
-      "806009400835-3qemb016u36hrnu3sm4u57u8aufbmcmg.apps.googleusercontent.com",
-    //     androidClientId:
-    // "ANDROID_CLIENT_ID.apps.googleusercontent.com",
-  });
-
   useEffect(() => {
-    if (response?.type === "success") {
-      console.log("Google Token:", response.authentication?.accessToken);
+    const init = async () => {
+      await GoogleSignin.hasPlayServices();
+    };
+
+    init();
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      const userInfo = await GoogleSignin.signIn();
+
+      console.log("GOOGLE USER:", userInfo);
+    } catch (error) {
+      console.log("GOOGLE LOGIN ERROR:", error);
     }
-  }, [response]);
+  };
 
   return (
     <Pressable
-      disabled={!request}
-      onPress={() => promptAsync()}
+      onPress={handleGoogleLogin}
       style={{
-            flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
         backgroundColor: "#fff",
         borderRadius: 10,
         padding: 7,
@@ -37,8 +43,13 @@ export default function GoogleLoginButton() {
     >
       <Image
         source={require("../../assets/myApp/google.png")}
-        style={{ width: 30, height: 30, marginRight: 10 }}
+        style={{
+          width: 30,
+          height: 30,
+          marginRight: 10,
+        }}
       />
+
       <Text style={{ fontWeight: "600" }}>Đăng nhập với Google</Text>
     </Pressable>
   );

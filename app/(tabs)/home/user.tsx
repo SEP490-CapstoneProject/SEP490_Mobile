@@ -3,10 +3,9 @@ import { fetchJobs, saveJob, unSaveJob } from "@/services/companyPost.api";
 
 import { shareContent } from "@/services/share";
 import { useJobStore } from "@/utils/jobPostStore";
-import { ResizeMode, Video } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -27,8 +26,6 @@ export default function Home() {
   const setJobs = useJobStore((s) => s.setJobs);
   const toggleSave = useJobStore((s) => s.toggleSave);
 
-  const videoRefs = useRef<(Video | null)[]>([]);
-
   // FETCH DATA
 
   useEffect(() => {
@@ -46,44 +43,6 @@ export default function Home() {
 
     loadJobs();
   }, []);
-
-  // PLAY / PAUSE VIDEO
-  useFocusEffect(
-    useCallback(() => {
-      const playVideo = async () => {
-        const video = videoRefs.current[activeIndex];
-        if (!video) return;
-
-        setTimeout(async () => {
-          try {
-            const status = await video.getStatusAsync();
-
-            if (!status?.isLoaded) return;
-
-            await video.setIsMutedAsync(false);
-            await video.playAsync();
-          } catch {}
-        }, 300);
-      };
-
-      playVideo();
-
-      return () => {
-        videoRefs.current.forEach(async (v) => {
-          if (!v) return;
-
-          try {
-            const status = await v.getStatusAsync();
-
-            if (!status?.isLoaded) return;
-
-            await v.pauseAsync();
-            await v.setIsMutedAsync(true);
-          } catch {}
-        });
-      };
-    }, [activeIndex]),
-  );
 
   // SCROLL END → SET INDEX
   const handleScroll = (event: any) => {
@@ -125,16 +84,7 @@ export default function Home() {
                   resizeMode="cover"
                 />
               ) : (
-                <Video
-                  ref={(ref) => {
-                    videoRefs.current[index] = ref;
-                  }}
-                  source={{ uri: job.mediaUrl }}
-                  style={styles.media}
-                  resizeMode={ResizeMode.COVER}
-                  isLooping
-                  isMuted={index !== activeIndex}
-                />
+                <></>
               )}
               <LinearGradient
                 colors={[

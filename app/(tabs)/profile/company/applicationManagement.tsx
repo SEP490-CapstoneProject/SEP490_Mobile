@@ -3,7 +3,7 @@ import {
   fetchCompanyApplications,
   updateApplicationStatus,
 } from "@/services/aplication.api";
-import { getAuth } from "@/services/auth.api";
+
 import {
   createConnection,
   getConnectionStatus,
@@ -11,6 +11,7 @@ import {
   updateConnectionStatus,
 } from "@/services/chat.api";
 import { formatTimeAgo } from "@/services/setTime";
+import { getAuth } from "@/services/storage";
 import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";

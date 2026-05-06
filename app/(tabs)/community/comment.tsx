@@ -1,6 +1,6 @@
 import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
-import { getToken } from "@/services/auth.api";
+
 import {
   createComment,
   fetchPostComments,
@@ -9,6 +9,7 @@ import {
 } from "@/services/Comunity.api";
 import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
+import { getToken } from "@/services/storage";
 import { usePostStore } from "@/utils/postStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";

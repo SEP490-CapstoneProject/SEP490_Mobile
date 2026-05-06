@@ -6,9 +6,8 @@ import {
   fetchMainPortfolio,
   togglePublicPortfolio,
 } from "@/services/portfolio.api";
+import { getPlan, getProfile } from "@/services/storage";
 
-import { getProfile } from "@/services/profile.api";
-import { getPlan } from "@/services/subscription.api";
 import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
 import { Crown, Zap } from "lucide-react-native";

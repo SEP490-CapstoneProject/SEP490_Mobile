@@ -1,9 +1,10 @@
 import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
-import { getAuth } from "@/services/auth.api";
+
 import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
+import { getAuth } from "@/services/storage";
 import { usePostStore } from "@/utils/postStore";
 import { showError, showSuccess } from "@/utils/toast";
 import { useRouter } from "expo-router";

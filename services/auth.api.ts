@@ -1,51 +1,22 @@
 import { useNotificationStore } from "@/utils/notificationStore";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode as atob } from "base-64";
 import { chatRealtimeService } from "./chatRealtimeService";
-import { removeProfile } from "./profile.api";
+
 import { realtimeService } from "./realtimeService";
-import { clearPlan } from "./subscription.api";
+import {
+  clearPlan,
+  getRefreshToken,
+  getToken,
+  removeAuth,
+  removeProfile,
+  removeRefreshToken,
+  removeToken,
+  saveAuth,
+  saveRefreshToken,
+  saveToken,
+} from "./storage";
+
 const BASE_URL = process.env.EXPO_PUBLIC_AUTH_API;
-
-const TOKEN_KEY = "token";
-const REFRESH_TOKEN_KEY = "refreshToken";
-const STORAGE_KEY = "auth";
-
-export const saveToken = async (token: string) => {
-  await AsyncStorage.setItem(TOKEN_KEY, token);
-};
-
-export const getToken = async (): Promise<string | null> => {
-  return await AsyncStorage.getItem(TOKEN_KEY);
-};
-
-export const removeToken = async () => {
-  await AsyncStorage.removeItem(TOKEN_KEY);
-};
-
-export const saveRefreshToken = async (refreshToken: string) => {
-  await AsyncStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-};
-
-export const getRefreshToken = async (): Promise<string | null> => {
-  return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
-};
-export const removeRefreshToken = async () => {
-  await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
-};
-
-export const saveAuth = async (user: any) => {
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-};
-
-export const getAuth = async () => {
-  const raw = await AsyncStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : null;
-};
-
-export const removeAuth = async () => {
-  await AsyncStorage.removeItem(STORAGE_KEY);
-};
 
 export const isTokenExpired = (token: string) => {
   try {
@@ -152,9 +123,9 @@ export const register = async (
 export const logout = async () => {
   useNotificationStore.getState().setSystemNotifications([]);
   useNotificationStore.getState().setCommunityNotifications([]);
-  await AsyncStorage.removeItem(TOKEN_KEY);
-  await AsyncStorage.removeItem(STORAGE_KEY);
-  await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+  await removeToken();
+  await removeAuth();
+  await removeRefreshToken();
   await removeProfile();
   await clearPlan();
   chatRealtimeService.stop();

@@ -1,7 +1,8 @@
 import CustomLoading from "@/components/CustomLoading";
-import { getAuth, getToken } from "@/services/auth.api";
+
 import { fetchRoomSummary } from "@/services/chat.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
+import { getAuth, getToken } from "@/services/storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {

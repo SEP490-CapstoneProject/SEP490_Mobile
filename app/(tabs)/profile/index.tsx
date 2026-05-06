@@ -1,4 +1,4 @@
-import { getAuth } from "@/services/auth.api";
+import { getAuth } from "@/services/storage";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 
