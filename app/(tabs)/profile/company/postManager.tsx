@@ -2,8 +2,6 @@ import CustomLoading from "@/components/CustomLoading";
 
 import { fetchCompanyPostsByCompany } from "@/services/companyPost.api";
 import { getAuth } from "@/services/storage";
-
-import { ResizeMode, Video } from "expo-av";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -133,14 +131,7 @@ export default function PostManager() {
                       style={styles.media}
                     />
                   ) : (
-                    <Video
-                      source={{ uri: post.mediaUrl }}
-                      style={styles.media}
-                      resizeMode={ResizeMode.COVER}
-                      shouldPlay={false}
-                      isMuted
-                      useNativeControls={false}
-                    />
+                    <></>
                   )}
                   <View style={styles.overlay} />
                   <Text style={styles.titleCart}>{post.position}</Text>

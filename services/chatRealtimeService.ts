@@ -6,7 +6,7 @@ class ChatRealtimeService {
   private connection: signalR.HubConnection | null = null;
 
   private receiveMessageListeners: Function[] = [];
-  private newMessageNotificationListeners: Function[] = [];
+
   private messagesReadListeners: Function[] = [];
   private reconnectedListeners: Function[] = [];
   private roomUpdatedListeners: Function[] = [];
@@ -34,10 +34,6 @@ class ChatRealtimeService {
       this.receiveMessageListeners.forEach((cb) => cb(event));
     });
 
-    this.connection.on("newmessagenotification", (msg) => {
-      this.newMessageNotificationListeners.forEach((cb) => cb(msg));
-    });
-
     this.connection.on("MessagesRead", (data) => {
       this.messagesReadListeners.forEach((cb) => cb(data));
     });
@@ -60,14 +56,7 @@ class ChatRealtimeService {
       (c) => c !== cb,
     );
   }
-  onNewMessageNotification(cb: Function) {
-    this.newMessageNotificationListeners.push(cb);
-  }
 
-  offNewMessageNotification(cb: Function) {
-    this.newMessageNotificationListeners =
-      this.newMessageNotificationListeners.filter((c) => c !== cb);
-  }
   onMessagesRead(cb: Function) {
     this.messagesReadListeners.push(cb);
   }

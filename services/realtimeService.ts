@@ -11,6 +11,7 @@ class RealtimeService {
   private notificationListeners: Function[] = [];
   private systemNotificationListeners: Function[] = [];
   private communityNotificationListeners: Function[] = [];
+  private newMessageNotificationListeners: Function[] = [];
 
   public initConnection(accessToken: string) {
     if (this.connection) return;
@@ -54,6 +55,11 @@ class RealtimeService {
 
     this.connection.on("ReceiveCommunityNotification", (event) => {
       this.communityNotificationListeners.forEach((cb) => cb(event));
+    });
+
+    this.connection.on("newmessagenotification", (msg) => {
+      console.log("Received new message notification:", msg);
+      this.newMessageNotificationListeners.forEach((cb) => cb(msg));
     });
   }
 
@@ -109,6 +115,16 @@ class RealtimeService {
     this.communityNotificationListeners =
       this.communityNotificationListeners.filter((c) => c !== cb);
   }
+
+  onNewMessageNotification(cb: Function) {
+    this.newMessageNotificationListeners.push(cb);
+  }
+
+  offNewMessageNotification(cb: Function) {
+    this.newMessageNotificationListeners =
+      this.newMessageNotificationListeners.filter((c) => c !== cb);
+  }
+
   async start() {
     if (this.connection?.state === signalR.HubConnectionState.Disconnected) {
       try {

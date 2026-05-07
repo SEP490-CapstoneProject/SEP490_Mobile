@@ -18,9 +18,10 @@ export default function GoogleLoginButton() {
 
   const handleGoogleLogin = async () => {
     try {
+      await GoogleSignin.signOut();
       const userInfo = await GoogleSignin.signIn();
 
-      console.log("GOOGLE USER:", userInfo);
+      console.log("GOOGLE USER:", userInfo.data?.user);
     } catch (error) {
       console.log("GOOGLE LOGIN ERROR:", error);
     }

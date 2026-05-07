@@ -37,7 +37,7 @@ export default function RootLayout() {
     const handler = async (msg: any) => {
       console.log("📩 RECEIVED:", msg);
 
-      const key = msg.connectionId || msg.lastAt;
+      const key = msg.lastAt;
 
       if (processed.has(key)) return;
       processed.add(key);
