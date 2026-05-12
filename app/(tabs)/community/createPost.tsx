@@ -83,6 +83,7 @@ export default function createPost() {
       >
         <TextInput
           placeholder="Bạn đang nghĩ gì? Chia sẻ cùng cộng đồng..."
+          placeholderTextColor="black"
           multiline
           textAlignVertical="top"
           style={styles.postInput}

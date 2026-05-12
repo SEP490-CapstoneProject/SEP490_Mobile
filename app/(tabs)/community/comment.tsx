@@ -5,7 +5,11 @@ import {
   createComment,
   fetchPostComments,
   fetchPostDetail,
+  likePost,
   replyComment,
+  savePost,
+  unlikePost,
+  unsavePost,
 } from "@/services/Comunity.api";
 import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
@@ -40,6 +44,8 @@ export default function Comment() {
   const inputRef = useRef<TextInput>(null);
   const updateCommentCount = usePostStore((s) => s.updateCommentCount);
   const [loading, setLoading] = useState(false);
+  const { communityPosts, setCommunityPosts, toggleSave } = usePostStore();
+  const { toggleFavorite } = usePostStore();
 
   useEffect(() => {
     setLoading(true);
@@ -119,22 +125,32 @@ export default function Comment() {
       const handleReply = (data: any) => {
         if (String(data.postId) !== id) return;
 
+        setOpenReplies((prev) => ({
+          ...prev,
+          [Number(data.parentCommentId)]: true,
+        }));
+
         setCommentsData((prev: any) => {
           if (!prev) return prev;
 
           return {
             ...prev,
             comments: prev.comments.map((c: any) => {
-              if (Number(c.id) !== Number(data.parentCommentId)) return c;
+              const parentId = Number(data.parentCommentId);
 
-              if (c.replies.some((r: any) => r.id === data.commentId)) {
+              if (!parentId) return c;
+
+              if (Number(c.id) !== parentId) return c;
+
+              const replyId = Number(data.commentId);
+
+              if (c.replies.some((r: any) => Number(r.id) === replyId)) {
                 return c;
               }
 
               return {
                 ...c,
                 replies: [
-                  ...c.replies,
                   {
                     id: data.commentId,
                     content: data.content,
@@ -155,6 +171,7 @@ export default function Comment() {
                         "User",
                     },
                   },
+                  ...(c.replies || []),
                 ],
               };
             }),
@@ -188,15 +205,92 @@ export default function Comment() {
     try {
       if (replyingTo) {
         await replyComment(replyingTo.commentId, input, replyingTo.userId);
+
+        const updated = await fetchPostComments(id);
+
+        setCommentsData(updated);
+
+        setOpenReplies((prev) => ({
+          ...prev,
+          [replyingTo.commentId]: true,
+        }));
       } else {
         await createComment(id, input);
+
         updateCommentCount(id);
+
+        const updated = await fetchPostComments(id);
+
+        setCommentsData(updated);
       }
 
       setInput("");
       setReplyingTo(null);
     } catch (err) {
       console.error("Send comment error:", err);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!post) return;
+
+    const oldFavorited = post.isFavorited;
+    const oldCount = post.favoriteCount;
+    setPost((prev: any) => ({
+      ...prev,
+      isFavorited: !oldFavorited,
+      favoriteCount: oldFavorited
+        ? Math.max((prev.favoriteCount || 0) - 1, 0)
+        : (prev.favoriteCount || 0) + 1,
+    }));
+    toggleFavorite(post.id);
+
+    try {
+      if (oldFavorited) {
+        await unlikePost(post.id);
+      } else {
+        await likePost(post.id);
+      }
+    } catch (err) {
+      setPost((prev: any) => ({
+        ...prev,
+        isFavorited: oldFavorited,
+        favoriteCount: oldCount,
+      }));
+
+      toggleFavorite(post.id);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!post) return;
+
+    const oldSaved = post.isSaved;
+
+    // local detail
+    setPost((prev: any) => ({
+      ...prev,
+      isSaved: !oldSaved,
+    }));
+
+    // global feed/profile
+    toggleSave(post.id);
+
+    try {
+      if (oldSaved) {
+        await unsavePost(post.id);
+      } else {
+        await savePost(post.id);
+      }
+    } catch (err) {
+      // rollback local
+      setPost((prev: any) => ({
+        ...prev,
+        isSaved: oldSaved,
+      }));
+
+      // rollback store
+      toggleSave(post.id);
     }
   };
 
@@ -266,7 +360,7 @@ export default function Comment() {
             </View>
             {/** footer content */}
             <View style={styles.footerContainer}>
-              <View style={styles.favoriteCount}>
+              <Pressable onPress={handleLike} style={styles.favoriteCount}>
                 <Image
                   source={require("../../../assets/myApp/heartA (1).png")}
                   style={[
@@ -277,7 +371,7 @@ export default function Comment() {
                 <Text style={styles.textFavoriteCount}>
                   {post?.favoriteCount}
                 </Text>
-              </View>
+              </Pressable>
               <Pressable style={styles.favoriteCount}>
                 <Image
                   source={require("../../../assets/myApp/message.png")}
@@ -287,13 +381,15 @@ export default function Comment() {
                   {post?.commentCount}
                 </Text>
               </Pressable>
-              <Image
-                source={require("../../../assets/myApp/bookmark.png")}
-                style={[
-                  styles.footerIcon,
-                  post?.isSaved ? { tintColor: "#FFD700" } : {},
-                ]}
-              />
+              <Pressable onPress={handleSave}>
+                <Image
+                  source={require("../../../assets/myApp/bookmark.png")}
+                  style={[
+                    styles.footerIcon,
+                    post?.isSaved ? { tintColor: "#FFD700" } : {},
+                  ]}
+                />
+              </Pressable>
               <Image
                 source={require("../../../assets/myApp/share-.png")}
                 style={[styles.footerIcon]}
@@ -401,26 +497,19 @@ export default function Comment() {
                                 {/* Nội dung cha */}
                                 <View style={styles.replyBody}>
                                   <View style={styles.backgroundReply}>
-                                    <View
-                                      style={{ flexDirection: "row", gap: 5 }}
-                                    >
-                                      <Text style={styles.nameComment}>
-                                        {reply.author.name}
-                                      </Text>
-                                      <Text
-                                        style={{
-                                          fontSize: 15,
-                                          color: "#475569",
-                                        }}
-                                      >
-                                        trả lời
-                                      </Text>
-                                      <Text style={styles.nameComment}>
-                                        {reply.replyToUser.name}
-                                      </Text>
-                                    </View>
+                                    <Text style={styles.nameComment}>
+                                      {reply.author.name}
+                                    </Text>
 
                                     <Text style={styles.textComment}>
+                                      <Text
+                                        style={[
+                                          styles.nameComment,
+                                          { color: "#3B82F6" },
+                                        ]}
+                                      >
+                                        @{reply.replyToUser.name}
+                                      </Text>{" "}
                                       {reply.content}
                                     </Text>
                                   </View>
@@ -513,6 +602,7 @@ export default function Comment() {
           <TextInput
             value={input}
             placeholder={"Viết bình luận..."}
+            placeholderTextColor="black"
             multiline
             numberOfLines={3}
             textAlignVertical="top"
@@ -789,7 +879,7 @@ const styles = StyleSheet.create({
   },
   replyBody: {
     marginLeft: 10,
-    maxWidth: "50%",
+    maxWidth: "80%",
     flexShrink: 1,
   },
   backgroundReply: {

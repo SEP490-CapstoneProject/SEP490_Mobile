@@ -21,7 +21,7 @@ class ChatRealtimeService {
         accessTokenFactory: () => accessToken,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(signalR.LogLevel.Information)
+      .configureLogging(signalR.LogLevel.None)
       .build();
 
     this.setupEventHandlers();
@@ -87,15 +87,21 @@ class ChatRealtimeService {
     );
   }
 
-  async start() {
-    if (this.connection?.state === signalR.HubConnectionState.Disconnected) {
-      try {
-        await this.connection.start();
-        console.log("🚀 Chat Connected");
-      } catch (error) {
-        console.error("❌ Chat connection failed:", error);
-        setTimeout(() => this.start(), 5000);
+  public async start() {
+    if (!this.connection) return;
+
+    try {
+      if (this.connection.state === signalR.HubConnectionState.Connected) {
+        return;
       }
+
+      if (this.connection.state === signalR.HubConnectionState.Connecting) {
+        return;
+      }
+
+      await this.connection.start();
+    } catch (err) {
+      console.log("❌ CHAT START ERROR:", err);
     }
   }
 
@@ -137,9 +143,36 @@ class ChatRealtimeService {
     }
   }
 
-  stop() {
-    this.connection?.stop();
-    this.connection = null;
+  public async ensureConnected() {
+    if (!this.connection) return;
+
+    if (this.connection.state === signalR.HubConnectionState.Connected) {
+      return;
+    }
+
+    if (this.connection.state === signalR.HubConnectionState.Connecting) {
+      return;
+    }
+
+    try {
+      await this.connection.start();
+    } catch (err) {
+      console.log("❌ CHAT RECONNECT ERROR:", err);
+    }
+  }
+
+  public async stop() {
+    if (!this.connection) return;
+
+    try {
+      await this.connection.stop();
+    } catch (err) {
+      console.log("❌ CHAT STOP ERROR:", err);
+    }
+  }
+
+  public getConnection() {
+    return this.connection;
   }
 }
 

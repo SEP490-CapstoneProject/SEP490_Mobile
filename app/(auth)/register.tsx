@@ -63,6 +63,7 @@ export default function RegisterScreen() {
         />
         <TextInput
           placeholder="Nhập địa chỉ email"
+          placeholderTextColor="black"
           style={styles.input}
           onChangeText={setEmail}
           value={email}
@@ -77,6 +78,7 @@ export default function RegisterScreen() {
         />
         <TextInput
           placeholder="Nhập mật khẩu"
+          placeholderTextColor="black"
           secureTextEntry={!showPassword}
           style={styles.input}
           onChangeText={setPassword}
@@ -105,6 +107,7 @@ export default function RegisterScreen() {
         />
         <TextInput
           placeholder="Nhập lại mật khẩu"
+          placeholderTextColor="black"
           secureTextEntry={!showFogetPassword}
           style={styles.input}
           onChangeText={setConfirmPassword}
