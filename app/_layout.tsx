@@ -1,9 +1,9 @@
 import { ConfirmProvider } from "@/components/ConfirmContext";
 import { LoadingProvider } from "@/components/LoadingContext";
 
-import { chatRealtimeService } from "@/services/chatRealtimeService";
 import "@/services/notification/notification.config";
-import { getToken } from "@/services/storage";
+import { setupNotificationListeners } from "@/services/notification/notification.config";
+import { realtimeService } from "@/services/realtimeService";
 import * as Notifications from "expo-notifications";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
@@ -11,33 +11,13 @@ import Toast from "react-native-toast-message";
 
 export default function RootLayout() {
   useEffect(() => {
-    const setup = async () => {
-      const { status } = await Notifications.getPermissionsAsync();
-
-      if (status !== "granted") {
-        const { status: newStatus } =
-          await Notifications.requestPermissionsAsync();
-
-        console.log("Permission:", newStatus);
-      }
-    };
-
-    setup();
-
-    const init = async () => {
-      const token = await getToken();
-      chatRealtimeService.initConnection(token as string);
-      await chatRealtimeService.start();
-    };
-
-    init();
-
+    setupNotificationListeners();
     const processed = new Set();
 
     const handler = async (msg: any) => {
       console.log("📩 RECEIVED:", msg);
 
-      const key = msg.connectionId || msg.lastAt;
+      const key = msg.sentAt || msg.messageId;
 
       if (processed.has(key)) return;
       processed.add(key);
@@ -47,16 +27,16 @@ export default function RootLayout() {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: msg.senderName || "Tin nhắn mới",
-          body: msg.lastContent,
+          body: msg.content,
         },
         trigger: null,
       });
     };
 
-    chatRealtimeService.onRoomUpdated(handler);
+    realtimeService.onNewMessageNotification(handler);
 
     return () => {
-      chatRealtimeService.onRoomUpdated(handler);
+      realtimeService.offNewMessageNotification(handler);
     };
   }, []);
   return (

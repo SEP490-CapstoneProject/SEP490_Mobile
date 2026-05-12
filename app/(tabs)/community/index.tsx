@@ -286,7 +286,9 @@ export default function Community() {
                 </Pressable>
                 <Pressable
                   onPress={() =>
-                    shareContent(`https://skillsnap.io/post/${post.id}`)
+                    shareContent(
+                      `https://sep-490-web-fork.vercel.app/community/comment/${post.id}`,
+                    )
                   }
                 >
                   <Image

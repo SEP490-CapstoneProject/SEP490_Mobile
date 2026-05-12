@@ -61,6 +61,7 @@ export default function Login() {
         />
         <TextInput
           placeholder="Nhập địa chỉ email"
+          placeholderTextColor="black"
           style={styles.input}
           value={email}
           onChangeText={setEmail}
@@ -75,6 +76,7 @@ export default function Login() {
         />
         <TextInput
           placeholder="Nhập mật khẩu"
+          placeholderTextColor="black"
           secureTextEntry={!showPassword}
           style={styles.input}
           value={password}

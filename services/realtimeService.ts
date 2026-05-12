@@ -11,6 +11,7 @@ class RealtimeService {
   private notificationListeners: Function[] = [];
   private systemNotificationListeners: Function[] = [];
   private communityNotificationListeners: Function[] = [];
+  private newMessageNotificationListeners: Function[] = [];
 
   public initConnection(accessToken: string) {
     if (this.connection) return;
@@ -22,7 +23,7 @@ class RealtimeService {
         accessTokenFactory: () => accessToken,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000])
-      .configureLogging(signalR.LogLevel.Information)
+      .configureLogging(signalR.LogLevel.None)
       .build();
 
     this.setupEventHandlers();
@@ -54,6 +55,10 @@ class RealtimeService {
 
     this.connection.on("ReceiveCommunityNotification", (event) => {
       this.communityNotificationListeners.forEach((cb) => cb(event));
+    });
+
+    this.connection.on("newmessagenotification", (msg) => {
+      this.newMessageNotificationListeners.forEach((cb) => cb(msg));
     });
   }
 
@@ -109,14 +114,31 @@ class RealtimeService {
     this.communityNotificationListeners =
       this.communityNotificationListeners.filter((c) => c !== cb);
   }
-  async start() {
-    if (this.connection?.state === signalR.HubConnectionState.Disconnected) {
-      try {
-        await this.connection.start();
-        console.log("🚀 SignalR Connected");
-      } catch {
-        setTimeout(() => this.start(), 5000);
+
+  onNewMessageNotification(cb: Function) {
+    this.newMessageNotificationListeners.push(cb);
+  }
+
+  offNewMessageNotification(cb: Function) {
+    this.newMessageNotificationListeners =
+      this.newMessageNotificationListeners.filter((c) => c !== cb);
+  }
+
+  public async start() {
+    if (!this.connection) return;
+
+    try {
+      if (this.connection.state === signalR.HubConnectionState.Connected) {
+        return;
       }
+
+      if (this.connection.state === signalR.HubConnectionState.Connecting) {
+        return;
+      }
+
+      await this.connection.start();
+    } catch (err) {
+      console.log("❌ REALTIME START ERROR:", err);
     }
   }
 
@@ -135,9 +157,36 @@ class RealtimeService {
     }
   }
 
-  stop() {
-    this.connection?.stop();
-    this.connection = null;
+  public async ensureConnected() {
+    if (!this.connection) return;
+
+    if (this.connection.state === signalR.HubConnectionState.Connected) {
+      return;
+    }
+
+    if (this.connection.state === signalR.HubConnectionState.Connecting) {
+      return;
+    }
+
+    try {
+      await this.connection.start();
+    } catch (err) {
+      console.log("❌ REALTIME RECONNECT ERROR:", err);
+    }
+  }
+
+  public async stop() {
+    if (!this.connection) return;
+
+    try {
+      await this.connection.stop();
+    } catch (err) {
+      console.log("❌ REALTIME STOP ERROR:", err);
+    }
+  }
+
+  public getConnection() {
+    return this.connection;
   }
 }
 

@@ -1,6 +1,6 @@
-import { getAuth, getToken } from "@/services/auth.api";
 import { fetchMessagesByRoom } from "@/services/chat.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
+import { getAuth, getToken } from "@/services/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
