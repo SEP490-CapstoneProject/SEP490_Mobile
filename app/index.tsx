@@ -1,8 +1,8 @@
 import { isTokenExpired, refreshToken } from "@/services/auth.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
 import {
-  fetchCommunityNotifications,
-  fetchSystemNotifications,
+  fetchLoadCommunityNotifications,
+  fetchLoadSystemNotifications
 } from "@/services/notification.api";
 import { setupNotifications } from "@/services/notification/notification.config";
 
@@ -80,8 +80,8 @@ export default function Index() {
       setupNotifications();
 
       const [systemRes, communityRes] = await Promise.all([
-        fetchSystemNotifications(20),
-        fetchCommunityNotifications(20),
+        fetchLoadSystemNotifications(100),
+        fetchLoadCommunityNotifications(100),
       ]);
 
       const currentSystem = useNotificationStore.getState().systemNotifications;

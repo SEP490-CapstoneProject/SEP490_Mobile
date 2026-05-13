@@ -1,6 +1,9 @@
 import CustomLoading from "@/components/CustomLoading";
 import { updateConnectionStatus } from "@/services/chat.api";
-import { fetchSystemNotifications } from "@/services/notification.api";
+import {
+  fetchLoadSystemNotifications,
+  fetchSystemNotifications,
+} from "@/services/notification.api";
 import { formatTimeAgo } from "@/services/setTime";
 import { useNotificationStore } from "@/utils/notificationStore";
 import { showError, showSuccess } from "@/utils/toast";
@@ -26,7 +29,7 @@ export default function SystemNotification() {
     const load = async () => {
       setLoading(true);
 
-      const res = await fetchSystemNotifications(20);
+      const res = await fetchLoadSystemNotifications(20);
 
       useNotificationStore.getState().setSystemNotifications(res?.items || []);
 
@@ -41,7 +44,10 @@ export default function SystemNotification() {
   const loadMore = async () => {
     if (!cursor) return;
 
-    const res = await fetchSystemNotifications(20);
+    const res = await fetchSystemNotifications(
+      useNotificationStore.getState().systemNotifications.length,
+      20,
+    );
 
     const current = useNotificationStore.getState().systemNotifications;
 
@@ -114,7 +120,11 @@ export default function SystemNotification() {
                   {item.actor && (
                     <View style={styles.companyContainer}>
                       <Image
-                        source={{ uri: item.actor.avatar }}
+                        source={
+                          item.actor?.avatar
+                            ? { uri: item.actor.avatar }
+                            : require("@/assets/myApp/Logo.png")
+                        }
                         style={styles.avatar}
                       />
                       <>
@@ -153,7 +163,11 @@ export default function SystemNotification() {
                   {item.actor && (
                     <View style={styles.companyContainer}>
                       <Image
-                        source={{ uri: item.actor.avatar }}
+                        source={
+                          item.actor?.avatar
+                            ? { uri: item.actor.avatar }
+                            : require("@/assets/myApp/Logo.png")
+                        }
                         style={styles.avatar}
                       />
                       <>

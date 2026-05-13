@@ -70,7 +70,7 @@ export const markAllNotificationsAsRead = async () => {
   }
 };
 
-export const fetchSystemNotifications = async (limit: number = 20) => {
+export const fetchLoadSystemNotifications = async (limit: number) => {
   try {
     let token = await getToken();
     if (token && isTokenExpired(token)) {
@@ -100,7 +100,40 @@ export const fetchSystemNotifications = async (limit: number = 20) => {
   }
 };
 
-export const fetchCommunityNotifications = async (limit: number = 20) => {
+export const fetchSystemNotifications = async (
+  cursor: number,
+  limit: number,
+) => {
+  try {
+    let token = await getToken();
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_NOTIFICATION}/api/notifications/system?cursor=${cursor}&limit=${limit}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy system notification thất bại");
+    }
+    return data;
+  } catch (err) {
+    return null;
+  }
+};
+
+export const fetchLoadCommunityNotifications = async (limit: number) => {
   try {
     let token = await getToken();
 
@@ -110,6 +143,40 @@ export const fetchCommunityNotifications = async (limit: number = 20) => {
 
     const res = await fetch(
       `${BASE_URL_NOTIFICATION}/api/notifications/community?limit=${limit}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy community notification thất bại");
+    }
+    return data;
+  } catch (err) {
+    return null;
+  }
+};
+
+export const fetchCommunityNotifications = async (
+  cursor: number,
+  limit: number,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_NOTIFICATION}/api/notifications/community?cursor=${cursor}&limit=${limit}`,
       {
         method: "GET",
         headers: {

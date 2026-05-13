@@ -1,6 +1,7 @@
 import CustomLoading from "@/components/CustomLoading";
 import {
   fetchCommunityNotifications,
+  fetchLoadCommunityNotifications,
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "@/services/notification.api";
@@ -30,7 +31,7 @@ export default function CommunityNotification() {
     const load = async () => {
       setLoading(true);
 
-      const res = await fetchCommunityNotifications(20);
+      const res = await fetchLoadCommunityNotifications(20);
 
       useNotificationStore
         .getState()
@@ -46,7 +47,10 @@ export default function CommunityNotification() {
   const loadMore = async () => {
     if (!cursor) return;
 
-    const res = await fetchCommunityNotifications(20);
+    const res = await fetchCommunityNotifications(
+      useNotificationStore.getState().communityNotifications.length,
+      20,
+    );
 
     const current = useNotificationStore.getState().communityNotifications;
 
