@@ -84,7 +84,7 @@ export default function Detail() {
                 source={require("../../../assets/myApp/trash.png")}
                 style={styles.iconSecondLeft}
               />
-              <Text style={styles.bntTextSecond}>Xóa lịch sử trò chuyện</Text>
+              <Text style={styles.bntTextSecond}>Xóa trò chuyện</Text>
             </View>
           </Pressable>
         </View>
