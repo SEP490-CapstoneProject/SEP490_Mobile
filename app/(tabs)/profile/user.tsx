@@ -3,12 +3,10 @@ import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import ProfilePage from "@/components/profile/ProfilePage";
 import { logout } from "@/services/auth.api";
 import {
-  fetchMainPortfolio,
-  togglePublicPortfolio,
+  fetchMainPortfolio
 } from "@/services/portfolio.api";
-import { getPlan, getProfile } from "@/services/storage";
+import { getAuth, getPlan, getProfile } from "@/services/storage";
 
-import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
 import { Crown, Zap } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -28,7 +26,8 @@ export default function UserProfile() {
   const [sub, setSub] = useState<any>(null);
 
   const loadMainPortfolio = async () => {
-    const data = await fetchMainPortfolio(2);
+    const auth = await getAuth();
+    const data = await fetchMainPortfolio(auth?.id);
     setPortfolio(data);
   };
 
@@ -60,19 +59,6 @@ export default function UserProfile() {
 
     loadData();
   }, []);
-
-  const handleTogglePublic = async () => {
-    try {
-      await togglePublicPortfolio(portfolio.portfolioId);
-
-      setPortfolio((prev: any) => ({
-        ...prev,
-        isPublic: !prev.isPublic,
-      }));
-    } catch (err) {
-      showError("lỗi", "");
-    }
-  };
 
   if (!user) return null;
 
@@ -154,17 +140,7 @@ export default function UserProfile() {
         {portfolio !== null && (
           <View style={{ marginTop: 30 }}>
             <View style={styles.pressableBnt}>
-              <Pressable
-                style={[
-                  styles.pressableShare,
-                  {
-                    backgroundColor: portfolio?.isPublic
-                      ? "#3B82F6"
-                      : "#3B82F6",
-                  },
-                ]}
-                onPress={handleTogglePublic}
-              >
+              <Pressable style={styles.pressableShare}>
                 <Text style={styles.textShare}>
                   {portfolio?.isPublic ? "Đang công khai" : "Đăng công khai"}
                 </Text>

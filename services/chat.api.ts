@@ -163,7 +163,6 @@ export const updateConnectionStatus = async (id: number, status: string) => {
 
     return data;
   } catch (err) {
-    console.log("updateConnectionStatus error:", err);
     throw err;
   }
 };
@@ -221,6 +220,70 @@ export const getRoomSummaryByConnection = async (
         Authorization: `Bearer ${token}`,
       },
     });
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy room summary thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const getRoomStatus = async (roomId: number) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const response = await fetch(
+      `${BASE_URL_CHAT}/api/Connection/rooms/${roomId}/status`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Không thể lấy trạng thái phòng chat");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchRoomSummaryByConnection = async (
+  connectionId: number,
+  userId: number,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_CHAT}/api/Connection/rooms/summary/by-connection/${connectionId}?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
     const text = await res.text();
     const data = text ? JSON.parse(text) : null;

@@ -1,6 +1,7 @@
 import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 
+import { useConfirm } from "@/components/ConfirmContext";
 import { realtimeService } from "@/services/realtimeService";
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
@@ -39,6 +40,7 @@ export default function Community() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [reportVisible, setReportVisible] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const { showConfirm } = useConfirm();
 
   useEffect(() => {
     loadPosts();
@@ -139,13 +141,22 @@ export default function Community() {
 
   const handleDelete = async (postId: number) => {
     try {
-      const res = await deletePost(postId);
-      if (res) {
-        setCommunityPosts((prev) => prev.filter((p) => p.id !== postId));
-        showSuccess("Xóa bài viết", "Bài viết đã được xóa thành công.");
-      } else {
-        showError("Xóa bài viết", "Xóa bài viết thất bại. Vui lòng thử lại.");
-      }
+      showConfirm({
+        title: "Xóa bài đăng",
+        message: "Bạn có chắc muốn xóa không?",
+        onConfirm: async () => {
+          const res = await deletePost(postId);
+          if (res) {
+            setCommunityPosts((prev) => prev.filter((p) => p.id !== postId));
+            showSuccess("Xóa bài viết", "Bài viết đã được xóa thành công.");
+          } else {
+            showError(
+              "Xóa bài viết",
+              "Xóa bài viết thất bại. Vui lòng thử lại.",
+            );
+          }
+        },
+      });
     } catch (err) {
       console.log(err);
       showError("Xóa bài viết", "Xóa bài viết thất bại. Vui lòng thử lại.");

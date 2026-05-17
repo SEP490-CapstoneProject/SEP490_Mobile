@@ -57,12 +57,30 @@ export default function Detail() {
         </View>
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Image
-          source={{
-            uri: jobDetail?.media?.[0]?.url || jobDetail?.coverImageUrl || "",
-          }}
-          style={{ width: "100%", height: 250 }}
-        />
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/MediaPreview",
+              params: {
+                images: JSON.stringify(
+                  jobDetail?.media?.map((m: any) => m.url) || [],
+                ),
+                index: 0,
+              },
+            })
+          }
+        >
+          <Image
+            source={
+              jobDetail?.media?.[0]?.url || jobDetail?.coverImageUrl
+                ? {
+                    uri: jobDetail?.media?.[0]?.url || jobDetail?.coverImageUrl,
+                  }
+                : require("@/assets/myApp/Logo.png")
+            }
+            style={{ width: "100%", height: 250 }}
+          />
+        </Pressable>
         {/* Header Content */}
         <View style={styles.headerContent}>
           <Image

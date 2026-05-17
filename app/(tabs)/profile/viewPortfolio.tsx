@@ -13,6 +13,7 @@ export default function ViewPortfolio() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log(portId);
     const load = async () => {
       try {
         setLoading(true);

@@ -5,10 +5,8 @@ import {
 } from "@/services/aplication.api";
 
 import {
-  createConnection,
+  fetchRoomSummaryByConnection,
   getConnectionStatus,
-  getRoomSummaryByConnection,
-  updateConnectionStatus,
 } from "@/services/chat.api";
 import { formatTimeAgo } from "@/services/setTime";
 import { getAuth } from "@/services/storage";
@@ -36,7 +34,7 @@ export default function ApplicationManagement() {
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const STATUS_MAP = {
-    WAITING: 0,
+    NEW: 0,
     REVIEWING: 1,
     ACCEPTED: 2,
     REJECTED: 3,
@@ -53,7 +51,6 @@ export default function ApplicationManagement() {
 
       const items = data.items ?? data;
       setApplications(items);
-
       setPage(1);
     } catch (err) {
       showError("Lỗi", err as string);
@@ -122,35 +119,19 @@ export default function ApplicationManagement() {
       const currentUser = await getAuth();
       const currentUserId = Number(currentUser?.id);
 
-      const statusRes = await getConnectionStatus(currentUserId, targetUserId);
-      console.log("statusRes", statusRes);
+      const data = await getConnectionStatus(currentUserId, targetUserId);
 
-      let finalConnectionId = 0;
+      console.log("data:", data);
 
-      if (!statusRes?.status || statusRes.status === "null") {
-        const createRes = await createConnection({
-          userIdFrom: currentUserId,
-          userIdTo: targetUserId,
-          profileId,
-        });
-
-        finalConnectionId = createRes?.id;
-
-        await updateConnectionStatus(finalConnectionId, "MATCHED");
-        console.log("createRes", createRes);
-      } else if (statusRes.status === "PENDING") {
-        await updateConnectionStatus(statusRes.connectionId, "MATCHED");
-        finalConnectionId = statusRes.connectionId;
-        console.log("update to MATCHED", statusRes);
-      }
-      console.log("finalConnectionId", finalConnectionId, currentUserId);
-      const roomSummary = await getRoomSummaryByConnection(
-        finalConnectionId,
+      const roomSummary = await fetchRoomSummaryByConnection(
+        data?.connectionId,
         currentUserId,
       );
-      console.log("roomSummary", roomSummary);
+
+      console.log(roomSummary);
+
       router.push({
-        pathname: ` /(tabs)/chat/${roomSummary.roomId}`,
+        pathname: `/(tabs)/chat/room`,
         params: {
           roomId: roomSummary.roomId,
           name: roomSummary.name,
@@ -213,7 +194,7 @@ export default function ApplicationManagement() {
       >
         {[
           { key: "ALL", label: "Tất cả" },
-          { key: "WAITING", label: "Mới" },
+          { key: "NEW", label: "Mới" },
           { key: "REVIEWING", label: "Đang xem xét" },
           { key: "ACCEPTED", label: "Đã nhận" },
           { key: "REJECTED", label: "Từ chối" },
@@ -274,7 +255,7 @@ export default function ApplicationManagement() {
                   </View>
                 </View>
                 <View>
-                  {item.status == "WAITING" && (
+                  {item.status == "NEW" && (
                     <Pressable
                       style={{
                         backgroundColor: "#EFF6FF",

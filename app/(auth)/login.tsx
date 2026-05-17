@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingLeft: 44,
     paddingRight: 40,
+    color: "#000000",
   },
   iconRight: {
     position: "absolute",
