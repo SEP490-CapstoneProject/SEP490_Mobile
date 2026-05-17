@@ -3,12 +3,13 @@ import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import {
   fetchPortfolioMe,
   toggleMainPortfolio,
+  togglePublicPortfolio,
 } from "@/services/portfolio.api";
 import { shareContent } from "@/services/share";
 import { getAuth } from "@/services/storage";
 import { showError } from "@/utils/toast";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -45,10 +46,9 @@ export default function PortfolioManager() {
   const [portfolios, setPortfolios] = useState<any[]>([]);
 
   const [menuVisible, setMenuVisible] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+
   const [selectedPortfolio, setSelectedPortfolio] =
     useState<PortfolioMainBlockItem | null>(null);
-  const menuRefs = useRef<{ [key: number]: any }>({});
 
   useEffect(() => {
     getAuth().then(setUser);
@@ -64,21 +64,8 @@ export default function PortfolioManager() {
   }, []);
 
   const openMenu = (portfolio: PortfolioMainBlockItem) => {
-    const ref = menuRefs.current[portfolio.portfolioId];
-
-    if (!ref) return;
-
-    ref.measureInWindow(
-      (x: number, y: number, width: number, height: number) => {
-        setMenuPosition({
-          x: x - 150,
-          y: y + height,
-        });
-
-        setSelectedPortfolio(portfolio);
-        setMenuVisible(true);
-      },
-    );
+    setSelectedPortfolio(portfolio);
+    setMenuVisible(true);
   };
 
   const handleToggleMain = async () => {
@@ -86,16 +73,68 @@ export default function PortfolioManager() {
 
     try {
       await toggleMainPortfolio(selectedPortfolio.portfolioId);
+
+      const newValue = !selectedPortfolio.isMain;
+
       setPortfolios((prev) =>
-        prev.map((p) => ({
-          ...p,
-          isMain: p.portfolioId === selectedPortfolio.portfolioId,
-        })),
+        prev.map((p) => {
+          if (p.portfolioId === selectedPortfolio.portfolioId) {
+            return {
+              ...p,
+              isMain: newValue,
+            };
+          }
+          if (newValue) {
+            return {
+              ...p,
+              isMain: false,
+            };
+          }
+
+          return p;
+        }),
       );
 
-      setMenuVisible(false);
+      setSelectedPortfolio((prev) =>
+        prev
+          ? {
+              ...prev,
+              isMain: newValue,
+            }
+          : null,
+      );
     } catch (err) {
       showError("Lỗi", err as string);
+    }
+  };
+
+  const handleTogglePublic = async () => {
+    try {
+      if (!selectedPortfolio) return;
+
+      await togglePublicPortfolio(selectedPortfolio.portfolioId);
+
+      setPortfolios((prev) =>
+        prev.map((p) =>
+          p.portfolioId === selectedPortfolio.portfolioId
+            ? {
+                ...p,
+                isPublic: !p.isPublic,
+              }
+            : p,
+        ),
+      );
+
+      setSelectedPortfolio((prev) =>
+        prev
+          ? {
+              ...prev,
+              isPublic: !prev.isPublic,
+            }
+          : null,
+      );
+    } catch (err) {
+      showError("lỗi", "");
     }
   };
 
@@ -128,12 +167,7 @@ export default function PortfolioManager() {
                 </View>
               )}
 
-              <Pressable
-                ref={(ref) => {
-                  menuRefs.current[p.portfolioId] = ref;
-                }}
-                onPress={() => openMenu(p)}
-              >
+              <Pressable onPress={() => openMenu(p)}>
                 <Image
                   source={require("../../../../assets/myApp/dots.png")}
                   style={{ width: 25, height: 25 }}
@@ -153,46 +187,49 @@ export default function PortfolioManager() {
 
       {/* CUSTOM POPOVER */}
       {menuVisible && selectedPortfolio && (
-        <>
+        <View style={styles.overlay}>
           <Pressable
-            style={StyleSheet.absoluteFill}
+            style={{ flex: 1 }}
             onPress={() => setMenuVisible(false)}
           />
 
-          <View
-            style={[
-              styles.menuBox,
-              {
-                top: menuPosition.y,
-                left: menuPosition.x,
-              },
-            ]}
-          >
-            <Pressable
-              style={[
-                styles.menuItem,
-                {
-                  backgroundColor: "#DCFCE7",
-                  borderTopLeftRadius: 14,
-                  borderTopRightRadius: 14,
-                },
-              ]}
-              onPress={handleToggleMain}
-            >
-              <Text style={{ color: "#1B8442", fontWeight: "600" }}>
+          <View style={styles.bottomSheet}>
+            {/* thanh kéo */}
+            <View style={styles.dragBar} />
+
+            <Pressable style={styles.menuItem} onPress={handleToggleMain}>
+              <Text
+                style={{
+                  color: selectedPortfolio.isMain ? "#1B8442" : "#000",
+                  fontWeight: "600",
+                }}
+              >
                 {selectedPortfolio.isMain
                   ? "Hủy bản chính"
                   : "Đặt làm bản chính"}
               </Text>
             </Pressable>
 
+            <Pressable style={styles.menuItem} onPress={handleTogglePublic}>
+              <Text
+                style={{
+                  color: selectedPortfolio.isPublic ? "#1B8442" : "#000",
+                  fontWeight: "600",
+                }}
+              >
+                {selectedPortfolio.isPublic
+                  ? "Đang công khai"
+                  : "Đăng công khai"}
+              </Text>
+            </Pressable>
+
             <Pressable
-              style={[styles.menuItem, { backgroundColor: "#F0F9FF" }]}
+              style={styles.menuItem}
               onPress={() => {
                 router.push({
-                  pathname: "/(tabs)/profile/user/portfolioView",
+                  pathname: `/(tabs)/profile/viewPortfolio`,
                   params: {
-                    portfolioId: String(selectedPortfolio.portfolioId),
+                    portId: selectedPortfolio.portfolioId,
                   },
                 });
                 setMenuVisible(false);
@@ -200,50 +237,56 @@ export default function PortfolioManager() {
             >
               <Image
                 source={require("../../../../assets/myApp/view.png")}
-                style={{ width: 18, height: 18 }}
+                style={styles.menuIcon}
               />
+
               <Text>Xem chi tiết</Text>
             </Pressable>
 
-            <Pressable
-              style={[styles.menuItem, { backgroundColor: "#E1EEFF" }]}
-            >
+            <Pressable style={styles.menuItem}>
               <Image
                 source={require("../../../../assets/myApp/pencil1.png")}
-                style={{ width: 18, height: 18 }}
+                style={styles.menuIcon}
               />
+
               <Text>Chỉnh sửa</Text>
             </Pressable>
 
-            <Pressable
-              style={[styles.menuItem, { backgroundColor: "#FAD1D2" }]}
-            >
+            <Pressable style={styles.menuItem}>
               <Image
                 source={require("../../../../assets/myApp/trash.png")}
-                style={{ width: 18, height: 18 }}
+                style={styles.menuIcon}
               />
+
               <Text style={{ color: "#EF4444" }}>Xóa</Text>
             </Pressable>
 
             <Pressable
-              style={[
-                styles.menuItem,
-                { borderBottomLeftRadius: 14, borderBottomRightRadius: 14 },
-              ]}
-              onPress={() =>
+              style={styles.menuItem}
+              onPress={() => {
                 shareContent(
                   `https://skillsnap.io/portfolio/${selectedPortfolio.portfolioId}`,
-                )
-              }
+                );
+
+                setMenuVisible(false);
+              }}
             >
               <Image
                 source={require("../../../../assets/myApp/share_black.png")}
-                style={{ width: 18, height: 18 }}
+                style={styles.menuIcon}
               />
+
               <Text>Chia sẻ</Text>
             </Pressable>
+
+            <Pressable
+              style={[styles.menuItem, { justifyContent: "center" }]}
+              onPress={() => setMenuVisible(false)}
+            >
+              <Text style={{ fontWeight: "600" }}>Hủy</Text>
+            </Pressable>
           </View>
-        </>
+        </View>
       )}
     </View>
   );
@@ -334,10 +377,45 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
 
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    justifyContent: "flex-end",
+  },
+
+  bottomSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    paddingBottom: 25,
+  },
+
+  dragBar: {
+    width: 45,
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: "#D1D5DB",
+    alignSelf: "center",
+    marginBottom: 15,
+  },
+
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    padding: 14,
+    gap: 12,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+
+  menuIcon: {
+    width: 20,
+    height: 20,
   },
 });

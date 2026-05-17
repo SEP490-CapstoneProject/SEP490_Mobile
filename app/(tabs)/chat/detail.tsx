@@ -1,4 +1,9 @@
+import { useConfirm } from "@/components/ConfirmContext";
+import { getRoomStatus, updateConnectionStatus } from "@/services/chat.api";
+import { getAuth } from "@/services/storage";
+import { showError, showSuccess } from "@/utils/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Detail() {
@@ -10,12 +15,84 @@ export default function Detail() {
     coverImage?: string;
     role?: "COMPANY" | "USER";
   }>();
+  const [status, setStatus] = useState<any>();
+  const [userId, setUserId] = useState<number | null>(null);
+  const { showConfirm } = useConfirm();
+
+  useEffect(() => {
+    const loadAuth = async () => {
+      const data = await getAuth();
+      setUserId(data?.id);
+    };
+    const loadStatus = async () => {
+      const status = await getRoomStatus(Number(roomId));
+      setStatus(status);
+    };
+    loadAuth();
+    loadStatus();
+  }, [roomId]);
+
+  const handleToggleBlock = async () => {
+    try {
+      if (!status) return;
+
+      let newStatus = status.status;
+
+      if (status.status === "BLOCK") {
+        await updateConnectionStatus(Number(roomId), "MATCHED");
+        newStatus = "MATCHED";
+      } else if (status.status === "MATCHED") {
+        await updateConnectionStatus(Number(roomId), "BLOCK");
+        newStatus = "BLOCK";
+      }
+
+      setStatus((prev: any) => ({
+        ...prev,
+        status: newStatus,
+        blockId: newStatus === "BLOCK" ? userId : null,
+      }));
+    } catch (err) {
+      console.log(err);
+      showError("Lỗi", "Không thể thay đổi trạng thái");
+    }
+  };
+
+  const handleDeleteConversation = async () => {
+    try {
+      showConfirm({
+        title: "Xóa bài đăng",
+        message: "Bạn có chắc muốn xóa không?",
+        onConfirm: async () => {
+          await updateConnectionStatus(Number(roomId), "STORED");
+          showSuccess("Thành công", "Bạn đã xóa trò chuyện thành công");
+          router.push("/chat");
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      showError("Lỗi", "Không thể xóa cuộc trò chuyện");
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/** header */}
       <View style={styles.headerContainer}>
         <View style={styles.headerLeft}>
-          <Pressable onPress={() => router.back()}>
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: `/(tabs)/chat/room`,
+                params: {
+                  roomId: roomId,
+                  name: name,
+                  avatar: avatar,
+                  coverImage: coverImage,
+                  role: role,
+                },
+              } as any)
+            }
+          >
             <Image
               source={require("../../../assets/myApp/arrow.png")}
               style={styles.headerIcon}
@@ -27,7 +104,14 @@ export default function Detail() {
       {/** body */}
       <View style={styles.bodyContainer}>
         <View style={styles.bodyUser}>
-          <Image source={{ uri: coverImage }} style={styles.coverImage} />
+          <Image
+            source={
+              coverImage
+                ? { uri: coverImage }
+                : require("../../../assets/myApp/app.png")
+            }
+            style={styles.coverImage}
+          />
           <View style={{ top: -40, alignItems: "center" }}>
             <View>
               <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -69,16 +153,30 @@ export default function Detail() {
             />
           </Pressable>
 
-          <Pressable style={styles.bntBodyFirst}>
+          <Pressable
+            style={styles.bntBodyFirst}
+            onPress={handleToggleBlock}
+            disabled={status?.status === "BLOCK" && status?.blockId !== userId}
+          >
             <View style={styles.bntLeft}>
               <Image
                 source={require("../../../assets/myApp/block.png")}
                 style={styles.iconSecondLeft}
               />
-              <Text style={styles.bntTextSecond}>Chặn cuộc trò chuyện</Text>
+
+              <Text style={styles.bntTextSecond}>
+                {status?.status === "BLOCK"
+                  ? status.blockId === userId
+                    ? "Bỏ chặn cuộc trò chuyện"
+                    : "Bạn đã bị chặn"
+                  : "Chặn cuộc trò chuyện"}
+              </Text>
             </View>
           </Pressable>
-          <Pressable style={styles.bntBodySecond}>
+          <Pressable
+            style={styles.bntBodySecond}
+            onPress={handleDeleteConversation}
+          >
             <View style={styles.bntLeft}>
               <Image
                 source={require("../../../assets/myApp/trash.png")}

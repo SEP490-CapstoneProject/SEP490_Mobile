@@ -1,7 +1,9 @@
+import { createConnection, getConnectionStatus } from "@/services/chat.api";
 import {
   fetchCompanyByUserId,
   fetchEmployeeByUserId,
 } from "@/services/profile.api";
+import { getAuth } from "@/services/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -16,6 +18,7 @@ export default function Index() {
   const [company, setCompany] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [userId, setUserId] = useState<any>(null);
+  const [connect, setConnect] = useState<any>();
 
   const users = useMemo(() => {
     return auth ? JSON.parse(auth as string) : null;
@@ -23,7 +26,6 @@ export default function Index() {
 
   useEffect(() => {
     if (!users) return;
-
     const load = async () => {
       try {
         if (users.role === "COMPANY") {
@@ -43,7 +45,36 @@ export default function Index() {
     };
 
     load();
+    loadConnect();
   }, [users]);
+
+  const loadConnect = async () => {
+    const currentUser = await getAuth();
+    const currentUserId = Number(currentUser?.id);
+
+    const data = await getConnectionStatus(currentUserId, users.id);
+    setConnect(data);
+  };
+
+  const connecting = async () => {
+    try {
+      if (connect == null || connect?.connectionId === 0) {
+        const currentUser = await getAuth();
+        const currentUserId = Number(currentUser?.id);
+
+        const res = await createConnection({
+          userIdFrom: currentUserId,
+          userIdTo: users.id,
+          profileId: 0,
+        });
+        loadConnect();
+      } else {
+        return;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -51,11 +82,22 @@ export default function Index() {
         <View>
           <View>
             <Image
-              source={{ uri: company?.coverImage }}
+              source={
+                company?.coverImage
+                  ? { uri: company.coverImage }
+                  : require("../../assets/myApp/Logo.png")
+              }
               style={styles.coverImage}
             />
 
-            <Image source={{ uri: company?.avatar }} style={styles.avata} />
+            <Image
+              source={
+                company?.avatar
+                  ? { uri: company.avatar }
+                  : require("../../assets/myApp/Logo.png")
+              }
+              style={styles.avata}
+            />
             <Image
               source={require("../../assets/myApp/checklist.png")}
               style={styles.avataIcon}
@@ -66,9 +108,30 @@ export default function Index() {
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 15,
+                justifyContent: "space-between",
               }}
             >
               <Text style={styles.name}>{company?.companyName}</Text>
+              <Pressable style={{ marginRight: 20 }}>
+                <View
+                  style={{
+                    backgroundColor: "#3B82F6",
+                    paddingHorizontal: 15,
+                    paddingVertical: 5,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text style={{ color: "#FFFFFF" }}>
+                    {connect == null || connect?.connectionId === 0
+                      ? "Gửi kết nối"
+                      : connect?.status === "PENDING"
+                        ? "Đã gửi lời mời kết nối"
+                        : connect?.status === "MATCHED"
+                          ? "Đã kết nối"
+                          : ""}
+                  </Text>
+                </View>
+              </Pressable>
             </View>
           </View>
 
@@ -114,9 +177,30 @@ export default function Index() {
               flexDirection: "row",
               alignItems: "center",
               gap: 15,
+              justifyContent: "space-between",
             }}
           >
             <Text style={styles.name}>{user?.name}</Text>
+            <Pressable style={{ marginRight: 20 }} onPress={connecting}>
+              <View
+                style={{
+                  backgroundColor: "#3B82F6",
+                  paddingHorizontal: 15,
+                  paddingVertical: 5,
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={{ color: "#FFFFFF" }}>
+                  {connect == null || connect?.connectionId === 0
+                    ? "Gửi kết nối"
+                    : connect?.status === "PENDING"
+                      ? "Đã gửi lời mời kết nối"
+                      : connect?.status === "MATCHED"
+                        ? "Đã kết nối"
+                        : ""}
+                </Text>
+              </View>
+            </Pressable>
           </View>
         </View>
       )}

@@ -1,4 +1,7 @@
-import { fetchMessagesByRoom } from "@/services/chat.api";
+import {
+  fetchMessagesByRoom,
+  getRoomStatus
+} from "@/services/chat.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
 import { getAuth, getToken } from "@/services/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -29,6 +32,7 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const lastMyMessage = messages.find((m) => m.userId === userId);
+  const [status, setStatus] = useState<any>();
 
   useEffect(() => {
     const init = async () => {
@@ -72,8 +76,14 @@ export default function ChatRoom() {
       setMessages(Array.isArray(data) ? data : []);
     };
 
+    const loadStatus = async () => {
+      const status = await getRoomStatus(Number(roomId));
+      setStatus(status);
+    };
+
     loadAuth();
     loadMessages();
+    loadStatus();
   }, [roomId]);
 
   const handleSend = async () => {
@@ -194,21 +204,44 @@ export default function ChatRoom() {
 
         {/** footer */}
         <View style={styles.footerContainer}>
-          <TextInput
-            value={input}
-            onChangeText={setInput}
-            placeholder="Tin nhắn ..."
-            multiline
-            numberOfLines={3}
-            textAlignVertical="top"
-            style={styles.textInput}
-          />
-          <Pressable style={styles.sendContainer} onPress={handleSend}>
-            <Image
-              source={require("../../../assets/myApp/send.png")}
-              style={styles.send}
-            />
-          </Pressable>
+          {status?.status === "BLOCK" ? (
+            <View style={{ alignItems: "center" }}>
+              {status.blockId === userId ? (
+                <Text style={{ color: "gray" }}>
+                  Bạn đã chặn cuộc trò chuyện này
+                </Text>
+              ) : (
+                <Text style={{ color: "gray" }}>
+                  Bạn không thể nhắn tin vì đối phương đã chặn bạn
+                </Text>
+              )}
+            </View>
+          ) : (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+              }}
+            >
+              <TextInput
+                value={input}
+                onChangeText={setInput}
+                placeholder="Tin nhắn ..."
+                placeholderTextColor="black"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+                style={styles.textInput}
+              />
+              <Pressable style={styles.sendContainer} onPress={handleSend}>
+                <Image
+                  source={require("../../../assets/myApp/send.png")}
+                  style={styles.send}
+                />
+              </Pressable>
+            </View>
+          )}
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -291,16 +324,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   footerContainer: {
-    flexDirection: "row",
     backgroundColor: "#FFFFFF",
     paddingVertical: 15,
     borderBottomColor: "#E2E8F0",
     borderTopColor: "#E2E8F0",
     borderBottomWidth: 1,
     borderTopWidth: 1,
-    justifyContent: "space-around",
+
     paddingHorizontal: 20,
-    alignItems: "center",
     marginTop: 20,
   },
   textInput: {

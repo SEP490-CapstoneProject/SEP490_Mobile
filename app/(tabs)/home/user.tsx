@@ -96,12 +96,13 @@ export default function Home() {
                 style={styles.gradient}
               />
               <View style={styles.content}>
-                <View style={{ flexDirection: "row", gap: 10 }}>
+                <View style={{ flexDirection: "row", gap: 10, flex: 1 }}>
                   <Image
                     source={{ uri: job.companyAvatar }}
                     style={styles.avata}
                   />
-                  <View>
+
+                  <View style={{ flex: 1 }}>
                     <Text style={styles.position}>{job.position}</Text>
                     <Text style={styles.name}>{job.companyName}</Text>
 
@@ -110,7 +111,13 @@ export default function Home() {
                         source={require("../../../assets/myApp/maps-and-flags1.png")}
                         style={styles.iconLefft}
                       />
-                      <Text style={styles.contentLeft}>{job.address}</Text>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={styles.contentLeft}
+                      >
+                        {job.address}
+                      </Text>
                     </View>
                     <View>
                       <Image
