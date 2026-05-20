@@ -135,6 +135,7 @@ export default function PostCreate() {
               placeholder="Vị trí tuyển dụng (VD: Senior UX/UI)"
               value={position}
               onChangeText={setPosition}
+              placeholderTextColor="#000000"
             />
           </View>
           <View style={[styles.boderInput, styles.flexInput]}>
@@ -146,6 +147,7 @@ export default function PostCreate() {
               placeholder="Địa điểm làm việc"
               value={address}
               onChangeText={setAddress}
+              placeholderTextColor="#000000"
             />
           </View>
           <View style={[styles.boderInput, styles.flexInput]}>
@@ -157,6 +159,7 @@ export default function PostCreate() {
               placeholder="Mức lương"
               value={salary}
               onChangeText={setSalary}
+              placeholderTextColor="#000000"
             />
           </View>
           <View style={[styles.boderInput]}>
@@ -164,6 +167,7 @@ export default function PostCreate() {
               <Picker
                 selectedValue={employmentType}
                 onValueChange={(value) => setEmploymentType(value)}
+                style={{ color: "#000000" }}
               >
                 <Picker.Item label="Chọn hình thức làm việc" value="" />
                 <Picker.Item label="Toàn thời gian" value="full-time" />
@@ -181,6 +185,7 @@ export default function PostCreate() {
               placeholder="Số năm KN"
               value={experienceYear}
               onChangeText={setExperienceYear}
+              placeholderTextColor="#000000"
             />
           </View>
           <View style={[styles.boderInput, styles.flexInput]}>
@@ -192,6 +197,7 @@ export default function PostCreate() {
               placeholder="Số lượng cần tuyển"
               value={quantity}
               onChangeText={setQuantity}
+              placeholderTextColor="#000000"
             />
           </View>
         </View>
@@ -214,6 +220,7 @@ export default function PostCreate() {
             style={styles.inputDes}
             value={description}
             onChangeText={setDescription}
+            placeholderTextColor="#000000"
           />
         </View>
 
@@ -240,6 +247,7 @@ export default function PostCreate() {
               style={styles.inputDes}
               value={obligatory}
               onChangeText={setObligatory}
+              placeholderTextColor="#000000"
             />
             <View style={styles.preferred}>
               <Text style={styles.preferredText}>Ưu tiên</Text>
@@ -252,6 +260,7 @@ export default function PostCreate() {
               style={styles.inputDes}
               value={preferred}
               onChangeText={setPreferred}
+              placeholderTextColor="#000000"
             />
           </View>
         </View>
@@ -274,6 +283,7 @@ export default function PostCreate() {
             style={styles.inputDes}
             value={benefits}
             onChangeText={setBenefits}
+            placeholderTextColor="#000000"
           />
         </View>
         <View>

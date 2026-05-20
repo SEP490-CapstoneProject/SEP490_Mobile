@@ -7,6 +7,7 @@ import {
   updateFollow,
 } from "@/services/portfolio.api";
 import { showError, showSuccess } from "@/utils/toast";
+import { useRouter } from "expo-router";
 
 import { useEffect, useState } from "react";
 import {
@@ -24,7 +25,7 @@ export default function CareProfileScreen() {
 
   const [mode, setMode] = useState<"ALL" | "CATEGORY">("ALL");
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [followVisible, setFollowVisible] = useState(false);
   const [selectedPortfolio, setSelectedPortfolio] = useState<{
@@ -43,6 +44,7 @@ export default function CareProfileScreen() {
       ]);
 
       setPortfolios(portData || []);
+      console.log(portfolios);
       setCategories(cateData || []);
       setSelectedCategory(null);
     } catch (err) {
@@ -57,7 +59,6 @@ export default function CareProfileScreen() {
       setLoading(true);
 
       const data = await fetchMyFollows(categoryId);
-
       setPortfolios(data || []);
       setSelectedCategory(categoryId);
     } catch (err) {
@@ -166,8 +167,18 @@ export default function CareProfileScreen() {
 
           {portfolios.map((p) => (
             <View key={p.portfolioId} style={styles.card}>
-              <PortfolioRenderer blocks={[p.preview]} />
-
+              <Pressable
+                onPress={() => {
+                  router.push({
+                    pathname: `/(tabs)/profile/viewPortfolio`,
+                    params: {
+                      portId: p.portfolioId,
+                    },
+                  });
+                }}
+              >
+                <PortfolioRenderer blocks={[p.preview]} />
+              </Pressable>
               <View style={styles.priority}>
                 <View
                   style={[

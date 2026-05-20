@@ -4,25 +4,35 @@ import { getToken, savePlan } from "./storage";
 const BASE_URL_SUBSCRIPTION = process.env.EXPO_PUBLIC_SUBSCRIPTION_API;
 const BASE_URL_PAYMENT = process.env.EXPO_PUBLIC_PAYMENT_API;
 
-export const fetchPlans = async () => {
+export const fetchPlansByRole = async (role: number | string) => {
   try {
-    const res = await fetch(`${BASE_URL_SUBSCRIPTION}/api/Plans`, {
-      method: "GET",
-      headers: {
-        Accept: "*/*",
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_SUBSCRIPTION}/api/Plans/by-role/${role}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     const text = await res.text();
     const data = text ? JSON.parse(text) : null;
 
     if (!res.ok) {
-      throw new Error("Lấy danh sách gói thất bại");
+      throw new Error(data?.message || "Lấy danh sách gói thất bại");
     }
 
     return data;
   } catch (err) {
-    console.log("Fetch plans error:", err);
+    console.log("Fetch plans by role error:", err);
     throw err;
   }
 };

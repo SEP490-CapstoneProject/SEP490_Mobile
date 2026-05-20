@@ -58,7 +58,7 @@ export default function CarePostScreen() {
                 style={styles.gradient}
               />
               <View style={styles.content}>
-                <View style={{ flexDirection: "row", gap: 10 }}>
+                <View style={{ flexDirection: "row", gap: 10, flex: 1 }}>
                   <Image
                     source={{ uri: job.companyAvatar }}
                     style={styles.avata}
@@ -72,7 +72,13 @@ export default function CarePostScreen() {
                         source={require("../../../../../assets/myApp/maps-and-flags1.png")}
                         style={styles.iconLefft}
                       />
-                      <Text style={styles.contentLeft}>{job.address}</Text>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={styles.contentLeft}
+                      >
+                        {job.address}
+                      </Text>
                     </View>
                     <View>
                       <Image
@@ -94,7 +100,7 @@ export default function CarePostScreen() {
                       style={styles.letDetail}
                       onPress={() =>
                         router.push({
-                          pathname: "../home/detail",
+                          pathname: `/(tabs)/home/detail`,
                           params: { postId: job.postId },
                         })
                       }
