@@ -5,8 +5,8 @@ import {
 } from "@/services/aplication.api";
 
 import {
-  fetchRoomSummaryByConnection,
   getConnectionStatus,
+  matchByUsers
 } from "@/services/chat.api";
 import { formatTimeAgo } from "@/services/setTime";
 import { getAuth } from "@/services/storage";
@@ -123,21 +123,18 @@ export default function ApplicationManagement() {
 
       console.log("data:", data);
 
-      const roomSummary = await fetchRoomSummaryByConnection(
-        data?.connectionId,
-        currentUserId,
-      );
+      const match = await matchByUsers(currentUserId, targetUserId);
 
-      console.log(roomSummary);
+      console.log(match);
 
       router.push({
         pathname: `/(tabs)/chat/room`,
         params: {
-          roomId: roomSummary.roomId,
-          name: roomSummary.name,
-          avatar: roomSummary.avatar,
-          coverImage: roomSummary.coverImage,
-          role: roomSummary.role,
+          roomId: match.roomId,
+          name: match.name,
+          avatar: match.avatar,
+          coverImage: match.coverImage,
+          role: match.role,
         },
       } as any);
     } catch (err) {

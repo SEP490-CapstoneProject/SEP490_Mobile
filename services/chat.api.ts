@@ -297,3 +297,31 @@ export const fetchRoomSummaryByConnection = async (
     throw err;
   }
 };
+
+export const matchByUsers = async (userId1: number, userId2: number) => {
+  let token = await getToken();
+
+  if (token && isTokenExpired(token)) {
+    token = await refreshToken();
+  }
+
+  const res = await fetch(`${BASE_URL_CHAT}/api/Connection/match-by-users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      userId1,
+      userId2,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Match thất bại");
+  }
+
+  return data;
+};

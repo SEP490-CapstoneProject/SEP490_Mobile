@@ -2,25 +2,24 @@ import { useLoading } from "@/components/LoadingContext";
 import { updateCompanyPostFull } from "@/services/companyPost.api";
 import { showError, showSuccess } from "@/utils/toast";
 import { Picker } from "@react-native-picker/picker";
-import { Video } from "expo-av";
+
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 export default function postEdit() {
   const { job } = useLocalSearchParams();
   const router = useRouter();
   const [media, setMedia] = useState<any>(null);
-  const videoRef = useRef<Video>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [description, setDescription] = useState("");
   const [obligatory, setObligatory] = useState("");
@@ -180,6 +179,7 @@ export default function postEdit() {
               placeholder="Địa điểm làm việc"
               value={address}
               onChangeText={setAddress}
+              style={{ marginRight: 25 }}
             />
           </View>
           <View style={[styles.boderInput, styles.flexInput]}>
@@ -196,6 +196,7 @@ export default function postEdit() {
           <View style={[styles.boderInput]}>
             <View>
               <Picker
+                style={{ color: "#000000" }}
                 selectedValue={employmentType}
                 onValueChange={(value) => setEmploymentType(value)}
               >
@@ -248,6 +249,7 @@ export default function postEdit() {
             style={styles.inputDes}
             value={description}
             onChangeText={setDescription}
+            placeholderTextColor="#000000"
           />
         </View>
 
@@ -274,6 +276,7 @@ export default function postEdit() {
               style={styles.inputDes}
               value={obligatory}
               onChangeText={setObligatory}
+              placeholderTextColor="#000000"
             />
             <View style={styles.preferred}>
               <Text style={styles.preferredText}>Ưu tiên</Text>
@@ -286,6 +289,7 @@ export default function postEdit() {
               style={styles.inputDes}
               value={preferred}
               onChangeText={setPreferred}
+              placeholderTextColor="#000000"
             />
           </View>
         </View>
@@ -308,6 +312,7 @@ export default function postEdit() {
             style={styles.inputDes}
             value={benefits}
             onChangeText={setBenefits}
+            placeholderTextColor="#000000"
           />
         </View>
         <View>
@@ -445,6 +450,7 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingLeft: 15,
     minHeight: 200,
+    color: "#000000",
   },
   boderContentSecond: {
     borderColor: "#E2E8F0",

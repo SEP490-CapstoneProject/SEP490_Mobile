@@ -4,7 +4,11 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import CustomLoading from "@/components/CustomLoading";
 import { useLoading } from "@/components/LoadingContext";
 import PlanCard from "@/components/PlanCard";
-import { fetchMySubscription, fetchPlans } from "@/services/subscription.api";
+import { getAuth } from "@/services/storage";
+import {
+  fetchMySubscription,
+  fetchPlansByRole,
+} from "@/services/subscription.api";
 
 export default function SubscriptionScreen() {
   const [plans, setPlans] = useState<any[]>([]);
@@ -19,7 +23,8 @@ export default function SubscriptionScreen() {
 
   const load = async () => {
     setLoading(true);
-    const plans = await fetchPlans();
+    const auth = await getAuth();
+    const plans = await fetchPlansByRole(auth?.role);
     const current = await fetchMySubscription();
 
     setPlans(plans);

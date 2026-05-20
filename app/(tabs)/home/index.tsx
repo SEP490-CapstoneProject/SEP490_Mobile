@@ -2,12 +2,14 @@ import { getAuth } from "@/services/storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import ChallengeManagement from "./challenge/ChallengeManagement";
+import ChallengeTalentScreen from "./challenge/ChallengeTalent";
 import Company from "./company";
 import User from "./user";
 
 export default function HomeIndex() {
   const [auth, setAuth] = useState<any>(null);
-  const [tab, setTab] = useState<"explore" | "jobs">("explore");
+  const [tab, setTab] = useState<"explore" | "jobs" | "challenge">("explore");
   const router = useRouter();
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function HomeIndex() {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.header}>
-        <View style={{ flexDirection: "row", gap: 40 }}>
+        <View style={{ flexDirection: "row", gap: 20 }}>
           <Pressable onPress={() => setTab("explore")}>
             <Text style={[styles.tab, tab === "explore" && styles.active]}>
               Khám phá
@@ -41,6 +43,12 @@ export default function HomeIndex() {
               </Text>
             </Pressable>
           )}
+
+          <Pressable onPress={() => setTab("challenge")}>
+            <Text style={[styles.tab, tab === "challenge" && styles.active]}>
+              Thử thách
+            </Text>
+          </Pressable>
         </View>
         <Pressable onPress={handleSearch}>
           <Image
@@ -54,6 +62,8 @@ export default function HomeIndex() {
       <View style={{ flex: 1 }}>
         {tab === "explore" && <Company />}
         {tab === "jobs" && auth.role === 1 && <User />}
+        {tab === "challenge" && auth.role === 1 && <ChallengeTalentScreen />}
+        {tab === "challenge" && auth.role === 2 && <ChallengeManagement />}
       </View>
     </View>
   );

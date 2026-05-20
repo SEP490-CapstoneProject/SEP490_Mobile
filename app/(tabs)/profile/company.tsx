@@ -129,9 +129,7 @@ export default function CompanyProfile() {
           <View
             style={{
               marginTop: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 20,
+              gap: 10,
               marginHorizontal: 15,
               marginBottom: 10,
             }}

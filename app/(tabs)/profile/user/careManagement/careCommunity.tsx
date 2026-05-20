@@ -1,8 +1,11 @@
+import { useConfirm } from "@/components/ConfirmContext";
 import CustomLoading from "@/components/CustomLoading";
 import MediaGrid from "@/components/MediaGrid";
 import { fetchSavedPosts } from "@/services/careManagement.api";
 import {
+  deletePost,
   likePost,
+  reportPost,
   savePost,
   unlikePost,
   unsavePost,
@@ -11,7 +14,9 @@ import { realtimeService } from "@/services/realtimeService";
 
 import { formatTimeAgo } from "@/services/setTime";
 import { shareContent } from "@/services/share";
+import { getAuth } from "@/services/storage";
 import { usePostStore } from "@/utils/postStore";
+import { showError, showSuccess } from "@/utils/toast";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -30,10 +35,19 @@ export default function CareCommunityScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { updateFavoriteRealtime } = usePostStore();
   const { toggleFavorite } = usePostStore();
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [reportVisible, setReportVisible] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const { showConfirm } = useConfirm();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
 
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
+      const user = await getAuth();
+      const userId = user?.id || null;
+      setCurrentUserId(userId);
       try {
         const fetchedPosts = await fetchSavedPosts();
         setProfilePosts(fetchedPosts);
@@ -96,6 +110,28 @@ export default function CareCommunityScreen() {
     }
   };
 
+  const handleDelete = async (postId: number) => {
+    try {
+      showConfirm({
+        title: "Xóa bài đăng",
+        message: "Bạn có chắc muốn xóa không?",
+        onConfirm: async () => {
+          const res = await deletePost(postId);
+          if (res) {
+            showSuccess("Xóa bài viết", "Bài viết đã được xóa thành công.");
+          } else {
+            showError(
+              "Xóa bài viết",
+              "Xóa bài viết thất bại. Vui lòng thử lại.",
+            );
+          }
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      showError("Xóa bài viết", "Xóa bài viết thất bại. Vui lòng thử lại.");
+    }
+  };
   return (
     <View style={styles.container}>
       {/* content */}
@@ -129,7 +165,12 @@ export default function CareCommunityScreen() {
                       </Text>
                     </View>
                   </View>
-                  <Pressable>
+                  <Pressable
+                    onPress={() => {
+                      setSelectedPost(post);
+                      setMenuVisible(true);
+                    }}
+                  >
                     <Image
                       source={require("../../../../../assets/myApp/option.png")}
                       style={styles.iconHeaderLeft}
@@ -210,6 +251,138 @@ export default function CareCommunityScreen() {
             </View>
           ))}
         </ScrollView>
+      )}
+
+      {menuVisible && (
+        <View style={styles.overlay}>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setMenuVisible(false)}
+          />
+
+          <View style={styles.bottomSheet}>
+            {selectedPost?.author?.id === currentUserId ? (
+              <Pressable
+                style={styles.menuItem}
+                onPress={() => {
+                  handleDelete(selectedPost.id);
+                  setMenuVisible(false);
+                }}
+              >
+                <Image
+                  source={require("../../../../../assets/myApp/trash.png")}
+                  style={styles.iconHeaderLeft}
+                />
+                <Text style={{ color: "red" }}>Xóa bài viết</Text>
+              </Pressable>
+            ) : (
+              <></>
+            )}
+
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                setTimeout(() => {
+                  setReportVisible(true);
+                }, 200);
+              }}
+            >
+              <Image
+                source={require("../../../../../assets/myApp/warning1.png")}
+                style={styles.iconHeaderLeft}
+              />
+              <Text>Báo cáo bài viết</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => setMenuVisible(false)}
+            >
+              <Text>Hủy</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
+      {reportVisible && (
+        <View style={styles.overlay}>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setReportVisible(false)}
+          />
+
+          <View style={styles.bottomSheet}>
+            <Text
+              style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}
+            >
+              Chọn lý do báo cáo
+            </Text>
+
+            {[
+              { label: "Spam / Nội dung rác", value: "spam" },
+              { label: "Quấy rối / Đả kích", value: "harassment" },
+              { label: "Ngôn từ thù ghét", value: "hate_speech" },
+              { label: "Nội dung không phù hợp", value: "inappropriate" },
+              { label: "Lý do khác", value: "other" },
+            ].map((item) => (
+              <Pressable
+                key={item.value}
+                style={styles.menuItem}
+                onPress={() => setReportReason(item.value)}
+              >
+                <Text
+                  style={{
+                    color: reportReason === item.value ? "#2563EB" : "#000",
+                    fontWeight: reportReason === item.value ? "bold" : "normal",
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </Pressable>
+            ))}
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+                marginHorizontal: 40,
+              }}
+            >
+              <Pressable
+                style={[styles.menuItem]}
+                onPress={async () => {
+                  try {
+                    await reportPost(selectedPost.id, reportReason);
+
+                    showSuccess(
+                      "Đã gửi báo cáo",
+                      "Cảm ơn bạn đã giúp chúng tôi giữ cho cộng đồng an toàn và lành mạnh.",
+                    );
+                    setReportVisible(false);
+                  } catch (err) {
+                    showError(
+                      "Báo cáo thất bại",
+                      "Đã có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại.",
+                    );
+                  }
+                }}
+              >
+                <Text style={{ color: "#2563EB", textAlign: "center" }}>
+                  Gửi báo cáo
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.menuItem}
+                onPress={() => setReportVisible(false)}
+              >
+                <Text>Hủy</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
       )}
     </View>
   );
@@ -316,5 +489,31 @@ const styles = StyleSheet.create({
   textFavoriteCount: {
     color: "#6B7280",
     fontSize: 13,
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "flex-end",
+  },
+
+  bottomSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 15,
+  },
+
+  menuItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
   },
 });

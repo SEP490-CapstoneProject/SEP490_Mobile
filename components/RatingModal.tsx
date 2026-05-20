@@ -73,7 +73,10 @@ export default function RatingModal({
   }, [ratingData.content, criteria]);
 
   return (
-    <View style={[styles.overlay, { display: visible ? "flex" : "none" }]}>
+    <Pressable
+      style={[styles.overlay, { display: visible ? "flex" : "none" }]}
+      onPress={onClose}
+    >
       <View style={styles.modal}>
         <Text style={styles.title}>Chấm điểm theo tiêu chí</Text>
 
@@ -115,12 +118,14 @@ export default function RatingModal({
                 key={item.id}
                 style={[
                   styles.criteriaItem,
-                  isSelected && { backgroundColor: "#DCFCE7" },
+                  isSelected && {
+                    backgroundColor: "#DCFCE7",
+                    borderColor: "#FFFFFF",
+                  },
                 ]}
                 onPress={() => toggleCriteria(item)}
               >
                 <Text style={{ flex: 1 }}>{item.name}</Text>
-                {isSelected && <Text>✔</Text>}
               </Pressable>
             );
           })}
@@ -145,7 +150,7 @@ export default function RatingModal({
           </Pressable>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
