@@ -124,3 +124,74 @@ export const fetchMySubscription = async () => {
   savePlan(data);
   return data;
 };
+
+export const fetchEntitlements = async (userId: number) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_SUBSCRIPTION}/api/Subscriptions/entitlements/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "*/*",
+        },
+      },
+    );
+
+    const text = await res.text();
+
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy entitlements thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    console.log("fetchEntitlements error:", err);
+    return null;
+  }
+};
+
+export const fetchPaymentHistory = async (
+  page: number = 1,
+  pageSize: number = 5,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_PAYMENT}/api/payments/my-history?page=${page}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "*/*",
+        },
+      },
+    );
+
+    const text = await res.text();
+
+    const data = text ? JSON.parse(text) : [];
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy lịch sử thanh toán thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    console.log("fetchPaymentHistory error:", err);
+    return [];
+  }
+};

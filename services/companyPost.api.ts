@@ -347,3 +347,77 @@ export const fetchCompanyPostsByCompanyId = async (
     throw err;
   }
 };
+
+export const fetchMatchPortfolios = async (
+  companyPostId: number,
+  page: number = 1,
+  pageSize: number = 100,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_COMPANY}/api/company-posts/${companyPostId}/match-portfolios?page=${page}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(
+        data?.message || "Lấy danh sách portfolio phù hợp thất bại",
+      );
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const searchCompanyPosts = async (
+  q: string = "",
+  skip: number = 0,
+  take: number = 100,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_COMPANY}/api/company-posts/search?q=${encodeURIComponent(q)}&skip=${skip}&take=${take}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Tìm kiếm bài đăng thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};

@@ -430,3 +430,66 @@ export const fetchCriteria = async () => {
     throw err;
   }
 };
+
+export const searchPortfolio = async (q: string, blockType: string) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL_PORTFOLIO}/api/portfolio?page=1&pageSize=10000&q=${q}&blockType=${blockType}&includeCompliments=false`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Search portfolio thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    console.log("Search portfolio error:", err);
+    throw err;
+  }
+};
+
+export const getMatchJobs = async (
+  id: number,
+  page: number = 1,
+  pageSize: number = 1000,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_PORTFOLIO}/api/portfolio/${id}/match-jobs?page=${page}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy danh sách job match thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    console.log("Get match jobs error:", err);
+    throw err;
+  }
+};

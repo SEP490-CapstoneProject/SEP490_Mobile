@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-
 import CustomLoading from "@/components/CustomLoading";
 import { useLoading } from "@/components/LoadingContext";
 import PlanCard from "@/components/PlanCard";
@@ -9,11 +6,15 @@ import {
   fetchMySubscription,
   fetchPlansByRole,
 } from "@/services/subscription.api";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function SubscriptionScreen() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { showLoading, hideLoading } = useLoading();
+  const router = useRouter();
 
   const [myPlan, setMyPlan] = useState<any>(null);
 
@@ -35,7 +36,11 @@ export default function SubscriptionScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.historyContainer}>
-        <Pressable>
+        <Pressable
+          onPress={() =>
+            router.push(`/(tabs)/profile/subscriptionManagementPage`)
+          }
+        >
           <Text
             style={{ color: "#3B82F6", fontSize: 15, marginHorizontal: 20 }}
           >
