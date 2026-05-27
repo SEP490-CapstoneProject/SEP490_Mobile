@@ -1,6 +1,6 @@
 import { router, Slot, usePathname } from "expo-router";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
-import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
+// import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
 
 export default function AuthLayout() {
   const pathname = usePathname();
@@ -9,7 +9,14 @@ export default function AuthLayout() {
   const isRegister = pathname.startsWith("/register");
 
   return (
-    <View style={{ flex: 1, marginTop: 20, paddingHorizontal: 16 }}>
+    <View
+      style={{
+        flex: 1,
+        paddingTop: 20,
+        paddingHorizontal: 16,
+        backgroundColor: "#fff",
+      }}
+    >
       <Image
         source={require("../../assets/myApp/Logo.png")}
         style={{ width: 150, height: 150, alignSelf: "center" }}
@@ -58,7 +65,6 @@ export default function AuthLayout() {
         </Pressable>
       </View>
 
-      {/* NỘI DUNG FORM */}
       <ScrollView
         style={{ flex: 1, marginBottom: 30 }}
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -66,7 +72,26 @@ export default function AuthLayout() {
         keyboardShouldPersistTaps="handled"
       >
         <Slot />
-        <GoogleLoginButton />
+        {/* <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 32,
+            marginBottom: 20,
+          }}
+        >
+          <View
+            style={{ height: 1, backgroundColor: "#CBD5E1", width: "28%" }}
+          ></View>
+          <Text style={{ fontSize: 13, color: "#94A3B8", fontWeight: "500" }}>
+            Hoặc đăng nhập với
+          </Text>
+          <View
+            style={{ height: 1, backgroundColor: "#CBD5E1", width: "28%" }}
+          ></View>
+        </View>
+        <GoogleLoginButton /> */}
       </ScrollView>
     </View>
   );

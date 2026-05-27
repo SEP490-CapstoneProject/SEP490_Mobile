@@ -1,6 +1,7 @@
 import { useLoading } from "@/components/LoadingContext";
 import { register } from "@/services/auth.api";
 import { showError, showSuccess } from "@/utils/toast";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -20,6 +21,20 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState(1);
   const { showLoading, hideLoading } = useLoading();
+
+  const validatePassword = (password: string) => {
+    const hasLength = password.length >= 8;
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    return {
+      hasLength,
+      hasNumber,
+      hasSpecial,
+    };
+  };
+
+  const rules = validatePassword(password);
 
   const handleRegister = async () => {
     try {
@@ -128,6 +143,39 @@ export default function RegisterScreen() {
         </Pressable>
       </View>
 
+      {/* RULES */}
+      <View style={styles.ruleBox}>
+        <View style={styles.ruleItem}>
+          <Ionicons
+            name={rules.hasLength ? "checkmark-circle" : "ellipse-outline"}
+            size={16}
+            color={rules.hasLength ? "#16A34A" : "#374151"}
+          />
+
+          <Text style={styles.ruleText}>Ít nhất 8 ký tự</Text>
+        </View>
+
+        <View style={styles.ruleItem}>
+          <Ionicons
+            name={rules.hasNumber ? "checkmark-circle" : "ellipse-outline"}
+            size={16}
+            color={rules.hasNumber ? "#16A34A" : "#374151"}
+          />
+
+          <Text style={styles.ruleText}>Chứa ít nhất một chữ số</Text>
+        </View>
+
+        <View style={styles.ruleItem}>
+          <Ionicons
+            name={rules.hasSpecial ? "checkmark-circle" : "ellipse-outline"}
+            size={16}
+            color={rules.hasSpecial ? "#16A34A" : "#374151"}
+          />
+
+          <Text style={styles.ruleText}>Chứa ký tự đặc biệt</Text>
+        </View>
+      </View>
+
       <Text style={styles.label}>Đăng kí với tư cách là</Text>
       <View style={styles.roleContainer}>
         <Pressable
@@ -160,20 +208,16 @@ export default function RegisterScreen() {
       <Pressable style={styles.LoginButton} onPress={handleRegister}>
         <Text style={styles.LoginButtonText}>Đăng ký</Text>
       </Pressable>
-
-      <View style={styles.anotherLogin}>
-        <View style={styles.line}></View>
-        <Text style={styles.anotherText}>Hoặc đăng nhập với</Text>
-        <View style={styles.line}></View>
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: 16,
-    marginBottom: 5,
+    fontSize: 15,
+    color: "#1E293B",
+    fontWeight: "600",
+    marginLeft: 2,
   },
 
   inputWrapper: {
@@ -183,28 +227,30 @@ const styles = StyleSheet.create({
 
   icon: {
     position: "absolute",
-    left: 12,
+    left: 14,
     top: "50%",
     width: 20,
     height: 20,
     transform: [{ translateY: -10 }],
-    tintColor: "#6B7280",
+    tintColor: "#64748B",
     zIndex: 1,
   },
 
   input: {
-    height: 44,
-    borderColor: "#6B7280",
+    height: 45,
     borderWidth: 1,
-    borderRadius: 10,
-    backgroundColor: "#E2E8F0",
-    fontSize: 14,
-    paddingLeft: 44,
-    paddingRight: 40,
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    fontSize: 15,
+    color: "#0F172A",
+    paddingLeft: 48,
+    paddingRight: 48,
   },
+
   iconRight: {
     position: "absolute",
-    right: 12,
+    right: 14,
     top: "50%",
     transform: [{ translateY: -10 }],
     zIndex: 1,
@@ -213,83 +259,89 @@ const styles = StyleSheet.create({
   eye: {
     width: 20,
     height: 20,
-    tintColor: "#6B7280",
+    tintColor: "#64748B",
   },
 
   forgetPassword: {
-    color: "#028AE0",
+    color: "#2563EB",
     textAlign: "right",
     marginBottom: 30,
+    fontWeight: "600",
   },
 
   LoginButton: {
-    height: 44,
-    backgroundColor: "#028AE0",
-    borderRadius: 10,
+    height: 56,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    fontSize: 16,
-    fontWeight: "bold",
+    marginTop: 10,
+
+    backgroundColor: "#2563EB",
   },
+
   LoginButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
 
-  anotherLogin: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  line: {
-    height: 2,
-    backgroundColor: "#B2B9C1",
-    width: "30%",
-  },
-
-  anotherText: {
-    fontSize: 14,
-    color: "#B2B9C1",
-  },
   roleContainer: {
     flexDirection: "row",
     marginBottom: 20,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 16,
+    padding: 4,
   },
 
   roleButton: {
     flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#6B7280",
+    height: 35,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#E2E8F0",
+    borderRadius: 12,
   },
 
-  roleRight: {
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-  roleLeft: {
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-  },
+  roleRight: {},
+
+  roleLeft: {},
 
   roleButtonActive: {
-    backgroundColor: "#028AE0",
-    borderColor: "#028AE0",
+    backgroundColor: "#2563EB",
   },
 
   roleText: {
-    color: "#6B7280",
+    color: "#64748B",
     fontSize: 14,
+    fontWeight: "600",
   },
 
   roleTextActive: {
     color: "#FFFFFF",
-    fontWeight: "bold",
+    fontWeight: "700",
+  },
+
+  ruleBox: {
+    backgroundColor: "#F8FAFC",
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    paddingVertical: 5,
+    paddingTop: 10,
+  },
+
+  ruleItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 12,
+  },
+
+  ruleText: {
+    fontSize: 14,
+    color: "#334155",
+    fontWeight: "500",
   },
 });

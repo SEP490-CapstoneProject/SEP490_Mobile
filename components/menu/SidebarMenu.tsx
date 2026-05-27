@@ -46,7 +46,7 @@ export default function SidebarMenu({
       id: 4,
       label: "Đổi mật khẩu",
       icon: require("../../assets/myApp/rotatelock.png"),
-      onPress: onChangePassword,
+      onPress: () => router.push("/settings/changePassword"),
     },
     {
       id: 5,
