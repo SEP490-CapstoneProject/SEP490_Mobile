@@ -331,7 +331,7 @@ export default function Home() {
                     >
                       <Image
                         source={require("../../../assets/myApp/share_black.png")}
-                        style={styles.icon}
+                        style={[styles.icon, { tintColor: "#3B82F6" }]}
                       />
                     </Pressable>
                   </View>

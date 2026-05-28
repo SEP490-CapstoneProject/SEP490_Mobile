@@ -11,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
@@ -18,6 +19,10 @@ export default function Chat() {
   const [messRoom, setMessRoom] = useState<any[]>([]);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const filteredRooms = messRoom.filter((room) =>
+    room.name?.toLowerCase().includes(search.toLowerCase()),
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -82,12 +87,20 @@ export default function Chat() {
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Tin nhắn</Text>
 
-        <Pressable style={styles.bntSearch}>
+        <View style={styles.searchContainer}>
           <Image
             source={require("../../../assets/myApp/search1.png")}
-            style={styles.iconSearch}
+            style={styles.searchIcon}
           />
-        </Pressable>
+
+          <TextInput
+            placeholder="Tìm kiếm người dùng..."
+            placeholderTextColor="#9CA3AF"
+            value={search}
+            onChangeText={setSearch}
+            style={styles.input}
+          />
+        </View>
       </View>
       {/** body */}
       {loading ? (
@@ -107,7 +120,7 @@ export default function Chat() {
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
           {/** room mess */}
-          {messRoom.map((room) => (
+          {filteredRooms.map((room) => (
             <Pressable
               style={styles.chat}
               key={room.roomId}
@@ -214,5 +227,28 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 8,
     left: 43,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    height: 40,
+    flex: 1,
+    marginLeft: 15,
+  },
+
+  searchIcon: {
+    width: 18,
+    height: 18,
+    tintColor: "#6B7280",
+  },
+
+  input: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 15,
+    color: "#111827",
   },
 });

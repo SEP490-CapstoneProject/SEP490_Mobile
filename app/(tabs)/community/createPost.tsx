@@ -35,7 +35,7 @@ export default function createPost() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ["images"],
       allowsMultipleSelection: true,
       selectionLimit: 4 - media.length,
       quality: 1,
@@ -83,7 +83,7 @@ export default function createPost() {
       >
         <TextInput
           placeholder="Bạn đang nghĩ gì? Chia sẻ cùng cộng đồng..."
-          placeholderTextColor="black"
+          placeholderTextColor="#9CA3AF"
           multiline
           textAlignVertical="top"
           style={styles.postInput}
@@ -107,8 +107,8 @@ export default function createPost() {
           />
           <Text style={styles.bntTextFooter}> Thêm ảnh / Video</Text>
         </Pressable>
-        <View style={styles.divider} />
-        <Pressable
+        {/* <View style={styles.divider} /> */}
+        {/* <Pressable
           style={styles.bntFooter}
           onPress={() => router.push("/(tabs)/profile")}
         >
@@ -117,7 +117,7 @@ export default function createPost() {
             style={styles.iconFooter}
           />
           <Text style={styles.bntTextFooter}> Hồ sơ</Text>
-        </Pressable>
+        </Pressable> */}
       </View>
 
       <Modal transparent visible={showLimitModal} animationType="fade">
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
   postInput: {
     fontSize: 18,
     color: "#111827",
+
     minHeight: 40,
     maxHeight: "auto",
     paddingVertical: 10,

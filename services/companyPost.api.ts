@@ -421,3 +421,44 @@ export const searchCompanyPosts = async (
     throw err;
   }
 };
+
+export const reportCompanyPost = async (
+  postId: number,
+  reason: string,
+  description: string,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL_COMPANY}/api/company-posts/${postId}/report`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reason,
+          description,
+        }),
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Báo cáo bài đăng thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};

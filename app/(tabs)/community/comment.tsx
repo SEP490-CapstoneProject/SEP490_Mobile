@@ -487,7 +487,7 @@ export default function Comment() {
                                     source={{ uri: reply.author.avatar }}
                                     style={styles.avataComment}
                                   />
-                                  {comment.author.role === "COMPANY" && (
+                                  {reply.author.role === "COMPANY" && (
                                     <Image
                                       source={require("../../../assets/myApp/checklist.png")}
                                       style={styles.avatarBadge}

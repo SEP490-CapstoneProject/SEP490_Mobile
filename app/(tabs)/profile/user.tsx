@@ -2,9 +2,7 @@ import CardButton from "@/components/CardButton";
 import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import ProfilePage from "@/components/profile/ProfilePage";
 import { logout } from "@/services/auth.api";
-import {
-  fetchMainPortfolio
-} from "@/services/portfolio.api";
+import { fetchMainPortfolio } from "@/services/portfolio.api";
 import { getAuth, getPlan, getProfile } from "@/services/storage";
 
 import { useRouter } from "expo-router";
@@ -139,7 +137,7 @@ export default function UserProfile() {
         {/* portfolio here */}
         {portfolio !== null && (
           <View style={{ marginTop: 30 }}>
-            <View style={styles.pressableBnt}>
+            {/* <View style={styles.pressableBnt}>
               <Pressable style={styles.pressableShare}>
                 <Text style={styles.textShare}>
                   {portfolio?.isPublic ? "Đang công khai" : "Đăng công khai"}
@@ -151,7 +149,7 @@ export default function UserProfile() {
                   style={{ width: 25, height: 25 }}
                 />
               </Pressable>
-            </View>
+            </View> */}
             {portfolio?.blocks?.length > 0 && (
               <View
                 style={{

@@ -1,9 +1,7 @@
-import {
-  fetchMessagesByRoom,
-  getRoomStatus
-} from "@/services/chat.api";
+import { fetchMessagesByRoom, getRoomStatus } from "@/services/chat.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
 import { getAuth, getToken } from "@/services/storage";
+import { showError } from "@/utils/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -94,7 +92,7 @@ export default function ChatRoom() {
 
       setInput("");
     } catch (err) {
-      console.log("Send error:", err);
+      showError("Gửi tin nhắn thất bại", "Vui lòng thử lại.");
     }
   };
 

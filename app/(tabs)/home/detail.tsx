@@ -1,25 +1,40 @@
-import { fetchJobById } from "@/services/companyPost.api";
+import { useLoading } from "@/components/LoadingContext";
+import { fetchJobById, reportCompanyPost } from "@/services/companyPost.api";
+import { showError, showInfo, showSuccess } from "@/utils/toast";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
 export default function Detail() {
   const router = useRouter();
   const { postId } = useLocalSearchParams();
-  const [loading, setLoading] = useState(false);
   const [jobDetail, setJobDetail] = useState<any | null>(null);
+  const [reportVisible, setReportVisible] = useState(false);
+  const [selectedReason, setSelectedReason] = useState("");
+  const [description, setDescription] = useState("");
+  const { showLoading, hideLoading } = useLoading();
+
+  const reasons = [
+    "Spam",
+    "Thông tin sai lệch",
+    "Lừa đảo",
+    "Nội dung không phù hợp",
+    "Tin tuyển dụng giả",
+    "Khác",
+  ];
 
   useEffect(() => {
     const loadJobDetail = async () => {
       try {
-        setLoading(true);
         if (typeof postId === "string") {
           const fetchedJobDetail = await fetchJobById(Number(postId));
           setJobDetail(fetchedJobDetail);
@@ -27,12 +42,43 @@ export default function Detail() {
       } catch (e) {
         console.error(e);
       } finally {
-        setLoading(false);
       }
     };
     loadJobDetail();
   }, [postId]);
 
+  const handleReport = async () => {
+    try {
+      if (!selectedReason) {
+        showInfo(
+          "Vui lòng chọn lý do",
+          "Bạn cần chọn một lý do để báo cáo bài đăng này.",
+        );
+        return;
+      }
+
+      showLoading();
+
+      await reportCompanyPost(
+        Number(jobDetail?.postId),
+        selectedReason,
+        description,
+      );
+
+      setReportVisible(false);
+      setSelectedReason("");
+      setDescription("");
+
+      showSuccess("Đã gửi báo cáo", "Báo cáo của bạn đã được gửi thành công.");
+    } catch (err: any) {
+      showError(
+        "Báo cáo thất bại",
+        err.message || "Đã xảy ra lỗi khi gửi báo cáo.",
+      );
+    } finally {
+      hideLoading();
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -203,7 +249,10 @@ export default function Detail() {
           >
             <Text style={{ color: "white" }}>Tham gia ứng tuyển</Text>
           </Pressable>
-          <Pressable style={styles.bntDotFooter}>
+          <Pressable
+            style={styles.bntDotFooter}
+            onPress={() => setReportVisible(true)}
+          >
             <Image
               source={require("../../../assets/myApp/dots.png")}
               style={{ width: 30, height: 30 }}
@@ -211,6 +260,59 @@ export default function Detail() {
           </Pressable>
         </View>
       </ScrollView>
+      <Modal
+        visible={reportVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setReportVisible(false)}
+      >
+        <Pressable
+          style={styles.overlay}
+          onPress={() => setReportVisible(false)}
+        >
+          <Pressable style={styles.reportContainer}>
+            <View style={styles.reportHandle} />
+
+            <Text style={styles.reportTitle}>Báo cáo bài đăng</Text>
+
+            <Text style={styles.reportSub}>
+              Vì sao bạn muốn báo cáo bài đăng này?
+            </Text>
+
+            <View style={{ marginTop: 20 }}>
+              {reasons.map((item, index) => (
+                <Pressable
+                  key={index}
+                  style={[styles.reasonItem]}
+                  onPress={() => setSelectedReason(item)}
+                >
+                  <Text
+                    style={[
+                      styles.reasonText,
+                      selectedReason === item && styles.reasonTextActive,
+                    ]}
+                  >
+                    {item}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <TextInput
+              placeholder="Mô tả thêm..."
+              multiline
+              value={description}
+              onChangeText={setDescription}
+              style={styles.input}
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Pressable style={[styles.reportBtn]} onPress={handleReport}>
+              <Text style={styles.reportBtnText}>Gửi báo cáo</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -383,5 +485,83 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFF6FF",
     borderWidth: 1,
     borderColor: "#E2E8F0",
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "flex-end",
+  },
+
+  reportContainer: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 20,
+    paddingBottom: 40,
+  },
+
+  reportHandle: {
+    width: 60,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#D1D5DB",
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+
+  reportTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#111827",
+  },
+
+  reportSub: {
+    marginTop: 8,
+    color: "#6B7280",
+    fontSize: 14,
+  },
+
+  reasonItem: {
+    paddingBottom: 10,
+    paddingHorizontal: 18,
+    marginBottom: 12,
+    borderBottomColor: "#E5E7EB",
+    borderBottomWidth: 1,
+  },
+
+  reasonText: {
+    fontSize: 15,
+    color: "#111827",
+  },
+
+  reasonTextActive: {
+    color: "#2563EB",
+  },
+
+  input: {
+    marginTop: 10,
+    minHeight: 110,
+    backgroundColor: "#F9FAFB",
+    borderRadius: 18,
+    padding: 16,
+    textAlignVertical: "top",
+    color: "#111827",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+
+  reportBtn: {
+    marginTop: 20,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#2563EB",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  reportBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

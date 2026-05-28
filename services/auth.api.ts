@@ -152,9 +152,8 @@ export const forgotPassword = async (email: string) => {
     }
 
     return text;
-  } catch (err) {
-    console.log("Forgot password error:", err);
-    throw err;
+  } catch (err: any) {
+    throw err.message || "Gửi yêu cầu quên mật khẩu thất bại";
   }
 };
 
@@ -179,9 +178,8 @@ export const verifyResetToken = async (email: string, token: string) => {
     }
 
     return text;
-  } catch (err) {
-    console.log("Verify reset token error:", err);
-    throw err;
+  } catch (err: any) {
+    throw err.message || "Xác thực token thất bại";
   }
 };
 
@@ -211,9 +209,8 @@ export const resetPassword = async (
     }
 
     return text;
-  } catch (err) {
-    console.log("Reset password error:", err);
-    throw err;
+  } catch (err: any) {
+    throw err.message || "Đặt lại mật khẩu thất bại";
   }
 };
 
@@ -248,8 +245,7 @@ export const changePassword = async (
     }
 
     return text;
-  } catch (err) {
-    console.log("Change password error:", err);
-    throw err;
+  } catch (err: any) {
+    throw err.message || "Đổi mật khẩu thất bại";
   }
 };
