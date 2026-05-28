@@ -131,3 +131,125 @@ export const logout = async () => {
   chatRealtimeService.stop();
   realtimeService.stop();
 };
+
+export const forgotPassword = async (email: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/Auth/forgot-password`, {
+      method: "POST",
+      headers: {
+        Accept: "text/plain",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+      }),
+    });
+
+    const text = await res.text();
+
+    if (!res.ok) {
+      throw new Error(text || "Gửi yêu cầu quên mật khẩu thất bại");
+    }
+
+    return text;
+  } catch (err) {
+    console.log("Forgot password error:", err);
+    throw err;
+  }
+};
+
+export const verifyResetToken = async (email: string, token: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/Auth/verify-reset-token`, {
+      method: "POST",
+      headers: {
+        Accept: "text/plain",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        token,
+      }),
+    });
+
+    const text = await res.text();
+
+    if (!res.ok) {
+      throw new Error(text || "Xác thực token thất bại");
+    }
+
+    return text;
+  } catch (err) {
+    console.log("Verify reset token error:", err);
+    throw err;
+  }
+};
+
+export const resetPassword = async (
+  email: string,
+  token: string,
+  newPassword: string,
+) => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/Auth/reset-password`, {
+      method: "POST",
+      headers: {
+        Accept: "text/plain",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        token,
+        newPassword,
+      }),
+    });
+
+    const text = await res.text();
+
+    if (!res.ok) {
+      throw new Error(text || "Đặt lại mật khẩu thất bại");
+    }
+
+    return text;
+  } catch (err) {
+    console.log("Reset password error:", err);
+    throw err;
+  }
+};
+
+export const changePassword = async (
+  oldPassword: string,
+  newPassword: string,
+) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(`${BASE_URL}/api/Auth/change-password`, {
+      method: "PUT",
+      headers: {
+        Accept: "text/plain",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        oldPassword,
+        newPassword,
+      }),
+    });
+
+    const text = await res.text();
+
+    if (!res.ok) {
+      throw new Error(text || "Đổi mật khẩu thất bại");
+    }
+
+    return text;
+  } catch (err) {
+    console.log("Change password error:", err);
+    throw err;
+  }
+};

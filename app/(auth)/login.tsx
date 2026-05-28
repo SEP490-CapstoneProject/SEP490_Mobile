@@ -25,6 +25,13 @@ export default function Login() {
       showError("Đăng nhập thất bại", "Vui lòng nhập đầy đủ thông tin");
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      showError("Email không hợp lệ", "Vui lòng nhập đúng định dạng email");
+      return;
+    }
     showLoading();
     const res = await login(email, password);
     hideLoading();
@@ -96,59 +103,60 @@ export default function Login() {
           />
         </Pressable>
       </View>
-      <Text style={styles.forgetPassword} onPress={() => {}}>
+      <Text
+        style={styles.forgetPassword}
+        onPress={() => router.push(`/forgotPassword`)}
+      >
         Quên mật khẩu?
       </Text>
 
       <Pressable style={styles.LoginButton} onPress={handleLogin}>
         <Text style={styles.LoginButtonText}>Đăng nhập</Text>
       </Pressable>
-
-      <View style={styles.anotherLogin}>
-        <View style={styles.line}></View>
-        <Text style={styles.anotherText}>Hoặc đăng nhập với</Text>
-        <View style={styles.line}></View>
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: 16,
-    marginBottom: 5,
+    fontSize: 15,
+    marginBottom: 8,
+    color: "#1E293B",
+    fontWeight: "600",
+    marginLeft: 2,
   },
 
   inputWrapper: {
     position: "relative",
-    marginBottom: 15,
+    marginBottom: 18,
   },
 
   icon: {
     position: "absolute",
-    left: 12,
+    left: 14,
     top: "50%",
     width: 20,
     height: 20,
     transform: [{ translateY: -10 }],
-    tintColor: "#6B7280",
+    tintColor: "#64748B",
     zIndex: 1,
   },
 
   input: {
-    height: 44,
-    borderColor: "#6B7280",
+    height: 50,
     borderWidth: 1,
-    borderRadius: 10,
-    backgroundColor: "#E2E8F0",
-    fontSize: 16,
-    paddingLeft: 44,
-    paddingRight: 40,
-    color: "#000000",
+    borderColor: "#E2E8F0",
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    fontSize: 15,
+    color: "#0F172A",
+    paddingLeft: 48,
+    paddingRight: 48,
   },
+
   iconRight: {
     position: "absolute",
-    right: 12,
+    right: 14,
     top: "50%",
     transform: [{ translateY: -10 }],
     zIndex: 1,
@@ -157,45 +165,29 @@ const styles = StyleSheet.create({
   eye: {
     width: 20,
     height: 20,
-    tintColor: "#6B7280",
+    tintColor: "#64748B",
   },
 
   forgetPassword: {
-    color: "#028AE0",
+    color: "#2563EB",
     textAlign: "right",
-    marginBottom: 30,
+    marginBottom: 28,
+    fontWeight: "600",
+    fontSize: 14,
   },
 
   LoginButton: {
-    height: 44,
-    backgroundColor: "#028AE0",
-    borderRadius: 10,
+    height: 56,
+    backgroundColor: "#2563EB",
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    fontSize: 16,
-    fontWeight: "bold",
   },
+
   LoginButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
-  },
-
-  anotherLogin: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  line: {
-    height: 2,
-    backgroundColor: "#B2B9C1",
-    width: "30%",
-  },
-
-  anotherText: {
-    fontSize: 14,
-    color: "#B2B9C1",
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
 });

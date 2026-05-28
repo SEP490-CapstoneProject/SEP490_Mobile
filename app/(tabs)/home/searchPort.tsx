@@ -1,5 +1,7 @@
+import FollowModal from "@/components/FollowModal";
 import { useLoading } from "@/components/LoadingContext";
 import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
+import RatingModal from "@/components/RatingModal";
 import {
   fetchCompanyPostsByCompany,
   fetchMatchPortfolios,
@@ -431,6 +433,7 @@ export default function CandidateFilter() {
                   verticalRefs.current[index] = ref;
                 }}
                 showsVerticalScrollIndicator={false}
+                scrollEnabled={false}
                 contentContainerStyle={{ paddingBottom: 100 }}
               >
                 <PortfolioRenderer
@@ -480,6 +483,19 @@ export default function CandidateFilter() {
                       />
                     </Pressable>
                   )}
+                  <Pressable
+                    onPress={() =>
+                      router.push({
+                        pathname: `/(tabs)/profile/viewPortfolio`,
+                        params: {
+                          portId: portfolio.portfolioId,
+                        },
+                      })
+                    }
+                    style={styles.detailBtn}
+                  >
+                    <Ionicons name="eye-outline" size={24} color="#3B82F6" />
+                  </Pressable>
                   <Pressable
                     onPress={() =>
                       shareContent(
@@ -539,6 +555,7 @@ export default function CandidateFilter() {
                       setPortfolios(res.items || []);
 
                       setShowJobBox(false);
+                      setExpanded(!expanded);
                     } catch (err) {
                       console.log(err);
                     } finally {
@@ -583,6 +600,20 @@ export default function CandidateFilter() {
           </View>
         </View>
       )}
+
+      <RatingModal
+        visible={ratingVisible}
+        ratingData={ratingData}
+        setRatingData={setRatingData}
+        loading={ratingLoading}
+        onClose={() => setRatingVisible(false)}
+        onSubmit={handleSubmitRating}
+      />
+      <FollowModal
+        visible={followVisible}
+        onClose={() => setFollowVisible(false)}
+        onSubmit={handleFollow}
+      />
     </View>
   );
 }
@@ -943,5 +974,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#2563EB",
     fontWeight: "600",
+  },
+  detailBtn: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    padding: 10,
+    borderRadius: 999,
   },
 });

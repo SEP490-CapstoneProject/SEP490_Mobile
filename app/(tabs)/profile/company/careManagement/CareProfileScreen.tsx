@@ -259,6 +259,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 5,
     borderRadius: 10,
+    borderColor: "#E2E8F0",
   },
 
   dot: {

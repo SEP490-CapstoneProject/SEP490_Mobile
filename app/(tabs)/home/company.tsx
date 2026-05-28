@@ -13,6 +13,7 @@ import {
 import { shareContent } from "@/services/share";
 import { getAuth } from "@/services/storage";
 import { showError } from "@/utils/toast";
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -45,6 +46,7 @@ export default function Home() {
   const [selectedPortfolio, setSelectedPortfolio] = useState<number | null>(
     null,
   );
+  const lastTap = useRef(0);
 
   const [ratingData, setRatingData] = useState({
     id: null as number | null,
@@ -256,6 +258,7 @@ export default function Home() {
                     verticalRefs.current[index] = ref;
                   }}
                   showsVerticalScrollIndicator={false}
+                  scrollEnabled={false}
                   contentContainerStyle={{ paddingBottom: 100 }}
                 >
                   <PortfolioRenderer
@@ -305,6 +308,20 @@ export default function Home() {
                         />
                       </Pressable>
                     )}
+
+                    <Pressable
+                      onPress={() =>
+                        router.push({
+                          pathname: `/(tabs)/profile/viewPortfolio`,
+                          params: {
+                            portId: portfolio.portfolioId,
+                          },
+                        })
+                      }
+                      style={styles.detailBtn}
+                    >
+                      <Ionicons name="eye-outline" size={24} color="#3B82F6" />
+                    </Pressable>
                     <Pressable
                       onPress={() =>
                         shareContent(
@@ -415,5 +432,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 13,
+  },
+  detailBtn: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    padding: 10,
+    borderRadius: 999,
   },
 });

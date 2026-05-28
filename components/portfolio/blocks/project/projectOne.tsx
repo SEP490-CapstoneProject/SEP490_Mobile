@@ -79,7 +79,7 @@ export default function ProjectOne({ data }: { data: ProjectItem[] }) {
           </View>
         ))}
       </ScrollView>
-      {data.length > 1 && (
+      {/* {data.length > 1 && (
         <View style={styles.navContainer}>
           <Text style={styles.navButton} onPress={goLeft}>
             <Image
@@ -99,7 +99,7 @@ export default function ProjectOne({ data }: { data: ProjectItem[] }) {
             />
           </Text>
         </View>
-      )}
+      )} */}
     </View>
   );
 }
