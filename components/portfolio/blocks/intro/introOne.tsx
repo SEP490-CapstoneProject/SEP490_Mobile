@@ -57,78 +57,116 @@ export default function IntroOne({ data, rank }: { data: any; rank?: number }) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 10,
+    borderRadius: 28,
     paddingVertical: 10,
-    paddingHorizontal: 10,
+
     marginTop: 20,
   },
+
   avata: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 110,
+    height: 110,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: "#fff",
   },
+
   name: {
-    fontSize: 20,
-    fontWeight: "bold",
-    paddingVertical: 8,
+    fontSize: 24,
+    fontWeight: "800",
+    paddingTop: 14,
+    color: "#0F172A",
+    letterSpacing: 0.3,
   },
+
   title: {
-    color: "#3B82F6",
+    color: "#2563EB",
     fontSize: 15,
-    paddingBottom: 10,
-    fontWeight: "bold",
+    paddingTop: 6,
+    paddingBottom: 14,
+    fontWeight: "700",
   },
+
   description: {
     fontSize: 14.5,
-    lineHeight: 19,
+    lineHeight: 24,
     marginHorizontal: 10,
+    color: "#475569",
+    textAlign: "center",
   },
+
   flex: {
     flexDirection: "row",
-    gap: 5,
     alignItems: "center",
+    gap: 8,
+
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 16,
+
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
+
   icon: {
-    width: 15,
-    height: 15,
+    width: 16,
+    height: 16,
+    tintColor: "#2563EB",
   },
+
   avatarWrapper: {
     position: "relative",
-    marginBottom: 10,
+    marginBottom: 12,
   },
 
   avatarBorder: {
-    padding: 4,
-    borderRadius: 60,
-    backgroundColor: "#FF5F00",
-    shadowColor: "#FF5F00",
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
+    padding: 5,
+    borderRadius: 999,
+
+    shadowColor: "#FF8A00",
+    shadowOpacity: 0.45,
+    shadowRadius: 18,
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+
     elevation: 10,
   },
 
   rankCircle: {
     position: "absolute",
-    right: -5,
-    bottom: -5,
+    right: -8,
+    bottom: -2,
 
-    backgroundColor: "#FF2D2D",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
+    minWidth: 36,
+    height: 36,
 
-    borderWidth: 2,
+    backgroundColor: "#FF3B30",
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    borderRadius: 999,
+
+    borderWidth: 3,
     borderColor: "#fff",
 
     shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 6,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    elevation: 8,
   },
 
   rankCircleText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 12,
+    fontWeight: "800",
+    fontSize: 13,
   },
 });

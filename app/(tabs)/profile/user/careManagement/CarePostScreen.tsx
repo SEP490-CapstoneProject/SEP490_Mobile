@@ -1,6 +1,8 @@
 import CustomLoading from "@/components/CustomLoading";
 import { fetchSavedJobs } from "@/services/careManagement.api";
+import { unSaveJob } from "@/services/companyPost.api";
 import { shareContent } from "@/services/share";
+import { showError } from "@/utils/toast";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -120,7 +122,22 @@ export default function CarePostScreen() {
                     marginRight: 9,
                   }}
                 >
-                  <Pressable>
+                  <Pressable
+                    onPress={async () => {
+                      try {
+                        await unSaveJob(job.postId);
+
+                        setJobs((prev) =>
+                          prev.filter((item) => item.postId !== job.postId),
+                        );
+                      } catch (err) {
+                        showError(
+                          "Lỗi",
+                          "Không thể bỏ lưu công việc này. Vui lòng thử lại.",
+                        );
+                      }
+                    }}
+                  >
                     <Image
                       source={require("../../../../../assets/myApp/bookmark.png")}
                       style={[
