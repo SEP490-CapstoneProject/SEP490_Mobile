@@ -238,7 +238,7 @@ export default function Community() {
               {/** body content */}
               <View>
                 <Text style={styles.textContent}>{post.description}</Text>
-                {post.portfolioId && (
+                {/* {post.portfolioId && (
                   <Pressable style={styles.linkContainer}>
                     <Image
                       source={require("../../../assets/myApp/link.png")}
@@ -246,7 +246,7 @@ export default function Community() {
                     />
                     <Text style={styles.textLinkBody}>Xem chi tiết</Text>
                   </Pressable>
-                )}
+                )} */}
                 {post.media && post.media.length > 0 && (
                   <MediaGrid media={post.media} />
                 )}

@@ -1,20 +1,20 @@
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import {
-    AlertCircle,
-    ArrowLeft,
-    CheckCircle2,
-    Clock,
-    FileText,
-    Loader2,
-    Star,
-    XCircle,
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Loader2,
+  Star,
+  XCircle,
 } from "lucide-react-native";
 
 import { useCallback, useEffect, useState } from "react";
@@ -147,7 +147,7 @@ export default function SubmissionDetail() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <ArrowLeft size={20} color="#2563EB" />
+          <ArrowLeft size={24} color="#000" />
 
           <Text style={styles.backButtonText}>Quay lại</Text>
         </TouchableOpacity>
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
 
   backButtonText: {
-    color: "#2563EB",
+    color: "#000",
     fontWeight: "600",
   },
 

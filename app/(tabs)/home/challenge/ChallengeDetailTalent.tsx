@@ -1,31 +1,31 @@
 import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import {
-    AlertCircle,
-    ArrowLeft,
-    Award,
-    Clock,
-    Code2,
-    ExternalLink,
-    Link as LinkIcon,
-    Send,
+  AlertCircle,
+  ArrowLeft,
+  Award,
+  Clock,
+  Code2,
+  ExternalLink,
+  Link as LinkIcon,
+  Send,
 } from "lucide-react-native";
 
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 
 import {
-    createSubmission,
-    fetchPublicChallengeDetail,
-    getMyChallengeSubmissions,
+  createSubmission,
+  fetchPublicChallengeDetail,
+  getMyChallengeSubmissions,
 } from "@/services/challenge.api";
 
 import CustomLoading from "@/components/CustomLoading";
@@ -191,7 +191,7 @@ export default function ChallengeDetailTalent() {
       }}
     >
       <Pressable onPress={() => router.back()} style={styles.backButton}>
-        <ArrowLeft size={20} color="#2563EB" />
+        <ArrowLeft size={24} color="#000" />
 
         <Text style={styles.backText}>Quay lại</Text>
       </Pressable>
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   },
 
   backText: {
-    color: "#2563EB",
+    color: "#000",
     fontWeight: "600",
     fontSize: 15,
   },

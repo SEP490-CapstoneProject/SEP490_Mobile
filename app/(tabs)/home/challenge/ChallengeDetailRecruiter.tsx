@@ -12,7 +12,6 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
-  Eye,
   Send,
 } from "lucide-react-native";
 
@@ -27,7 +26,7 @@ import {
   submitChallengeForReview,
 } from "@/services/challenge.api";
 import { formatToLocalTime } from "@/services/time";
-import { Challenge, ChallengeSubmissionDetail } from "@/utils/challenge";
+import { Challenge } from "@/utils/challenge";
 import { showError, showSuccess } from "@/utils/toast";
 
 export default function ChallengeDetailRecruiter() {
@@ -39,9 +38,7 @@ export default function ChallengeDetailRecruiter() {
 
   const [challenge, setChallenge] = useState<Challenge | null>(null);
 
-  const [submissions, setSubmissions] = useState<ChallengeSubmissionDetail[]>(
-    [],
-  );
+  const [submissions, setSubmissions] = useState<any[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -204,7 +201,7 @@ export default function ChallengeDetailRecruiter() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <ArrowLeft size={20} color="#2563EB" />
+          <ArrowLeft size={24} color="#000" />
           <Text style={styles.backButtonText}>Quay lại</Text>
         </TouchableOpacity>
 
@@ -387,21 +384,28 @@ export default function ChallengeDetailRecruiter() {
                     </Text>
                   </View>
 
-                  <TouchableOpacity
-                    style={styles.detailButton}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/(tabs)/home/challenge/SubmissionDetails",
-                        params: {
-                          submissionId: submission.id,
-                        },
-                      })
-                    }
-                  >
-                    <Eye size={16} color="#2563EB" />
+                  <View style={styles.submissionContent}>
+                    <Text style={styles.label}>Mô tả bài làm</Text>
+                    <Text style={styles.value}>
+                      {submission.submissionContent || "Không có mô tả"}
+                    </Text>
 
-                    <Text style={styles.detailButtonText}>Xem chi tiết</Text>
-                  </TouchableOpacity>
+                    {!!submission.githubLink && (
+                      <>
+                        <Text style={styles.label}>Github</Text>
+                        <Text style={styles.link}>{submission.githubLink}</Text>
+                      </>
+                    )}
+
+                    {!!submission.feedback && (
+                      <View style={styles.feedbackBox}>
+                        <Text style={styles.label}>Nhận xét</Text>
+                        <Text style={styles.feedbackText}>
+                          {submission.feedback}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
               ))}
             </View>
@@ -630,5 +634,60 @@ const styles = StyleSheet.create({
   detailButtonText: {
     color: "#2563EB",
     fontWeight: "600",
+  },
+  submissionContent: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#E2E8F0",
+  },
+
+  label: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginTop: 8,
+    marginBottom: 4,
+  },
+
+  value: {
+    fontSize: 14,
+    color: "#475569",
+    lineHeight: 22,
+  },
+
+  link: {
+    fontSize: 14,
+    color: "#2563EB",
+    textDecorationLine: "underline",
+  },
+
+  feedbackBox: {
+    marginTop: 10,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 10,
+    padding: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#2563EB",
+  },
+
+  feedbackText: {
+    color: "#334155",
+    lineHeight: 20,
+  },
+
+  statusBadge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "#FEF3C7",
+    marginTop: 8,
+  },
+
+  statusText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#B45309",
   },
 });

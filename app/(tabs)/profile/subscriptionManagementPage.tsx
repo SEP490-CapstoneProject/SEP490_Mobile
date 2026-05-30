@@ -8,14 +8,14 @@ import { useEffect, useState } from "react";
 
 import { useRouter } from "expo-router";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -102,81 +102,82 @@ export default function SubscriptionScreen() {
         {loadingHistory ? (
           <ActivityIndicator size="large" color="#2563EB" />
         ) : (
-          <FlatList
-            data={transactions}
-            scrollEnabled={false}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => {
-              const status = renderStatus(item.status);
+          <View>
+            <FlatList
+              data={transactions}
+              scrollEnabled={false}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => {
+                const status = renderStatus(item.status);
 
-              return (
-                <View style={styles.historyCard}>
-                  <View style={styles.historyTop}>
-                    <View>
-                      <Text style={styles.orderCode}>#{item.orderCode}</Text>
+                return (
+                  <View style={styles.historyCard}>
+                    <View style={styles.historyTop}>
+                      <View>
+                        <Text style={styles.orderCode}>#{item.orderCode}</Text>
 
-                      <Text style={styles.historyDate}>
-                        {new Date(item.createdAt).toLocaleString("vi-VN")}
-                      </Text>
-                    </View>
+                        <Text style={styles.historyDate}>
+                          {new Date(item.createdAt).toLocaleString("vi-VN")}
+                        </Text>
+                      </View>
 
-                    <View
-                      style={[
-                        styles.statusBox,
-                        {
-                          backgroundColor: status.bg,
-                        },
-                      ]}
-                    >
-                      <Text
+                      <View
                         style={[
-                          styles.statusText,
+                          styles.statusBox,
                           {
-                            color: status.color,
+                            backgroundColor: status.bg,
                           },
                         ]}
                       >
-                        {status.text}
-                      </Text>
+                        <Text
+                          style={[
+                            styles.statusText,
+                            {
+                              color: status.color,
+                            },
+                          ]}
+                        >
+                          {status.text}
+                        </Text>
+                      </View>
                     </View>
+
+                    <Text style={styles.amount}>
+                      {(item.amount * 1000).toLocaleString("vi-VN")}{" "}
+                      {item.currency}
+                    </Text>
                   </View>
+                );
+              }}
+            />
+            {transactions.length === 0 && !loadingHistory ? (
+              <View style={styles.emptyBox}>
+                <Text style={styles.emptyTitle}>Chưa có giao dịch nào</Text>
+                <Text style={styles.emptyDesc}>
+                  Bạn chưa thực hiện giao dịch nào. Hãy mua gói dịch vụ để có
+                  thể sử dụng các tính năng của ứng dụng.
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.pagination}>
+                <Pressable
+                  style={styles.pageBtn}
+                  disabled={page === 1}
+                  onPress={() => setPage((p) => p - 1)}
+                >
+                  <Ionicons name="chevron-back" size={18} color="#111827" />
+                </Pressable>
 
-                  <Text style={styles.amount}>
-                    {(item.amount * 1000).toLocaleString("vi-VN")}{" "}
-                    {item.currency}
-                  </Text>
-                </View>
-              );
-            }}
-          />
-        )}
+                <Text style={styles.pageText}>Trang {page}</Text>
 
-        {transactions.length === 0 && !loadingHistory ? (
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyTitle}>Chưa có giao dịch nào</Text>
-            <Text style={styles.emptyDesc}>
-              Bạn chưa thực hiện giao dịch nào. Hãy mua gói dịch vụ để có thể sử
-              dụng các tính năng của ứng dụng.
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.pagination}>
-            <Pressable
-              style={styles.pageBtn}
-              disabled={page === 1}
-              onPress={() => setPage((p) => p - 1)}
-            >
-              <Ionicons name="chevron-back" size={18} color="#111827" />
-            </Pressable>
-
-            <Text style={styles.pageText}>Trang {page}</Text>
-
-            <Pressable
-              style={styles.pageBtn}
-              onPress={() => setPage((p) => p + 1)}
-            >
-              <Ionicons name="chevron-forward" size={18} color="#111827" />
-            </Pressable>
+                <Pressable
+                  style={styles.pageBtn}
+                  onPress={() => setPage((p) => p + 1)}
+                >
+                  <Ionicons name="chevron-forward" size={18} color="#111827" />
+                </Pressable>
+              </View>
+            )}
           </View>
         )}
       </ScrollView>

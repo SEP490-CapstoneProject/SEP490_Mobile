@@ -149,6 +149,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#888",
     marginBottom: 10,
+    fontWeight: "500",
   },
 
   price: {

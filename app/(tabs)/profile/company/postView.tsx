@@ -104,15 +104,23 @@ export default function Detail() {
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
           <Image
-            source={{
-              uri: jobDetail?.media?.[0]?.url || jobDetail?.coverImageUrl || "",
-            }}
+            source={
+              jobDetail?.media?.[0]?.url?.trim()
+                ? { uri: jobDetail.media[0].url }
+                : jobDetail?.coverImageUrl?.trim()
+                  ? { uri: jobDetail.coverImageUrl }
+                  : require("../../../../assets/myApp/Logo.png")
+            }
             style={{ width: "100%", height: 250 }}
           />
           {/* Header Content */}
           <View style={styles.headerContent}>
             <Image
-              source={{ uri: jobDetail?.companyAvatar }}
+              source={
+                jobDetail?.companyAvatar?.trim()
+                  ? { uri: jobDetail.companyAvatar }
+                  : require("../../../../assets/myApp/Logo.png")
+              }
               style={styles.avata}
             />
             <View style={styles.positionContainer}>

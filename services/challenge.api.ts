@@ -1,12 +1,12 @@
 import {
-    Challenge,
-    ChallengeSubmission,
-    CreateChallengePayload,
-    CreateSubmissionPayload,
-    CreatorChallengesResponse,
-    MyChallengeSubmissionsResponse,
-    SubmissionDetailResponse,
-    SubmissionsResponse,
+  Challenge,
+  ChallengeSubmission,
+  CreateChallengePayload,
+  CreateSubmissionPayload,
+  CreatorChallengesResponse,
+  MyChallengeSubmissionsResponse,
+  SubmissionDetailResponse,
+  SubmissionsResponse,
 } from "../utils/challenge";
 
 import { isTokenExpired, refreshToken } from "./auth.api";
@@ -362,6 +362,38 @@ export const getChallengeDetail = async (id: string) => {
 
     if (!res.ok) {
       throw new Error(data?.message || "Lấy chi tiết thử thách thất bại");
+    }
+
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const fetchMyChallengeSubmissions = async (skip = 0, take = 20) => {
+  try {
+    let token = await getToken();
+
+    if (token && isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    const res = await fetch(
+      `${BASE_URL}/api/submissions/me/challenges?skip=${skip}&take=${take}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Lấy danh sách bài nộp thất bại");
     }
 
     return data;

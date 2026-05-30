@@ -128,7 +128,7 @@ export default function PostManager() {
                   {post.mediaType === "image" ? (
                     <Image
                       source={
-                        post?.mediaUrl
+                        post?.mediaUrl?.trim()
                           ? { uri: post.mediaUrl }
                           : require("../../../../assets/myApp/Logo.png")
                       }
