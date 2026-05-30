@@ -3,6 +3,7 @@ import { useLoading } from "@/components/LoadingContext";
 import PlanCard from "@/components/PlanCard";
 import { getAuth } from "@/services/storage";
 import {
+  fetchEntitlements,
   fetchMySubscription,
   fetchPlansByRole,
 } from "@/services/subscription.api";
@@ -15,6 +16,7 @@ export default function SubscriptionScreen() {
   const [loading, setLoading] = useState(true);
   const { showLoading, hideLoading } = useLoading();
   const router = useRouter();
+  const [currentPlan, setCurrentPlan] = useState<any>(null);
 
   const [myPlan, setMyPlan] = useState<any>(null);
 
@@ -23,14 +25,26 @@ export default function SubscriptionScreen() {
   }, []);
 
   const load = async () => {
-    setLoading(true);
-    const auth = await getAuth();
-    const plans = await fetchPlansByRole(auth?.role);
-    const current = await fetchMySubscription();
+    try {
+      setLoading(true);
 
-    setPlans(plans);
-    setMyPlan(current);
-    setLoading(false);
+      const auth = await getAuth();
+
+      const [plansData, mySub, entitlement] = await Promise.all([
+        fetchPlansByRole(auth?.role),
+        fetchMySubscription(),
+        fetchEntitlements(Number(auth?.id)),
+      ]);
+
+      setPlans(plansData);
+      setMyPlan(mySub);
+      setCurrentPlan(entitlement);
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,15 +65,30 @@ export default function SubscriptionScreen() {
       {loading ? (
         <CustomLoading />
       ) : (
-        <FlatList
-          data={plans}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <PlanCard plan={item} isCurrent={myPlan?.planId === item.id} />
+        <View>
+          {currentPlan && (
+            <View style={styles.currentPlanBox}>
+              <Text style={styles.currentTitle}>Gói đang sử dụng</Text>
+
+              <Text style={styles.planName}>{currentPlan.planName}</Text>
+
+              <Text style={styles.planDesc}>
+                Hết hạn:{" "}
+                {new Date(currentPlan.expiredAt).toLocaleDateString("vi-VN")}
+              </Text>
+            </View>
           )}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-        />
+          <FlatList
+            data={plans}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <PlanCard plan={item} isCurrent={myPlan?.planId === item.id} />
+            )}
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+            style={{ marginBottom: 210 }}
+          />
+        </View>
       )}
     </View>
   );
@@ -87,5 +116,40 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     flexDirection: "row",
     paddingVertical: 5,
+  },
+  currentPlanBox: {
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 15,
+    padding: 18,
+    borderRadius: 20,
+    backgroundColor: "#4F46E5",
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+
+  currentTitle: {
+    color: "#E0E7FF",
+    fontSize: 13,
+  },
+
+  planName: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+
+  planDesc: {
+    color: "#EEF2FF",
+    marginTop: 8,
+    lineHeight: 20,
   },
 });

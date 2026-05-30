@@ -5,6 +5,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import CustomLoading from "@/components/CustomLoading";
 import { fetchPublicChallenges } from "@/services/challenge.api";
+import { Ionicons } from "@expo/vector-icons";
 import { Challenge } from "../../../../utils/challenge";
 
 function ChallengeCard({
@@ -171,11 +172,22 @@ export default function ChallengeTalentScreen() {
       <View style={styles.wrapper}>
         {/* Header */}
         <View style={styles.headerContainer}>
-          <Text style={styles.screenTitle}>Thử thách đang diễn ra</Text>
+          <View>
+            <Text style={styles.screenTitle}>Thử thách đang diễn ra</Text>
 
-          <Text style={styles.screenSubtitle}>
-            Khám phá và tham gia các thử thách thú vị
-          </Text>
+            <Text style={styles.screenSubtitle}>
+              Khám phá và tham gia các thử thách thú vị
+            </Text>
+          </View>
+          <Pressable
+            style={[styles.tabBtn]}
+            onPress={() => {
+              router.push("/(tabs)/home/challenge/MyChallenges");
+            }}
+          >
+            <Text style={styles.tabText}>Xem thử thách đã hoàn thành</Text>
+            <Ionicons name="arrow-forward-circle" size={20} color="#2563EB" />
+          </Pressable>
         </View>
 
         {/* Error */}
@@ -248,7 +260,7 @@ const styles = StyleSheet.create({
   },
 
   screenTitle: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: "700",
     color: "#0F172A",
   },
@@ -386,5 +398,30 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 15,
+  },
+
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "#EEF2FF",
+    borderRadius: 12,
+    padding: 4,
+    marginTop: 12,
+  },
+
+  tabBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    gap: 6,
+  },
+
+  tabText: {
+    color: "#3B82F6",
+    fontWeight: "600",
+  },
+
+  activeTabText: {
+    color: "#FFF",
+    fontWeight: "700",
   },
 });

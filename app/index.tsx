@@ -2,7 +2,7 @@ import { isTokenExpired, refreshToken } from "@/services/auth.api";
 import { chatRealtimeService } from "@/services/chatRealtimeService";
 import {
   fetchLoadCommunityNotifications,
-  fetchLoadSystemNotifications
+  fetchLoadSystemNotifications,
 } from "@/services/notification.api";
 import { setupNotifications } from "@/services/notification/notification.config";
 
@@ -12,6 +12,7 @@ import {
 } from "@/services/profile.api";
 import { realtimeService } from "@/services/realtimeService";
 import { getAuth, getToken } from "@/services/storage";
+import { fetchMySubscription } from "@/services/subscription.api";
 import { useNotificationStore } from "@/utils/notificationStore";
 import { Notification } from "@/utils/toast";
 import { router } from "expo-router";
@@ -143,8 +144,7 @@ export default function Index() {
         );
         return;
       }
-
-      // await fetchMySubscription();
+      await fetchMySubscription();
 
       router.replace("/(tabs)/home");
     };
