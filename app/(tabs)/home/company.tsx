@@ -2,6 +2,8 @@ import CustomLoading from "@/components/CustomLoading";
 import FollowModal from "@/components/FollowModal";
 import PortfolioRenderer from "@/components/portfolio/render/PortfolioRenderer";
 import RatingModal from "@/components/RatingModal";
+import SkillHistoryModal from "@/components/SkillHistoryModal";
+import { fetchSkillHistory } from "@/services/challenge.api";
 
 import {
   createCompliment,
@@ -47,6 +49,8 @@ export default function Home() {
     null,
   );
   const lastTap = useRef(0);
+  const [skillVisible, setSkillVisible] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const [ratingData, setRatingData] = useState({
     id: null as number | null,
@@ -203,6 +207,19 @@ export default function Home() {
     }
   };
 
+  const [skills, setSkills] = useState([]);
+
+  const handleOpenSkill = async (userId: number) => {
+    try {
+      const data = await fetchSkillHistory(userId);
+
+      setSkills(data);
+      setSkillVisible(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -308,6 +325,18 @@ export default function Home() {
                         />
                       </Pressable>
                     )}
+                    <Pressable
+                      onPress={() => {
+                        handleOpenSkill(portfolio.employeeId);
+                      }}
+                      style={styles.skillBtn}
+                    >
+                      <Ionicons
+                        name="stats-chart-outline"
+                        size={24}
+                        color="#3B82F6"
+                      />
+                    </Pressable>
 
                     <Pressable
                       onPress={() =>
@@ -320,7 +349,7 @@ export default function Home() {
                       }
                       style={styles.detailBtn}
                     >
-                      <Ionicons name="eye-outline" size={24} color="#3B82F6" />
+                      <Ionicons name="eye-outline" size={25} color="#3B82F6" />
                     </Pressable>
                     <Pressable
                       onPress={() =>
@@ -353,6 +382,11 @@ export default function Home() {
         visible={followVisible}
         onClose={() => setFollowVisible(false)}
         onSubmit={handleFollow}
+      />
+      <SkillHistoryModal
+        visible={skillVisible}
+        onClose={() => setSkillVisible(false)}
+        skills={skills}
       />
     </View>
   );
@@ -434,7 +468,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   detailBtn: {
-    backgroundColor: "rgba(255,255,255,0.15)",
+    padding: 10,
+    borderRadius: 999,
+  },
+  skillBtn: {
     padding: 10,
     borderRadius: 999,
   },
