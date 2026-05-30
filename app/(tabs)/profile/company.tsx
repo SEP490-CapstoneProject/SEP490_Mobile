@@ -193,7 +193,7 @@ export default function CompanyProfile() {
               }
             />
           </View>
-          <Pressable
+          {/* <Pressable
             style={styles.premiumBnt}
             onPress={() => router.push("/profile/plans")}
           >
@@ -210,7 +210,7 @@ export default function CompanyProfile() {
                 Nâng cấp để mở khóa thêm các tính năng
               </Text>
             </View>
-          </Pressable>
+          </Pressable> */}
         </View>
       </ScrollView>
     </ProfilePage>
